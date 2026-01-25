@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+Arabic:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#306ee8",
+              "background-light": "#f6f6f8",
+              "background-dark": "#111621",
+            },
+            fontFamily: {
+              "display": ["Inter", "Noto Sans Arabic", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background-color: rgba(26, 34, 50, 0.7);
+        }
+        .spiritual-bg {
+            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-white overflow-hidden h-screen flex justify-center items-center">
+<!-- Mobile Screen Container -->
+<div class="relative w-[390px] h-[844px] spiritual-bg rounded-[3rem] shadow-2xl overflow-hidden border-[8px] border-zinc-800">
+<!-- Wallpaper Overlay / Gradient -->
+<div class="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent" data-alt="Soft abstract spiritual blue glowing gradient pattern"></div>
+<!-- Top Status Bar Mockup -->
+<div class="relative flex items-center justify-between px-8 pt-4 pb-2 z-10">
+<div class="text-sm font-bold tracking-tight">١٢:٠٠</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-[20px]">battery_full</span>
+</div>
+</div>
+<!-- Clock & Date Header -->
+<div class="mt-12 flex flex-col items-center z-10 relative">
+<h1 class="text-white text-[84px] font-bold tracking-tight leading-none">١٢:٠٠</h1>
+<p class="text-white/80 text-xl font-medium mt-2">الجمعة، ٢٧ رجب</p>
+</div>
+<!-- Live Activity Widget -->
+<div class="absolute bottom-24 left-4 right-4 z-20">
+<!-- Widget Container -->
+<div class="ios-blur rounded-xl p-5 shadow-2xl border border-white/10">
+<!-- Top Row: Icon and App Name -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="bg-primary size-6 rounded-md flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]">mosque</span>
+</div>
+<span class="text-white/60 text-xs font-bold tracking-wide">أذكاري</span>
+</div>
+<span class="text-white/40 text-[10px] uppercase font-bold tracking-widest">مباشر</span>
+</div>
+<!-- Main Content Row (RTL) -->
+<div class="flex items-center justify-between gap-6 mb-6">
+<!-- Text Content (Right in RTL) -->
+<div class="flex-1 text-right">
+<h2 class="text-white text-xl font-bold mb-1 leading-relaxed">سبحان الله وبحمده</h2>
+<p class="text-primary text-sm font-medium">عدد التسبيحات المتبقية</p>
+</div>
+<!-- Circular Counter (Left in RTL) -->
+<div class="relative size-20 flex items-center justify-center shrink-0">
+<!-- Background Circle -->
+<svg class="size-full -rotate-90">
+<circle class="text-white/10" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-width="5"></circle>
+<!-- Progress Circle -->
+<circle class="text-primary drop-shadow-[0_0_8px_rgba(48,110,232,0.6)]" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-dasharray="213.6" stroke-dashoffset="150" stroke-linecap="round" stroke-width="5"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-white text-lg font-bold">٧</span>
+<span class="text-white/40 text-[10px] font-medium -mt-1">٣٣</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons Row -->
+<div class="flex items-center gap-3">
+<button class="flex-1 bg-white/10 hover:bg-white/20 h-10 rounded-full flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px] text-white">refresh</span>
+<span class="text-white text-sm font-medium">إعادة ضبط</span>
+</button>
+<button class="flex-1 bg-white/10 hover:bg-white/20 h-10 rounded-full flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px] text-white">close</span>
+<span class="text-white text-sm font-medium">إنهاء</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Lock Screen Bottom Shortcuts -->
+<div class="absolute bottom-10 left-8 right-8 flex justify-between items-center z-10">
+<div class="size-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-white">flashlight_on</span>
+</div>
+<div class="size-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-white">photo_camera</span>
+</div>
+</div>
+<!-- Home Indicator -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/40 rounded-full z-10"></div>
+</div>
+</body></html>

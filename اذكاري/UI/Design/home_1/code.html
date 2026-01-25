@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Athkar Home</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Noto+Sans+Arabic:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#306ee8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "surface-dark": "#1c2333",
+                        "beige-card": "#E6DCCA", // Soft beige tone
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans Arabic", "sans-serif"],
+                        "body": ["Inter", "Noto Sans Arabic", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for hidden scroll feel */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<!-- Top Navigation -->
+<div class="sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-white/5 transition-all duration-300">
+<div class="flex items-center justify-between px-4 py-3 h-16">
+<!-- Notification Icon (Left in RTL) -->
+<button class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200/50 dark:bg-white/10 text-slate-600 dark:text-white transition hover:bg-gray-300 dark:hover:bg-white/20">
+<span class="material-symbols-outlined" style="font-size: 24px;">notifications</span>
+</button>
+<!-- Date (Center-ish/Right context) -->
+<div class="flex flex-col items-end">
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">15 رمضان 1445</span>
+</div>
+</div>
+<!-- Large Title -->
+<div class="px-4 pb-4">
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">أذكاري</h1>
+</div>
+</div>
+<!-- Scrollable Content -->
+<main class="flex flex-col gap-6 px-4 pt-4">
+<!-- Hero Card: Current Athkar -->
+<div class="relative w-full overflow-hidden rounded-3xl bg-beige-card shadow-lg">
+<!-- Decorative background elements -->
+<div class="absolute -left-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
+<div class="absolute right-0 bottom-0 w-32 h-32 bg-orange-200/20 rounded-full blur-xl"></div>
+<div class="relative z-10 flex flex-col p-6 text-[#2C261F]">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-sm font-semibold opacity-70 mb-1 tracking-wide uppercase">الذكر الحالي</p>
+<h2 class="text-2xl font-extrabold leading-tight">أذكار بعد العصر</h2>
+</div>
+<div class="w-12 h-12 rounded-full bg-[#D1C6B4] flex items-center justify-center text-[#2C261F]">
+<span class="material-symbols-outlined">wb_twilight</span>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-2">
+<div class="w-full bg-[#D1C6B4]/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-[#2C261F] h-full w-[0%]"></div>
+</div>
+<p class="text-xs font-medium opacity-60 text-left dir-ltr">لم يبدأ بعد</p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-row gap-3">
+<button class="flex-1 h-14 bg-primary hover:bg-blue-600 active:scale-95 transition-all rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 group">
+<span class="text-white text-lg font-bold">✅ صليت الآن</span>
+</button>
+<button class="flex-1 h-14 bg-surface-dark border border-white/10 hover:bg-white/5 active:scale-95 transition-all rounded-2xl flex items-center justify-center gap-2">
+<span class="text-white text-base font-bold">ابدأ الذكر</span>
+<span class="material-symbols-outlined text-white text-sm">arrow_back</span>
+</button>
+</div>
+<!-- Daily Summary Grid -->
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">ملخص اليوم</h3>
+<div class="grid grid-cols-2 gap-3">
+<!-- Stat Card 1 -->
+<div class="bg-white dark:bg-surface-dark p-4 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 shadow-sm">
+<div class="flex justify-between items-start">
+<div class="p-2 rounded-lg bg-green-500/10 text-green-500">
+<span class="material-symbols-outlined">prayer_times</span>
+</div>
+<span class="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">3/5</span>
+</div>
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">الصلوات المكتملة</p>
+<p class="text-slate-900 dark:text-white text-lg font-bold mt-0.5">جيد جداً</p>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-white dark:bg-surface-dark p-4 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 shadow-sm">
+<div class="flex justify-between items-start">
+<div class="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+<span class="material-symbols-outlined">auto_stories</span>
+</div>
+<span class="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">15 د</span>
+</div>
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">وقت القراءة</p>
+<p class="text-slate-900 dark:text-white text-lg font-bold mt-0.5">سورة الكهف</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Routine List -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">روتين اليوم</h3>
+<button class="text-primary text-sm font-medium">عرض الكل</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Routine Item: Completed -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm active:scale-[0.99] transition-transform cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">
+<span class="material-symbols-outlined filled">check</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-base font-bold text-slate-900 dark:text-white line-through decoration-slate-500 decoration-2 opacity-60">صلاة الفجر</h4>
+<span class="text-xs text-slate-500 dark:text-slate-400">05:12 ص</span>
+</div>
+</div>
+<div class="px-2 py-1 rounded-md bg-green-500/10">
+<span class="text-xs font-bold text-green-500">مكتمل</span>
+</div>
+</div>
+<!-- Routine Item: Completed -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm active:scale-[0.99] transition-transform cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">
+<span class="material-symbols-outlined filled">check</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-base font-bold text-slate-900 dark:text-white line-through decoration-slate-500 decoration-2 opacity-60">أذكار الصباح</h4>
+<span class="text-xs text-slate-500 dark:text-slate-400">بعد الفجر</span>
+</div>
+</div>
+<div class="px-2 py-1 rounded-md bg-green-500/10">
+<span class="text-xs font-bold text-green-500">مكتمل</span>
+</div>
+</div>
+<!-- Routine Item: Current/Pending -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-2xl border border-primary/40 dark:border-primary/30 shadow-sm relative overflow-hidden active:scale-[0.99] transition-transform cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-base font-bold text-slate-900 dark:text-white">صلاة العصر</h4>
+<span class="text-xs text-primary font-medium">الآن</span>
+</div>
+</div>
+<div class="px-3 py-1.5 rounded-full bg-primary text-white shadow-md shadow-blue-500/20">
+<span class="text-xs font-bold">صليت؟</span>
+</div>
+</div>
+<!-- Routine Item: Upcoming -->
+<div class="group flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm opacity-80 active:scale-[0.99] transition-transform cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 flex items-center justify-center">
+<span class="material-symbols-outlined">nights_stay</span>
+</div>
+<div class="flex flex-col">
+<h4 class="text-base font-bold text-slate-900 dark:text-white">أذكار المساء</h4>
+<span class="text-xs text-slate-500 dark:text-slate-400">06:45 م</span>
+</div>
+</div>
+<div class="px-2 py-1 rounded-md bg-slate-200 dark:bg-white/5">
+<span class="text-xs font-bold text-slate-500">لم يبدأ</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer for bottom tab -->
+<div class="h-8"></div>
+</main>
+<!-- Bottom Tab Bar -->
+<div class="fixed bottom-0 w-full bg-white/90 dark:bg-[#111621]/90 backdrop-blur-lg border-t border-gray-200 dark:border-white/5 pb-6 pt-3 px-6 z-50">
+<div class="flex justify-between items-center">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center gap-1 text-primary group">
+<div class="relative">
+<span class="material-symbols-outlined text-[28px] font-variation-settings-'FILL'-1">home</span>
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
+</div>
+<span class="text-[10px] font-bold">الرئيسية</span>
+</button>
+<!-- Quran -->
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+<span class="material-symbols-outlined text-[28px]">menu_book</span>
+<span class="text-[10px] font-medium">القرآن</span>
+</button>
+<!-- Qibla -->
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+<span class="material-symbols-outlined text-[28px]">explore</span>
+<span class="text-[10px] font-medium">القبلة</span>
+</button>
+<!-- Settings -->
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+<span class="text-[10px] font-medium">الإعدادات</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

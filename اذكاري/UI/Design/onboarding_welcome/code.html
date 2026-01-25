@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding - Athkari</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Sans+Arabic:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#306ee8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans Arabic", "sans-serif"],
+                        "sans": ["Inter", "Noto Sans Arabic", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Background decoration - Subtle gradient glow -->
+<div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto px-6 relative z-10">
+<!-- Visual / Geometric Pattern -->
+<div class="relative mb-12 group animate-fade-in">
+<!-- Outer ring decoration -->
+<div class="absolute inset-0 border border-primary/20 rounded-full scale-110"></div>
+<!-- Main Image Container -->
+<div class="w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden relative bg-gradient-to-br from-primary/10 to-primary/5 border border-white/5 shadow-2xl flex items-center justify-center">
+<!-- Fallback Pattern using CSS if image fails or as overlay -->
+<div class="absolute inset-0 opacity-40 mix-blend-overlay" style="background-image: radial-gradient(#306ee8 1px, transparent 1px); background-size: 20px 20px;">
+</div>
+<!-- Main Hero Image -->
+<div class="w-full h-full bg-center bg-cover opacity-80 hover:scale-105 transition-transform duration-700 ease-out" data-alt="Abstract islamic geometric pattern art in dark tones" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB8szpme67dAZhxa5QB4vK_pMeWHBxaL3O-pFteNWqL-AfeJIp6KtoFJyRvqktJ1h7koNG0IY88r6s-Aw8WeYVY2z-Z2Us0rN6N7f2j6h0IeWVf028fmE-40ik-Npvt2_zm4gNpKOvKRirpzLSYnttY2hoSLVXi9zN8p23_7DgoiDVlKVI-PK8l_5NeXiH5dYpIodKwFlZVqC01UJASSccsEiUgLbtJtrutoRNuW0EqRX3QB4qPSNdtryBAk5NU1HjWLSnkaDP48jP6");'>
+</div>
+</div>
+<!-- Floating Icon Badge -->
+<div class="absolute -bottom-4 right-1/2 translate-x-1/2 bg-background-dark border border-white/10 p-3 rounded-full shadow-lg">
+<span class="material-symbols-outlined text-primary text-3xl">mosque</span>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-4 max-w-xs sm:max-w-sm mx-auto">
+<h1 class="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                    اذكاري
+                </h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg sm:text-xl font-medium leading-relaxed">
+                    رفيقك اليومي للذكر
+                </p>
+</div>
+</div>
+<!-- Bottom Action Area -->
+<div class="w-full max-w-md mx-auto px-6 pb-8 pt-4 relative z-10">
+<button class="w-full bg-primary hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-primary/25 flex items-center justify-center gap-2 group">
+<span>متابعة</span>
+<span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform rtl:rotate-180">arrow_right_alt</span>
+</button>
+<!-- Terms / Small print optional -->
+<p class="text-center text-xs text-slate-400 dark:text-slate-600 mt-4">
+                باستمرارك، أنت توافق على شروط الاستخدام
+            </p>
+</div>
+</div>
+</body></html>

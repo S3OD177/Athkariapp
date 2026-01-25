@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Athkar Session</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+Arabic:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#dcb76e","background-light": "#f6f6f8",
+                        "background-dark": "#0e1015","surface-dark": "#1c1e24","text-off-white": "#e4e4e7","text-muted": "#9ca3af",},
+                    fontFamily: {
+                        "display": ["Noto Sans Arabic", "Inter", "sans-serif"],
+                        "body": ["Noto Sans Arabic", "Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-text-off-white font-display overflow-hidden select-none transition-colors duration-300">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto shadow-2xl">
+<header class="flex items-center justify-between p-4 pt-6 z-10">
+<button class="flex size-10 items-center justify-center rounded-full text-slate-500 dark:text-text-muted hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-[28px]">chevron_right</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-medium tracking-wide text-primary uppercase opacity-90">جلسة ذكر</span>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full text-slate-500 dark:text-text-muted hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined filled text-[24px]">volume_up</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col items-center justify-center relative w-full px-6 pb-20">
+<div class="w-full flex-1 flex flex-col items-center justify-center -mt-10">
+<div class="relative w-full text-center">
+<h1 class="text-3xl md:text-4xl font-extrabold leading-[1.6] text-slate-900 dark:text-text-off-white tracking-tight drop-shadow-sm py-8">
+                        سُبْحَانَ اللهِ وَبِحَمْدِهِ
+                    </h1>
+</div>
+</div>
+<div class="relative flex items-center justify-center mt-auto mb-8 group cursor-pointer active:scale-95 transition-transform duration-150 ease-out">
+<div class="absolute inset-0 bg-primary/10 blur-[60px] rounded-full scale-75"></div>
+<div class="relative size-[240px]">
+<svg class="size-full" viewBox="0 0 100 100">
+<circle class="text-slate-200 dark:text-white/5 stroke-current" cx="50" cy="50" fill="transparent" r="45" stroke-width="3"></circle>
+<circle class="text-primary stroke-current ring-circle drop-shadow-[0_0_10px_rgba(220,183,110,0.3)]" cx="50" cy="50" fill="transparent" r="45" stroke-dasharray="282.7" stroke-dashoffset="180" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<div class="flex items-baseline gap-1" dir="ltr">
+<span class="text-6xl font-bold tracking-tighter text-slate-900 dark:text-text-off-white">12</span>
+<span class="text-2xl font-medium text-slate-400 dark:text-gray-600">/ 33</span>
+</div>
+<span class="text-[10px] font-medium text-primary mt-2 uppercase tracking-[0.2em] opacity-80">اضغط للعد</span>
+</div>
+</div>
+</div>
+</main>
+<div class="w-full z-20 pb-8 pt-2">
+<div class="flex justify-center mb-6 px-6">
+<p class="text-xs text-slate-500 dark:text-text-muted font-medium text-center bg-slate-100 dark:bg-white/5 py-1.5 px-4 rounded-full border border-slate-200 dark:border-white/5">
+<span class="material-symbols-outlined text-[14px] align-middle ml-1">lock_clock</span>
+                    يظهر هذا الذكر في شاشة القفل أثناء القراءة
+                </p>
+</div>
+<div class="grid grid-cols-4 gap-2 px-6">
+<button class="flex flex-col items-center gap-2 group">
+<div class="size-12 rounded-2xl bg-slate-100 dark:bg-surface-dark flex items-center justify-center text-red-500 dark:text-red-400 group-active:bg-red-500/10 transition-colors border border-transparent dark:border-white/5">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</div>
+<span class="text-[11px] font-medium text-slate-500 dark:text-text-muted">إنهاء</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="size-12 rounded-2xl bg-slate-100 dark:bg-surface-dark flex items-center justify-center text-slate-700 dark:text-text-off-white group-active:bg-white/5 transition-colors border border-transparent dark:border-white/5">
+<span class="material-symbols-outlined text-[24px]">restart_alt</span>
+</div>
+<span class="text-[11px] font-medium text-slate-500 dark:text-text-muted">إعادة ضبط</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="size-12 rounded-2xl bg-slate-100 dark:bg-surface-dark flex items-center justify-center text-slate-700 dark:text-text-off-white group-active:bg-white/5 transition-colors border border-transparent dark:border-white/5">
+<span class="material-symbols-outlined text-[24px]">swap_vert</span>
+</div>
+<span class="text-[11px] font-medium text-slate-500 dark:text-text-muted">تبديل</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="size-12 rounded-2xl bg-slate-100 dark:bg-surface-dark flex items-center justify-center text-slate-700 dark:text-text-off-white group-active:bg-white/5 transition-colors border border-transparent dark:border-white/5">
+<span class="material-symbols-outlined text-[22px]">ios_share</span>
+</div>
+<span class="text-[11px] font-medium text-slate-500 dark:text-text-muted">مشاركة</span>
+</button>
+</div>
+</div>
+</div>
+
+</body></html>

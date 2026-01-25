@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Du'a Detail</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+Arabic:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#306ee8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "card-dark": "#1a2232",
+                        "surface-dark": "#243047",
+                        "text-secondary": "#93a5c8",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "arabic": ["Noto Sans Arabic", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary selection:text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Bar -->
+<header class="sticky top-0 z-20 flex items-center justify-between bg-background-light/95 dark:bg-background-dark/95 px-4 py-3 backdrop-blur-md border-b border-transparent dark:border-white/5">
+<!-- Back Button (RTL context: points right) -->
+<button class="flex h-10 w-10 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 dark:text-white dark:hover:bg-surface-dark transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_forward</span>
+</button>
+<h1 class="text-lg font-bold text-slate-900 dark:text-white font-arabic">أذكار الصباح</h1>
+<!-- Options Menu -->
+<button class="flex h-10 w-10 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 dark:text-white dark:hover:bg-surface-dark transition-colors">
+<span class="material-symbols-outlined text-[24px]">more_horiz</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col items-center justify-start px-4 pt-4 pb-8 w-full max-w-lg mx-auto gap-6">
+<!-- Page Indicators (Progress) -->
+<div class="flex w-full flex-row items-center justify-center gap-2">
+<div class="h-1.5 w-1.5 rounded-full bg-primary/30"></div>
+<div class="h-1.5 w-8 rounded-full bg-primary"></div>
+<div class="h-1.5 w-1.5 rounded-full bg-primary/30"></div>
+<div class="h-1.5 w-1.5 rounded-full bg-primary/30"></div>
+</div>
+<!-- Main Du'a Card -->
+<div class="w-full relative flex flex-col items-center justify-center rounded-2xl bg-white dark:bg-card-dark shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.4)] p-6 md:p-8 gap-6 transition-all border border-slate-100 dark:border-slate-800">
+<!-- Bismillah -->
+<div class="text-center opacity-70">
+<p class="text-sm font-semibold text-primary dark:text-primary font-arabic tracking-wide">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+</div>
+<!-- Arabic Text -->
+<div class="text-center w-full">
+<p class="text-2xl md:text-3xl font-bold leading-[2.4] tracking-normal text-slate-800 dark:text-white font-arabic">
+                        اللّهُ لاَ إِلَـهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلاَّ بِمَا شَاء وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالأَرْضَ وَلاَ يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ
+                    </p>
+</div>
+<!-- Footer: Reference & Counter -->
+<div class="w-full flex items-center justify-between border-t border-slate-100 dark:border-white/10 pt-4 mt-2">
+<p class="text-xs font-medium text-slate-400 dark:text-text-secondary font-arabic">سورة البقرة - آية 255</p>
+<!-- Counter Badge -->
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-surface-dark/50 border border-transparent dark:border-white/5">
+<span class="material-symbols-outlined text-[16px] text-primary">repeat</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-300 font-display pt-0.5">1 / 3</span>
+</div>
+</div>
+</div>
+<!-- Actions Row -->
+<div class="w-full grid grid-cols-3 gap-3">
+<!-- Add to Favorites -->
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl bg-white dark:bg-card-dark py-4 px-2 shadow-sm border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-surface-dark transition-all group active:scale-95">
+<div class="rounded-full bg-slate-100 dark:bg-surface-dark p-2.5 text-slate-500 dark:text-white group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[22px] filled-icon">star</span>
+</div>
+<span class="text-xs font-semibold text-slate-600 dark:text-text-secondary font-arabic">المفضلة</span>
+</button>
+<!-- Add to Routine -->
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl bg-white dark:bg-card-dark py-4 px-2 shadow-sm border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-surface-dark transition-all group active:scale-95">
+<div class="rounded-full bg-slate-100 dark:bg-surface-dark p-2.5 text-slate-500 dark:text-white group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[22px]">add_circle</span>
+</div>
+<span class="text-xs font-semibold text-slate-600 dark:text-text-secondary font-arabic">أضف للروتين</span>
+</button>
+<!-- Share -->
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl bg-white dark:bg-card-dark py-4 px-2 shadow-sm border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-surface-dark transition-all group active:scale-95">
+<div class="rounded-full bg-slate-100 dark:bg-surface-dark p-2.5 text-slate-500 dark:text-white group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[22px]">ios_share</span>
+</div>
+<span class="text-xs font-semibold text-slate-600 dark:text-text-secondary font-arabic">مشاركة</span>
+</button>
+</div>
+<!-- Settings / Toggles Panel -->
+<div class="w-full flex flex-col gap-3 mt-2">
+<div class="flex items-center justify-between rounded-xl bg-white dark:bg-card-dark p-4 shadow-sm border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 dark:bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-[20px]">translate</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-800 dark:text-white font-arabic">الترجمة</span>
+<span class="text-xs text-slate-500 dark:text-text-secondary font-arabic">إظهار المعنى والتفسير</span>
+</div>
+</div>
+<!-- Toggle Switch Component -->
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-slate-200 dark:bg-surface-dark p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-full w-[27px] rounded-full bg-white shadow-sm transform transition-transform duration-200"></div>
+<input class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</main>
+<!-- Bottom Spacer -->
+<div class="h-6 w-full"></div>
+</div>
+</body></html>

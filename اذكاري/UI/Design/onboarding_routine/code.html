@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding: Routine Selection</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#306ee8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0f0f12", // Deep dark gray/black as requested
+                        "surface-dark": "#1e1e24", // Slightly lighter for cards
+                        "border-dark": "#2a2a32",
+                    },
+                    fontFamily: {
+                        "display": ["IBM Plex Sans Arabic", "Inter", "sans-serif"],
+                        "sans": ["IBM Plex Sans Arabic", "Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        "glow": "0 0 20px -5px rgba(48, 110, 232, 0.3)"
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth fade animation for selection */
+        .card-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- Safe Area Spacer Top -->
+<div class="h-6 w-full"></div>
+<!-- Header Section -->
+<header class="flex flex-col px-6 pt-8 pb-4">
+<h1 class="text-[32px] font-bold tracking-tight leading-tight text-slate-900 dark:text-white">
+                اختر روتينك
+            </h1>
+<p class="text-slate-500 dark:text-gray-400 mt-2 text-base font-normal">
+                اختر مستوى الأذكار الذي يناسب يومك. يمكنك تغيير هذا الإعداد لاحقاً.
+            </p>
+</header>
+<!-- Selection List -->
+<main class="flex-1 flex flex-col gap-4 px-6 py-4">
+<!-- Option 1: Prayers Only -->
+<label class="group relative cursor-pointer select-none">
+<input class="peer sr-only" name="routine_selection" type="radio" value="prayers"/>
+<div class="card-transition relative flex items-center justify-between p-5 rounded-2xl border-2 bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark hover:border-primary/40 dark:hover:border-primary/40 peer-checked:border-primary dark:peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 peer-checked:shadow-glow">
+<!-- Icon & Text Wrapper -->
+<div class="flex items-center gap-4">
+<!-- Icon Box -->
+<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#25252c] text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors peer-checked:bg-primary peer-checked:text-white group-active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[28px]">mosque</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                الصلوات فقط
+                            </span>
+<span class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+                                أذكار ما بعد الصلاة المفروضة
+                            </span>
+</div>
+</div>
+<!-- Radio Indicator (Left side in RTL) -->
+<div class="flex items-center justify-center">
+<div class="h-6 w-6 rounded-full border-2 border-slate-300 dark:border-gray-600 group-hover:border-primary/50 transition-colors relative flex items-center justify-center">
+<div class="h-3 w-3 rounded-full bg-primary opacity-0 transform scale-0 transition-all duration-300 peer-checked:group-[]:opacity-100 peer-checked:group-[]:scale-100 absolute"></div>
+<!-- Trick to target the circle when input is checked using sibling selector logic in CSS if needed, but here we rely on the peer-checked on parent div or custom script logic. 
+                                 However, Tailwind 'peer' works on siblings. The input is a sibling to this div wrapper.
+                                 Let's fix the peer selector logic: The input is outside this div. 
+                                 So we need to style this based on the input:checked state.
+                            -->
+</div>
+<!-- Correct approach for the indicator using general sibling combinator logic inherent in the structure -->
+<div class="absolute left-5 h-6 w-6 rounded-full border-2 border-slate-300 dark:border-gray-600 bg-transparent peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all duration-300">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100 font-bold scale-50 peer-checked:scale-100 transition-transform duration-200">check</span>
+</div>
+</div>
+</div>
+</label>
+<!-- Option 2: Morning & Evening -->
+<label class="group relative cursor-pointer select-none">
+<input checked="" class="peer sr-only" name="routine_selection" type="radio" value="morning_evening"/>
+<div class="card-transition relative flex items-center justify-between p-5 rounded-2xl border-2 bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark hover:border-primary/40 dark:hover:border-primary/40 peer-checked:border-primary dark:peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 peer-checked:shadow-glow">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#25252c] text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">wb_twilight</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                الصباح والمساء
+                            </span>
+<span class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+                                أذكار الصباح، المساء، والصلاة
+                            </span>
+</div>
+</div>
+<div class="absolute left-5 h-6 w-6 rounded-full border-2 border-slate-300 dark:border-gray-600 bg-transparent peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all duration-300">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100 font-bold scale-50 peer-checked:scale-100 transition-transform duration-200">check</span>
+</div>
+</div>
+</label>
+<!-- Option 3: Full Athkar -->
+<label class="group relative cursor-pointer select-none">
+<input class="peer sr-only" name="routine_selection" type="radio" value="full"/>
+<div class="card-transition relative flex items-center justify-between p-5 rounded-2xl border-2 bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark hover:border-primary/40 dark:hover:border-primary/40 peer-checked:border-primary dark:peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 peer-checked:shadow-glow">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#25252c] text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">menu_book</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                                كامل الأذكار
+                            </span>
+<span class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+                                النوم، الاستيقاظ، وجميع المناسبات
+                            </span>
+</div>
+</div>
+<div class="absolute left-5 h-6 w-6 rounded-full border-2 border-slate-300 dark:border-gray-600 bg-transparent peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all duration-300">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100 font-bold scale-50 peer-checked:scale-100 transition-transform duration-200">check</span>
+</div>
+</div>
+</label>
+</main>
+<!-- Footer Action -->
+<div class="p-6 mt-auto">
+<button class="w-full flex items-center justify-center rounded-xl h-14 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white text-lg font-bold leading-normal tracking-wide transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 transform active:scale-[0.98]">
+                متابعة
+            </button>
+<div class="h-6"></div> <!-- Safe area spacing -->
+</div>
+</div>
+</body></html>

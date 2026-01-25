@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding: Permissions</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+Arabic:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#306ee8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "card-dark": "#1a2130", // Slightly lighter than background-dark for cards
+                    },
+                    fontFamily: {
+                        "display": ["Noto Sans Arabic", "Inter", "sans-serif"],
+                        "body": ["Noto Sans Arabic", "Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom toggle switch styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #306ee8;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #306ee8;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-hidden max-w-md mx-auto shadow-2xl">
+<!-- Status Bar Placeholder (iOS Safe Area) -->
+<div class="h-12 w-full"></div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col px-6 pt-8 pb-6">
+<!-- Header Section -->
+<div class="mb-8">
+<h1 class="text-3xl font-bold tracking-tight text-right mb-4 leading-tight font-display">
+                    الموقع والتنبيهات
+                </h1>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed text-right">
+                    نحتاج إلى هذه الأذونات لتقديم تجربة روحانية متكاملة، بما في ذلك أوقات الصلاة الدقيقة وتذكيرات الأذكار.
+                </p>
+</div>
+<!-- Permissions List -->
+<div class="space-y-4">
+<!-- Location Permission Card -->
+<div class="group relative flex items-center justify-between p-4 bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-primary/50">
+<div class="flex items-center gap-4 flex-1">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-[#243047] dark:text-white">
+<span class="material-symbols-outlined text-[24px]">location_on</span>
+</div>
+<div class="flex flex-col text-right">
+<h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">تفعيل الموقع</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">لمعرفة أوقات الصلاة واتجاه القبلة بدقة.</p>
+</div>
+</div>
+<div class="mr-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<!-- Notifications Permission Card -->
+<div class="group relative flex items-center justify-between p-4 bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-primary/50">
+<div class="flex items-center gap-4 flex-1">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-[#243047] dark:text-white">
+<span class="material-symbols-outlined text-[24px]">notifications_active</span>
+</div>
+<div class="flex flex-col text-right">
+<h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">تفعيل التنبيهات</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 leading-snug">لتذكيرك بالأذكار اليومية ومواقيت الصلاة.</p>
+</div>
+</div>
+<div class="mr-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Spacer -->
+<div class="flex-1"></div>
+<!-- Bottom Actions -->
+<div class="flex flex-col gap-4 mt-8 mb-4">
+<button class="flex w-full items-center justify-center rounded-xl bg-primary h-14 px-5 text-white text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] transition-transform duration-100">
+                    ابدأ الاستخدام
+                </button>
+<button class="flex w-full items-center justify-center h-10 text-slate-400 dark:text-slate-500 text-sm font-medium hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    تخطي الآن
+                </button>
+</div>
+</div>
+<!-- iOS Home Indicator Safe Area -->
+<div class="h-6 w-full"></div>
+</div>
+</body></html>
