@@ -60,14 +60,14 @@ struct HomeContent: View {
             ToolbarItem(placement: .topBarLeading) {
                 Text(viewModel.todayHijriDate)
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppColors.secondaryText)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     // Notifications
                 } label: {
                     Image(systemName: "bell.fill")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppColors.secondaryText)
                 }
             }
         }
@@ -82,9 +82,9 @@ struct HomeContent: View {
     // MARK: - Header Section
     private var headerSection: some View {
         VStack(spacing: 4) {
-            Text("أذكاري")
+            Text("home_title")
                 .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(AppColors.primaryText)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.top, 8)
@@ -97,13 +97,13 @@ struct HomeContent: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("الذكر الحالي")
+                    Text("current_dhikr")
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppColors.secondaryText)
 
-                    Text("أذكار بعد العصر")
+                    Text("asr_athkar")
                         .font(.title2.bold())
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppColors.primaryText)
                 }
 
                 Circle()
@@ -111,23 +111,23 @@ struct HomeContent: View {
                     .frame(width: 44, height: 44)
                     .overlay {
                         Image(systemName: "person.fill")
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(AppColors.secondaryText)
                     }
             }
 
             Divider()
-                .background(Color.gray.opacity(0.3))
+                .background(AppColors.secondaryText.opacity(0.3))
 
-            Text("لم يبدأ بعد")
+            Text("not_started_yet")
                 .font(.subheadline)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppColors.secondaryText)
         }
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(
                     LinearGradient(
-                        colors: [Color(red: 0.95, green: 0.9, blue: 0.8), Color(red: 0.9, green: 0.85, blue: 0.75)],
+                        colors: [Color.appSecondary, Color.appSecondary.opacity(0.8)],
                         startPoint: .topTrailing,
                         endPoint: .bottomLeading
                     )
@@ -146,13 +146,13 @@ struct HomeContent: View {
             } label: {
                 HStack {
                     Image(systemName: "arrow.left")
-                    Text("ابدأ الذكر")
+                    Text("start_dhikr")
                 }
                 .font(.headline)
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color.white)
+                .background(AppColors.background)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
@@ -164,13 +164,13 @@ struct HomeContent: View {
             } label: {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
-                    Text("صليت الآن")
+                    Text("prayed_now")
                 }
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color.green)
+                .background(AppColors.success)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
@@ -179,25 +179,25 @@ struct HomeContent: View {
     // MARK: - Daily Summary Section
     private var dailySummarySection: some View {
         VStack(alignment: .trailing, spacing: 16) {
-            Text("ملخص اليوم")
+            Text("daily_summary")
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(AppColors.primaryText)
 
             HStack(spacing: 12) {
                 // Prayers completed
                 SummaryCard(
-                    title: "الصلوات المكتملة",
+                    title: "completed_prayers",
                     value: "٣/٥",
-                    subtitle: "جيد جداً",
+                    subtitle: "very_good",
                     icon: "checkmark.circle.fill",
-                    iconColor: .green
+                    iconColor: AppColors.success
                 )
 
                 // Reading time
                 SummaryCard(
-                    title: "وقت القراءة",
+                    title: "reading_time",
                     value: "١٥ د",
-                    subtitle: "سورة الكهف",
+                    subtitle: "surat_alkahf",
                     icon: "book.fill",
                     iconColor: .purple
                 )
@@ -212,36 +212,36 @@ struct HomeContent: View {
                 Button {
                     // Show all
                 } label: {
-                    Text("عرض الكل")
+                    Text("view_all")
                         .font(.subheadline)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppColors.primary)
                 }
 
                 Spacer()
 
-                Text("روتين اليوم")
+                Text("todays_routine")
                     .font(.title2.bold())
-                    .foregroundStyle(.white)
+                    .foregroundStyle(AppColors.primaryText)
             }
 
             VStack(spacing: 12) {
                 RoutineRow(
-                    title: "صلاة الفجر",
+                    title: "fajr_prayer",
                     time: "٠٥:١٢ ص",
                     status: .completed,
                     icon: "checkmark.circle.fill"
                 )
 
                 RoutineRow(
-                    title: "أذكار الصباح",
-                    subtitle: "بعد الفجر",
+                    title: "morning_athkar",
+                    subtitle: "after_fajr",
                     status: .completed,
                     icon: "checkmark.circle.fill"
                 )
 
                 RoutineRow(
-                    title: "صلاة العصر",
-                    subtitle: "الآن",
+                    title: "asr_prayer",
+                    subtitle: "now",
                     status: .current,
                     icon: "clock.fill",
                     showPrayedButton: true
@@ -252,7 +252,7 @@ struct HomeContent: View {
                 }
 
                 RoutineRow(
-                    title: "أذكار المساء",
+                    title: "evening_athkar",
                     time: "٠٦:٤٥ م",
                     status: .notStarted,
                     icon: "moon.fill"
@@ -275,7 +275,7 @@ struct SummaryCard: View {
             HStack {
                 Text(value)
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppColors.secondaryText)
 
                 Spacer()
 
@@ -284,19 +284,19 @@ struct SummaryCard: View {
                     .foregroundStyle(iconColor)
             }
 
-            Text(title)
+            Text(LocalDateTime(title))
                 .font(.caption)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppColors.secondaryText)
 
-            Text(subtitle)
+            Text(LocalizedStringKey(subtitle))
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(AppColors.primaryText)
         }
         .padding(16)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(white: 0.1))
+                .fill(Color.cardBackground)
         )
     }
 }
@@ -324,20 +324,20 @@ struct RoutineRow: View {
 
             // Text content
             VStack(alignment: .trailing, spacing: 4) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(AppColors.primaryText)
 
                 if let time = time {
                     Text(time)
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppColors.secondaryText)
                 }
 
                 if let subtitle = subtitle {
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .font(.caption)
-                        .foregroundStyle(status == .current ? .green : .gray)
+                        .foregroundStyle(status == .current ? AppColors.success : AppColors.secondaryText)
                 }
             }
 
@@ -353,8 +353,8 @@ struct RoutineRow: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(white: 0.1))
-                .stroke(status == .current ? Color.green.opacity(0.5) : Color.clear, lineWidth: 1)
+                .fill(Color.cardBackground)
+                .stroke(status == .current ? AppColors.success.opacity(0.5) : Color.clear, lineWidth: 1)
         )
     }
 
@@ -364,18 +364,18 @@ struct RoutineRow: View {
             Button {
                 onPrayed?()
             } label: {
-                Text("صليت؟")
+                Text("did_you_pray")
                     .font(.caption.bold())
-                    .foregroundStyle(.green)
+                    .foregroundStyle(AppColors.success)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(
                         Capsule()
-                            .stroke(Color.green, lineWidth: 1)
+                            .stroke(AppColors.success, lineWidth: 1)
                     )
             }
         } else {
-            Text(statusText)
+            Text(LocalizedStringKey(statusText))
                 .font(.caption.bold())
                 .foregroundStyle(statusTextColor)
                 .padding(.horizontal, 12)
@@ -389,40 +389,40 @@ struct RoutineRow: View {
 
     private var statusText: String {
         switch status {
-        case .completed: return "مكتمل"
-        case .current: return "الآن"
-        case .notStarted: return "لم يبدأ"
+        case .completed: return "completed"
+        case .current: return "now"
+        case .notStarted: return "not_started"
         }
     }
 
     private var statusTextColor: Color {
         switch status {
-        case .completed: return .green
-        case .current: return .green
-        case .notStarted: return .gray
+        case .completed: return AppColors.success
+        case .current: return AppColors.success
+        case .notStarted: return AppColors.notStarted
         }
     }
 
     private var statusBackgroundColor: Color {
         switch status {
-        case .completed: return .green.opacity(0.2)
-        case .current: return .green.opacity(0.2)
-        case .notStarted: return .gray.opacity(0.2)
+        case .completed: return AppColors.success.opacity(0.2)
+        case .current: return AppColors.success.opacity(0.2)
+        case .notStarted: return AppColors.notStarted.opacity(0.2)
         }
     }
 
     private var iconBackgroundColor: Color {
         switch status {
-        case .completed: return .green
-        case .current: return .blue
-        case .notStarted: return Color(white: 0.2)
+        case .completed: return AppColors.success
+        case .current: return AppColors.primary
+        case .notStarted: return Color.cardBackground
         }
     }
 
     private var iconForegroundColor: Color {
         switch status {
-        case .completed, .current: return .white
-        case .notStarted: return .gray
+        case .completed, .current: return AppColors.primaryText
+        case .notStarted: return AppColors.secondaryText
         }
     }
 }

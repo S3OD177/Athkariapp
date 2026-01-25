@@ -62,7 +62,6 @@
 		/* Resources */
 		RES001 /* daily_athkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001; };
 		RES002 /* hisn.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC002; };
-		RES003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RSC004; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -123,7 +122,6 @@
 		/* Resources */
 		RSC001 /* daily_athkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = daily_athkar.json; sourceTree = "<group>"; };
 		RSC002 /* hisn.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hisn.json; sourceTree = "<group>"; };
-		RSC004 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		RSC003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -253,7 +251,6 @@
 			children = (
 				RSC001 /* daily_athkar.json */,
 				RSC002 /* hisn.json */,
-				RSC004 /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -383,7 +380,6 @@
 			files = (
 				RES001 /* daily_athkar.json in Resources */,
 				RES002 /* hisn.json in Resources */,
-				RES003 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

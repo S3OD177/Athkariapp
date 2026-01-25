@@ -73,7 +73,7 @@ final class HomeViewModel {
             // Load daily summary
             try await loadDailySummary()
         } catch {
-            errorMessage = "حدث خطأ في تحميل البيانات"
+            errorMessage = NSLocalizedString("error_loading_data", comment: "")
             print("Error loading home data: \(error)")
         }
 
@@ -106,7 +106,7 @@ final class HomeViewModel {
         let morningStatus = getStatusForSlots([.morning], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "morning",
-            title: "الصباح",
+            title: NSLocalizedString("morning_session", comment: ""),
             icon: "sunrise.fill",
             slots: [.morning],
             status: morningStatus.status,
@@ -119,7 +119,7 @@ final class HomeViewModel {
         let afterPrayerStatus = getStatusForSlots(afterPrayerSlots, sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "prayers",
-            title: "بعد الصلوات",
+            title: NSLocalizedString("after_prayers_session", comment: ""),
             icon: "hands.and.sparkles.fill",
             slots: afterPrayerSlots,
             status: afterPrayerStatus.status,
@@ -131,7 +131,7 @@ final class HomeViewModel {
         let eveningStatus = getStatusForSlots([.evening], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "evening",
-            title: "المساء",
+            title: NSLocalizedString("evening_session", comment: ""),
             icon: "sunset.fill",
             slots: [.evening],
             status: eveningStatus.status,
@@ -143,7 +143,7 @@ final class HomeViewModel {
         let sleepStatus = getStatusForSlots([.sleep], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "sleep",
-            title: "النوم",
+            title: NSLocalizedString("sleep_session", comment: ""),
             icon: "moon.zzz.fill",
             slots: [.sleep],
             status: sleepStatus.status,

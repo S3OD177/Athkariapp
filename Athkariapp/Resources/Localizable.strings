@@ -1,0 +1,31 @@
+/* Home Strings */
+"home_title" = "أذكاري";
+"current_dhikr" = "الذكر الحالي";
+"asr_athkar" = "أذكار بعد العصر";
+"not_started_yet" = "لم يبدأ بعد";
+"start_dhikr" = "ابدأ الذكر";
+"prayed_now" = "صليت الآن";
+"daily_summary" = "ملخص اليوم";
+"completed_prayers" = "الصلوات المكتملة";
+"very_good" = "جيد جداً";
+"reading_time" = "وقت القراءة";
+"surat_alkahf" = "سورة الكهف";
+"view_all" = "عرض الكل";
+"todays_routine" = "روتين اليوم";
+"fajr_prayer" = "صلاة الفجر";
+"morning_athkar" = "أذكار الصباح";
+"after_fajr" = "بعد الفجر";
+"asr_prayer" = "صلاة العصر";
+"now" = "الآن";
+"evening_athkar" = "أذكار المساء";
+"did_you_pray" = "صليت؟";
+"completed" = "مكتمل";
+"not_started" = "لم يبدأ";
+"finish" = "إنهاء";
+
+/* ViewModel Strings */
+"morning_session" = "الصباح";
+"after_prayers_session" = "بعد الصلوات";
+"evening_session" = "المساء";
+"sleep_session" = "النوم";
+"error_loading_data" = "حدث خطأ في تحميل البيانات";
