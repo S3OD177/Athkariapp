@@ -1,5 +1,5 @@
 import XCTest
-@testable import اذكاري
+@testable import Athkariapp
 
 final class SessionStateTests: XCTestCase {
 

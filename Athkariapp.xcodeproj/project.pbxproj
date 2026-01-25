@@ -65,7 +65,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		PROD001 /* اذكاري.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "اذكاري.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		PROD001 /* Athkariapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Athkariapp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 
 		/* App */
 		SRC001 /* AdhkariApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdhkariApp.swift; sourceTree = "<group>"; };
@@ -139,12 +139,12 @@
 		GRP000 = {
 			isa = PBXGroup;
 			children = (
-				GRP001 /* اذكاري */,
+				GRP001 /* Athkariapp */,
 				GRP100 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		GRP001 /* اذكاري */ = {
+		GRP001 /* Athkariapp */ = {
 			isa = PBXGroup;
 			children = (
 				GRP002 /* App */,
@@ -157,7 +157,7 @@
 				GRP009 /* Resources */,
 				RSC003 /* Info.plist */,
 			);
-			path = "اذكاري";
+			path = "Athkariapp";
 			sourceTree = "<group>";
 		};
 		GRP002 /* App */ = {
@@ -315,7 +315,7 @@
 		GRP100 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				PROD001 /* اذكاري.app */,
+				PROD001 /* Athkariapp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -323,7 +323,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		TGT001 /* اذكاري */ = {
+		TGT001 /* Athkariapp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CFG002;
 			buildPhases = (
@@ -335,9 +335,9 @@
 			);
 			dependencies = (
 			);
-			name = "اذكاري";
-			productName = "اذكاري";
-			productReference = PROD001 /* اذكاري.app */;
+			name = "Athkariapp";
+			productName = "Athkariapp";
+			productReference = PROD001 /* Athkariapp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -368,7 +368,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				TGT001 /* اذكاري */,
+				TGT001 /* Athkariapp */,
 			);
 		};
 /* End PBXProject section */
@@ -563,8 +563,8 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "اذكاري/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
+				INFOPLIST_FILE = "Athkariapp/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Athkariapp";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -594,8 +594,8 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "اذكاري/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
+				INFOPLIST_FILE = "Athkariapp/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Athkariapp";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

@@ -1,6 +1,6 @@
 import XCTest
 import CoreLocation
-@testable import اذكاري
+@testable import Athkariapp
 
 final class PrayerTimeServiceTests: XCTestCase {
 
