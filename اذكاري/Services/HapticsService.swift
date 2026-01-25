@@ -1,11 +1,13 @@
 import UIKit
 
-protocol HapticsServiceProtocol {
+protocol HapticsServiceProtocol: Sendable {
     func playImpact(_ style: UIImpactFeedbackGenerator.FeedbackStyle)
     func playNotification(_ type: UINotificationFeedbackGenerator.FeedbackType)
     func playSelection()
+    func setEnabled(_ enabled: Bool)
 }
 
+@MainActor
 final class HapticsService: HapticsServiceProtocol {
     private var isEnabled: Bool
 
@@ -20,18 +22,21 @@ final class HapticsService: HapticsServiceProtocol {
     func playImpact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard isEnabled else { return }
         let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
         generator.impactOccurred()
     }
 
     func playNotification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         guard isEnabled else { return }
         let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
         generator.notificationOccurred(type)
     }
 
     func playSelection() {
         guard isEnabled else { return }
         let generator = UISelectionFeedbackGenerator()
+        generator.prepare()
         generator.selectionChanged()
     }
 }
