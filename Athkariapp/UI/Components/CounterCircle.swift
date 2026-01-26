@@ -4,6 +4,7 @@ import SwiftUI
 struct CounterCircle: View {
     let currentCount: Int
     let targetCount: Int
+    var size: CGFloat = 250 // Configurable size with default
     let onTap: () -> Void
 
     private var progress: Double {
@@ -22,16 +23,16 @@ struct CounterCircle: View {
                 Circle()
                     .stroke(
                         Color.gray.opacity(0.2),
-                        lineWidth: 12
+                        lineWidth: size * 0.048
                     )
 
                 // Progress circle
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(
-                        isCompleted ? Color.green : Color.appPrimary,
+                        isCompleted ? AppColors.onboardingPrimary : AppColors.appPrimary,
                         style: StrokeStyle(
-                            lineWidth: 12,
+                            lineWidth: size * 0.048,
                             lineCap: .round
                         )
                     )
@@ -39,14 +40,14 @@ struct CounterCircle: View {
                     .animation(.easeInOut(duration: 0.3), value: progress)
 
                 // Counter text
-                VStack(spacing: 8) {
+                VStack(spacing: size * 0.032) {
                     Text(currentCount.arabicNumeral)
-                        .font(.system(size: 64, weight: .bold, design: .rounded))
+                        .font(.system(size: size * 0.256, weight: .bold, design: .rounded))
                         .contentTransition(.numericText())
                         .animation(.spring(duration: 0.3), value: currentCount)
 
                     Text("من \(targetCount.arabicNumeral)")
-                        .font(.title3)
+                        .font(.system(size: size * 0.072))
                         .foregroundStyle(.secondary)
                 }
 
@@ -55,15 +56,15 @@ struct CounterCircle: View {
                     VStack {
                         Spacer()
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.green)
-                            .padding(.bottom, 20)
+                            .font(.system(size: size * 0.1))
+                            .foregroundStyle(AppColors.onboardingPrimary)
+                            .padding(.bottom, size * 0.08)
                     }
                 }
             }
         }
         .buttonStyle(.plain)
-        .frame(width: 250, height: 250)
+        .frame(width: size, height: size)
         .accessibilityLabel("عداد التسبيح")
         .accessibilityValue("\(currentCount) من \(targetCount)")
         .accessibilityHint("اضغط للعد")

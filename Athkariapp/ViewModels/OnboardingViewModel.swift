@@ -96,30 +96,35 @@ final class OnboardingViewModel {
 
     func completeOnboarding() {
         isLoading = true
+        
+        Task {
+            // Give UI a chance to show loading state
+            try? await Task.sleep(for: .milliseconds(50))
+            
+            do {
+                // Update onboarding state
+                let state = try onboardingRepository.getState()
+                state.completed = true
+                state.intensity = routineIntensity
+                state.notificationsChoice = notificationsEnabled
+                state.locationChosen = locationEnabled
+                state.currentStep = totalSteps
+                try onboardingRepository.updateState(state)
 
-        do {
-            // Update onboarding state
-            let state = try onboardingRepository.getState()
-            state.completed = true
-            state.intensity = routineIntensity
-            state.notificationsChoice = notificationsEnabled
-            state.locationChosen = locationEnabled
-            state.currentStep = totalSteps
-            try onboardingRepository.updateState(state)
+                // Update settings with chosen values
+                let settings = try settingsRepository.getSettings()
+                settings.intensity = routineIntensity
+                settings.notificationsEnabled = notificationsEnabled
+                try settingsRepository.updateSettings(settings)
 
-            // Update settings with chosen values
-            let settings = try settingsRepository.getSettings()
-            settings.intensity = routineIntensity
-            settings.notificationsEnabled = notificationsEnabled
-            try settingsRepository.updateSettings(settings)
+                isCompleted = true
+            } catch {
+                errorMessage = "حدث خطأ في حفظ الإعدادات"
+                print("Error completing onboarding: \(error)")
+            }
 
-            isCompleted = true
-        } catch {
-            errorMessage = "حدث خطأ في حفظ الإعدادات"
-            print("Error completing onboarding: \(error)")
+            isLoading = false
         }
-
-        isLoading = false
     }
 
     func skipOnboarding() {

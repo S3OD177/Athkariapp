@@ -30,6 +30,7 @@ final class SessionViewModel {
 
     // MARK: - Properties
     let slotKey: SlotKey
+    let fontSize: Double
 
     var progress: Double {
         guard targetCount > 0 else { return 0 }
@@ -52,7 +53,8 @@ final class SessionViewModel {
         dhikrRepository: DhikrRepository,
         favoritesRepository: FavoritesRepository,
         hapticsService: HapticsService,
-        hapticsEnabled: Bool = true
+        hapticsEnabled: Bool = true,
+        fontSize: Double = 1.0
     ) {
         self.slotKey = slotKey
         self.sessionRepository = sessionRepository
@@ -60,6 +62,7 @@ final class SessionViewModel {
         self.favoritesRepository = favoritesRepository
         self.hapticsService = hapticsService
         self.hapticsEnabled = hapticsEnabled
+        self.fontSize = fontSize
     }
 
     // MARK: - Public Methods
@@ -111,6 +114,7 @@ final class SessionViewModel {
 
         // Update session
         session?.currentCount = currentCount
+        session?.totalDhikrsCount += 1
 
         // Check completion
         if currentCount >= targetCount {
@@ -144,6 +148,7 @@ final class SessionViewModel {
         // Mark as completed if reached target, otherwise confirm
         if currentCount >= targetCount || !dhikrList.isEmpty {
             session.sessionStatus = .completed
+            session.completedAt = Date()
             isCompleted = true
             showCompletionCelebration = true
 
@@ -158,6 +163,7 @@ final class SessionViewModel {
     func forceFinish() {
         guard let session = session else { return }
         session.sessionStatus = .completed
+        session.completedAt = Date()
         isCompleted = true
         saveSession()
     }
@@ -198,6 +204,7 @@ final class SessionViewModel {
 
         if allCompleted {
             session.sessionStatus = .completed
+            session.completedAt = Date()
             isCompleted = true
             showCompletionCelebration = true
 

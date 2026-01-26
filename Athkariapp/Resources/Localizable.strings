@@ -29,3 +29,7 @@
 "evening_session" = "المساء";
 "sleep_session" = "النوم";
 "error_loading_data" = "حدث خطأ في تحميل البيانات";
+
+/* Notification Strings */
+"post_prayer_ready_title" = "أذكار بعد الصلاة";
+"post_prayer_ready_body" = "حان وقت أذكار بعد صلاة %@، تقبل الله طاعتكم.";

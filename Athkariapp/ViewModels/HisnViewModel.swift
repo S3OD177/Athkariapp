@@ -14,19 +14,23 @@ final class HisnViewModel {
         didSet { filterDuas() }
     }
     var isLoading: Bool = false
+    var fontSize: Double = 1.0
     var errorMessage: String?
 
     // MARK: - Dependencies
     private let dhikrRepository: DhikrRepository
     private let favoritesRepository: FavoritesRepository
+    private let settingsRepository: SettingsRepositoryProtocol
 
     // MARK: - Initialization
     init(
         dhikrRepository: DhikrRepository,
-        favoritesRepository: FavoritesRepository
+        favoritesRepository: FavoritesRepository,
+        settingsRepository: SettingsRepositoryProtocol
     ) {
         self.dhikrRepository = dhikrRepository
         self.favoritesRepository = favoritesRepository
+        self.settingsRepository = settingsRepository
     }
 
     // MARK: - Public Methods
@@ -36,6 +40,9 @@ final class HisnViewModel {
 
         do {
             duaList = try dhikrRepository.fetchBySource(.hisn)
+            if let settings = try? settingsRepository.getSettings() {
+                fontSize = settings.fontSize
+            }
             filterDuas()
         } catch {
             errorMessage = "حدث خطأ في تحميل الأدعية"

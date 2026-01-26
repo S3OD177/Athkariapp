@@ -42,15 +42,74 @@ struct PrayerTimes: Equatable, Sendable {
         return nil
     }
 
-    /// Maps current prayer to after-prayer slot
-    func afterPrayerSlot(at time: Date = Date()) -> SlotKey? {
-        let prayer = currentPrayer(at: time)
+    /// Maps current prayer to after-prayer slot with optional delay (offset in minutes)
+    func afterPrayerSlot(at time: Date = Date(), offsetMinutes: Int = 0) -> SlotKey? {
+        guard let prayer = currentAdhan(at: time) else { return nil }
+        
+        // Define which prayer time to check against
+        let adhanTime: Date
         switch prayer {
-        case .fajr: return .afterFajr
-        case .dhuhr: return .afterDhuhr
-        case .asr: return .afterAsr
-        case .maghrib: return .afterMaghrib
-        case .isha: return .afterIsha
+        case .fajr: adhanTime = fajr
+        case .dhuhr: adhanTime = dhuhr
+        case .asr: adhanTime = asr
+        case .maghrib: adhanTime = maghrib
+        case .isha: adhanTime = isha
+        case .sunrise: return nil
+        }
+        
+        // Only show if the offset time has passed since the adhan
+        let availabilityTime = adhanTime.addingTimeInterval(Double(offsetMinutes) * 60)
+        
+        guard time >= availabilityTime else {
+            return nil
+        }
+
+        return prayer.afterPrayerSlot
+    }
+
+    /// Returns the prayer if its Adhan has started but the next prayer hasn't begun
+    func currentAdhan(at time: Date = Date()) -> Prayer? {
+        let prayer = currentPrayer(at: time)
+        if prayer == .sunrise { return nil }
+        return prayer
+    }
+
+    /// Check if post-prayer is ready for a specific prayer
+    func isPostPrayerReady(for prayer: Prayer, at time: Date = Date(), offsetMinutes: Int) -> Bool {
+        guard let adhanTime = timeForPrayer(prayer) else { return false }
+        let readyTime = adhanTime.addingTimeInterval(Double(offsetMinutes) * 60)
+        
+        // Is ready if time is between readyTime and next prayer
+        if time < readyTime { return false }
+        
+        if let next = nextPrayer(at: adhanTime) {
+            return time < next.time
+        }
+        
+        return true
+    }
+
+    /// Countdown to post-prayer window
+    func countdownToPostPrayer(at time: Date = Date(), offsetMinutes: Int) -> (prayer: Prayer, remaining: TimeInterval)? {
+        guard let prayer = currentAdhan(at: time) else { return nil }
+        guard let adhanTime = timeForPrayer(prayer) else { return nil }
+        
+        let readyTime = adhanTime.addingTimeInterval(Double(offsetMinutes) * 60)
+        
+        if time < readyTime {
+            return (prayer, readyTime.timeIntervalSince(time))
+        }
+        
+        return nil
+    }
+
+    private func timeForPrayer(_ prayer: Prayer) -> Date? {
+        switch prayer {
+        case .fajr: return fajr
+        case .dhuhr: return dhuhr
+        case .asr: return asr
+        case .maghrib: return maghrib
+        case .isha: return isha
         case .sunrise: return nil
         }
     }
@@ -84,6 +143,17 @@ enum Prayer: String, CaseIterable {
         case .asr: return "sun.haze.fill"
         case .maghrib: return "sunset.fill"
         case .isha: return "moon.fill"
+        }
+    }
+
+    var afterPrayerSlot: SlotKey? {
+        switch self {
+        case .fajr: return .afterFajr
+        case .dhuhr: return .afterDhuhr
+        case .asr: return .afterAsr
+        case .maghrib: return .afterMaghrib
+        case .isha: return .afterIsha
+        case .sunrise: return nil
         }
     }
 }

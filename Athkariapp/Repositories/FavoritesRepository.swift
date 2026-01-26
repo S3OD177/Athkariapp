@@ -20,17 +20,14 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     }
 
     func fetchAll() throws -> [FavoriteItem] {
-        var descriptor = FetchDescriptor<FavoriteItem>()
-        descriptor.sortBy = [SortDescriptor(\.createdAt, order: .reverse)]
-        return try modelContext.fetch(descriptor)
+        let descriptor = FetchDescriptor<FavoriteItem>()
+        let items = try modelContext.fetch(descriptor)
+        return items.sorted { $0.createdAt > $1.createdAt }
     }
 
     func isFavorite(dhikrId: UUID) throws -> Bool {
-        let predicate = #Predicate<FavoriteItem> { item in
-            item.dhikrId == dhikrId
-        }
-        let descriptor = FetchDescriptor<FavoriteItem>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor) > 0
+        let allFavorites = try modelContext.fetch(FetchDescriptor<FavoriteItem>())
+        return allFavorites.contains { $0.dhikrId == dhikrId }
     }
 
     func addFavorite(dhikrId: UUID) throws {
@@ -43,13 +40,10 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     }
 
     func removeFavorite(dhikrId: UUID) throws {
-        let predicate = #Predicate<FavoriteItem> { item in
-            item.dhikrId == dhikrId
-        }
-        let descriptor = FetchDescriptor<FavoriteItem>(predicate: predicate)
-        let items = try modelContext.fetch(descriptor)
+        let allFavorites = try modelContext.fetch(FetchDescriptor<FavoriteItem>())
+        let itemsToDelete = allFavorites.filter { $0.dhikrId == dhikrId }
 
-        for item in items {
+        for item in itemsToDelete {
             modelContext.delete(item)
         }
         try modelContext.save()

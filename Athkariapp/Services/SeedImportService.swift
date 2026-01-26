@@ -43,13 +43,7 @@ final class SeedImportService: SeedImportServiceProtocol {
     }
 
     func importSeedDataIfNeeded() async throws {
-        // Check if data already exists
-        let descriptor = FetchDescriptor<DhikrItem>()
-        let count = try modelContext.fetchCount(descriptor)
-
-        if count == 0 {
-            try await importAllSeedData()
-        }
+        try await importAllSeedData()
     }
 
     func forceReimport() async throws {
@@ -76,20 +70,40 @@ final class SeedImportService: SeedImportServiceProtocol {
         let decoder = JSONDecoder()
         let athkarData = try decoder.decode(DailyAthkarJSON.self, from: data)
 
+        // Fetch all existing items to minimize individual queries
+        let descriptor = FetchDescriptor<DhikrItem>()
+        let existingItems = try modelContext.fetch(descriptor)
+        let existingMap = Dictionary(uniqueKeysWithValues: existingItems.map { ($0.id, $0) })
+
         for dhikr in athkarData.athkar {
             let category = DhikrCategory(rawValue: dhikr.category) ?? .general
-            let item = DhikrItem(
-                id: UUID(uuidString: dhikr.id) ?? UUID(),
-                source: .daily,
-                title: dhikr.title,
-                category: category.rawValue,
-                text: dhikr.text,
-                reference: dhikr.reference,
-                repeatCount: dhikr.repeatCount,
-                orderIndex: dhikr.orderIndex,
-                benefit: dhikr.benefit
-            )
-            modelContext.insert(item)
+            let id = UUID(uuidString: dhikr.id) ?? UUID()
+            
+            if let existing = existingMap[id] {
+                // Update existing
+                existing.title = dhikr.title
+                existing.category = category.rawValue
+                existing.text = dhikr.text
+                existing.reference = dhikr.reference
+                existing.repeatCount = dhikr.repeatCount
+                existing.orderIndex = dhikr.orderIndex
+                existing.benefit = dhikr.benefit
+                existing.source = DhikrSource.daily.rawValue
+            } else {
+                // Insert new
+                let item = DhikrItem(
+                    id: id,
+                    source: .daily,
+                    title: dhikr.title,
+                    category: category.rawValue,
+                    text: dhikr.text,
+                    reference: dhikr.reference,
+                    repeatCount: dhikr.repeatCount,
+                    orderIndex: dhikr.orderIndex,
+                    benefit: dhikr.benefit
+                )
+                modelContext.insert(item)
+            }
         }
 
         try modelContext.save()
@@ -105,21 +119,42 @@ final class SeedImportService: SeedImportServiceProtocol {
         let decoder = JSONDecoder()
         let hisnData = try decoder.decode(HisnJSON.self, from: data)
 
+        // Fetch all existing items
+        let descriptor = FetchDescriptor<DhikrItem>()
+        let existingItems = try modelContext.fetch(descriptor)
+        let existingMap = Dictionary(uniqueKeysWithValues: existingItems.map { ($0.id, $0) })
+
         for dua in hisnData.duas {
             let hisnCategory = HisnCategory(rawValue: dua.category)
-            let item = DhikrItem(
-                id: UUID(uuidString: dua.id) ?? UUID(),
-                source: .hisn,
-                title: dua.title,
-                category: "hisn",
-                hisnCategory: hisnCategory,
-                text: dua.text,
-                reference: dua.reference,
-                repeatCount: dua.repeatCount,
-                orderIndex: dua.orderIndex,
-                benefit: dua.benefit
-            )
-            modelContext.insert(item)
+            let id = UUID(uuidString: dua.id) ?? UUID()
+            
+            if let existing = existingMap[id] {
+                // Update existing
+                existing.title = dua.title
+                existing.category = "hisn"
+                existing.hisnCategory = hisnCategory?.rawValue
+                existing.text = dua.text
+                existing.reference = dua.reference
+                existing.repeatCount = dua.repeatCount
+                existing.orderIndex = dua.orderIndex
+                existing.benefit = dua.benefit
+                existing.source = DhikrSource.hisn.rawValue
+            } else {
+                // Insert new
+                let item = DhikrItem(
+                    id: id,
+                    source: .hisn,
+                    title: dua.title,
+                    category: "hisn",
+                    hisnCategory: hisnCategory,
+                    text: dua.text,
+                    reference: dua.reference,
+                    repeatCount: dua.repeatCount,
+                    orderIndex: dua.orderIndex,
+                    benefit: dua.benefit
+                )
+                modelContext.insert(item)
+            }
         }
 
         try modelContext.save()

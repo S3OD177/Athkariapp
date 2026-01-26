@@ -32,17 +32,17 @@ enum RoutineIntensity: String, Codable, CaseIterable {
 
     var arabicName: String {
         switch self {
-        case .light: return "خفيف"
-        case .moderate: return "متوسط"
-        case .complete: return "كامل"
+        case .light: return "أذكار الصباح والمساء"
+        case .moderate: return "أذكار اليوم والليلة"
+        case .complete: return "أذكار المسلم اليومية"
         }
     }
 
     var arabicDescription: String {
         switch self {
-        case .light: return "الأذكار الأساسية فقط"
-        case .moderate: return "أذكار متوسطة مع بعض السنن"
-        case .complete: return "جميع الأذكار والأدعية"
+        case .light: return "الأذكار الأساسية اليومية فقط"
+        case .moderate: return "أذكار الصباح والمساء"
+        case .complete: return "أذكار النوم والاستيقاظ وكافة الأذكار"
         }
     }
 
@@ -103,6 +103,7 @@ final class AppSettings {
     var lastLocationLatitude: Double?
     var lastLocationLongitude: Double?
     var lastLocationCity: String?
+    var afterPrayerOffset: Int? // In minutes
 
     init(
         id: UUID = UUID(),
@@ -113,7 +114,8 @@ final class AppSettings {
         calculationMethod: CalculationMethod = .ummAlQura,
         locationPermissionState: LocationPermissionState = .notDetermined,
         iCloudEnabled: Bool = false,
-        fontSize: Double = 1.0
+        fontSize: Double = 1.0,
+        afterPrayerOffset: Int = 15
     ) {
         self.id = id
         self.theme = theme.rawValue
@@ -124,6 +126,7 @@ final class AppSettings {
         self.locationPermissionState = locationPermissionState.rawValue
         self.iCloudEnabled = iCloudEnabled
         self.fontSize = fontSize
+        self.afterPrayerOffset = afterPrayerOffset
     }
 
     var appTheme: AppTheme {

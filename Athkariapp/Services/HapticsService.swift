@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol HapticsServiceProtocol: Sendable {
     func playImpact(_ style: UIImpactFeedbackGenerator.FeedbackStyle)
     func playNotification(_ type: UINotificationFeedbackGenerator.FeedbackType)
@@ -9,6 +10,7 @@ protocol HapticsServiceProtocol: Sendable {
 
 @MainActor
 final class HapticsService: HapticsServiceProtocol {
+    static let shared = HapticsService()
     private var isEnabled: Bool
 
     init(isEnabled: Bool = true) {

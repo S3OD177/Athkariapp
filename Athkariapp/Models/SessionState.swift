@@ -31,10 +31,18 @@ final class SessionState {
     var slotKey: String // SlotKey rawValue
     var currentDhikrId: UUID?
     var currentCount: Int
+    var totalDhikrsCount: Int
     var targetCount: Int
     var status: String // SessionStatus rawValue
     var lastUpdated: Date
     var completedDhikrIds: [UUID]
+    
+    // Tracking for post-prayer adhkar
+    var completedAt: Date?
+    var shownMode: String? // "timeBased" or "manual"
+    var offsetUsedMinutes: Int?
+    var prayerName: String?
+    var adhanTime: Date?
 
     init(
         id: UUID = UUID(),
@@ -42,19 +50,31 @@ final class SessionState {
         slotKey: SlotKey,
         currentDhikrId: UUID? = nil,
         currentCount: Int = 0,
+        totalDhikrsCount: Int = 0,
         targetCount: Int = 0,
         status: SessionStatus = .notStarted,
-        completedDhikrIds: [UUID] = []
+        completedDhikrIds: [UUID] = [],
+        completedAt: Date? = nil,
+        shownMode: String? = nil,
+        offsetUsedMinutes: Int? = nil,
+        prayerName: String? = nil,
+        adhanTime: Date? = nil
     ) {
         self.id = id
         self.date = Calendar.current.startOfDay(for: date)
         self.slotKey = slotKey.rawValue
         self.currentDhikrId = currentDhikrId
         self.currentCount = currentCount
+        self.totalDhikrsCount = totalDhikrsCount
         self.targetCount = targetCount
         self.status = status.rawValue
         self.lastUpdated = Date()
         self.completedDhikrIds = completedDhikrIds
+        self.completedAt = completedAt
+        self.shownMode = shownMode
+        self.offsetUsedMinutes = offsetUsedMinutes
+        self.prayerName = prayerName
+        self.adhanTime = adhanTime
     }
 
     var sessionStatus: SessionStatus {
@@ -73,5 +93,17 @@ final class SessionState {
 
     var isCompleted: Bool {
         sessionStatus == .completed
+    }
+    
+    /// Returns true if the post-prayer dhikr was completed within 2 hours of the ready time
+    var isCompletionOnTime: Bool {
+        guard let completedAt = completedAt, 
+              let adhanTime = adhanTime,
+              let offset = offsetUsedMinutes else { return true } 
+        
+        let readyTime = adhanTime.addingTimeInterval(Double(offset) * 60)
+        let deadline = readyTime.addingTimeInterval(2 * 60 * 60) // 2 hours window
+        
+        return completedAt <= deadline
     }
 }

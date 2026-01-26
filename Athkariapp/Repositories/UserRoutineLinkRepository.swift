@@ -20,12 +20,9 @@ final class UserRoutineLinkRepository: UserRoutineLinkRepositoryProtocol {
 
     func fetchBySlot(_ slotKey: SlotKey) throws -> [UserRoutineLink] {
         let slotValue = slotKey.rawValue
-        let predicate = #Predicate<UserRoutineLink> { link in
-            link.slotKey == slotValue
-        }
-        var descriptor = FetchDescriptor<UserRoutineLink>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.orderIndex)]
-        return try modelContext.fetch(descriptor)
+        let allLinks = try modelContext.fetch(FetchDescriptor<UserRoutineLink>())
+        return allLinks.filter { $0.slotKey == slotValue }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func addLink(dhikrId: UUID, slotKey: SlotKey) throws {
@@ -47,13 +44,10 @@ final class UserRoutineLinkRepository: UserRoutineLinkRepositoryProtocol {
 
     func removeLink(dhikrId: UUID, slotKey: SlotKey) throws {
         let slotValue = slotKey.rawValue
-        let predicate = #Predicate<UserRoutineLink> { link in
-            link.dhikrId == dhikrId && link.slotKey == slotValue
-        }
-        let descriptor = FetchDescriptor<UserRoutineLink>(predicate: predicate)
-        let links = try modelContext.fetch(descriptor)
+        let allLinks = try modelContext.fetch(FetchDescriptor<UserRoutineLink>())
+        let linksToDelete = allLinks.filter { $0.dhikrId == dhikrId && $0.slotKey == slotValue }
 
-        for link in links {
+        for link in linksToDelete {
             modelContext.delete(link)
         }
         try modelContext.save()
@@ -61,18 +55,12 @@ final class UserRoutineLinkRepository: UserRoutineLinkRepositoryProtocol {
 
     func isLinked(dhikrId: UUID, slotKey: SlotKey) throws -> Bool {
         let slotValue = slotKey.rawValue
-        let predicate = #Predicate<UserRoutineLink> { link in
-            link.dhikrId == dhikrId && link.slotKey == slotValue
-        }
-        let descriptor = FetchDescriptor<UserRoutineLink>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor) > 0
+        let allLinks = try modelContext.fetch(FetchDescriptor<UserRoutineLink>())
+        return allLinks.contains { $0.dhikrId == dhikrId && $0.slotKey == slotValue }
     }
 
     func fetchAllLinksForDhikr(_ dhikrId: UUID) throws -> [UserRoutineLink] {
-        let predicate = #Predicate<UserRoutineLink> { link in
-            link.dhikrId == dhikrId
-        }
-        let descriptor = FetchDescriptor<UserRoutineLink>(predicate: predicate)
-        return try modelContext.fetch(descriptor)
+        let allLinks = try modelContext.fetch(FetchDescriptor<UserRoutineLink>())
+        return allLinks.filter { $0.dhikrId == dhikrId }
     }
 }

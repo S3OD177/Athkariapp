@@ -22,22 +22,16 @@ final class SessionRepository: SessionRepositoryProtocol {
 
     func fetchTodaySessions() throws -> [SessionState] {
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        let predicate = #Predicate<SessionState> { session in
-            session.date == startOfDay
-        }
-        var descriptor = FetchDescriptor<SessionState>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.slotKey)]
-        return try modelContext.fetch(descriptor)
+        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
+        return allSessions.filter { $0.date == startOfDay }
+            .sorted { $0.slotKey < $1.slotKey }
     }
 
     func fetchSession(date: Date, slotKey: SlotKey) throws -> SessionState? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let slotValue = slotKey.rawValue
-        let predicate = #Predicate<SessionState> { session in
-            session.date == startOfDay && session.slotKey == slotValue
-        }
-        let descriptor = FetchDescriptor<SessionState>(predicate: predicate)
-        return try modelContext.fetch(descriptor).first
+        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
+        return allSessions.first { $0.date == startOfDay && $0.slotKey == slotValue }
     }
 
     func fetchOrCreateSession(date: Date, slotKey: SlotKey) throws -> SessionState {
@@ -69,11 +63,8 @@ final class SessionRepository: SessionRepositoryProtocol {
     func fetchSessionsForDateRange(from: Date, to: Date) throws -> [SessionState] {
         let fromStart = Calendar.current.startOfDay(for: from)
         let toStart = Calendar.current.startOfDay(for: to)
-        let predicate = #Predicate<SessionState> { session in
-            session.date >= fromStart && session.date <= toStart
-        }
-        var descriptor = FetchDescriptor<SessionState>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.date), SortDescriptor(\.slotKey)]
-        return try modelContext.fetch(descriptor)
+        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
+        return allSessions.filter { $0.date >= fromStart && $0.date <= toStart }
+            .sorted { ($0.date, $0.slotKey) < ($1.date, $1.slotKey) }
     }
 }

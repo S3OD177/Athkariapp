@@ -24,58 +24,40 @@ final class DhikrRepository: DhikrRepositoryProtocol {
     }
 
     func fetchAll() throws -> [DhikrItem] {
-        let descriptor = FetchDescriptor<DhikrItem>(
-            sortBy: [SortDescriptor(\.orderIndex)]
-        )
-        return try modelContext.fetch(descriptor)
+        let descriptor = FetchDescriptor<DhikrItem>()
+        let items = try modelContext.fetch(descriptor)
+        return items.sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchBySource(_ source: DhikrSource) throws -> [DhikrItem] {
         let sourceValue = source.rawValue
-        let predicate = #Predicate<DhikrItem> { item in
-            item.source == sourceValue
-        }
-        var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.orderIndex)]
-        return try modelContext.fetch(descriptor)
+        let allItems = try fetchAll()
+        return allItems.filter { $0.source == sourceValue }
     }
 
     func fetchByCategory(_ category: DhikrCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let predicate = #Predicate<DhikrItem> { item in
-            item.category == categoryValue
-        }
-        var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.orderIndex)]
-        return try modelContext.fetch(descriptor)
+        let allItems = try fetchAll()
+        return allItems.filter { $0.category == categoryValue }
     }
 
     func fetchByHisnCategory(_ category: HisnCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let predicate = #Predicate<DhikrItem> { item in
-            item.hisnCategory == categoryValue
-        }
-        var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.orderIndex)]
-        return try modelContext.fetch(descriptor)
+        let allItems = try fetchAll()
+        return allItems.filter { $0.hisnCategory == categoryValue }
     }
 
     func fetchById(_ id: UUID) throws -> DhikrItem? {
-        let predicate = #Predicate<DhikrItem> { item in
-            item.id == id
-        }
-        let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-        return try modelContext.fetch(descriptor).first
+        let allItems = try fetchAll()
+        return allItems.first { $0.id == id }
     }
 
     func search(query: String) throws -> [DhikrItem] {
-        let predicate = #Predicate<DhikrItem> { item in
+        let allItems = try fetchAll()
+        return allItems.filter { item in
             item.title.localizedStandardContains(query) ||
             item.text.localizedStandardContains(query)
         }
-        var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-        descriptor.sortBy = [SortDescriptor(\.orderIndex)]
-        return try modelContext.fetch(descriptor)
     }
 
     func insert(_ item: DhikrItem) throws {

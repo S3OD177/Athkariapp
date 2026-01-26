@@ -7,72 +7,71 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		/* App */
-		APP001 /* AdhkariApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC001; };
-		APP002 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC002; };
-
-		/* Models */
-		MDL001 /* DhikrItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC003; };
-		MDL002 /* RoutineSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC004; };
-		MDL003 /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC005; };
-		MDL004 /* FavoriteItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC006; };
-		MDL005 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC007; };
-		MDL006 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC008; };
-		MDL007 /* PrayerTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009; };
-		MDL008 /* UserRoutineLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC010; };
-
-		/* Repositories */
-		REP001 /* DhikrRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011; };
-		REP002 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC012; };
-		REP003 /* FavoritesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC013; };
-		REP004 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014; };
-		REP005 /* OnboardingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015; };
-		REP006 /* UserRoutineLinkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016; };
-
-		/* Services */
-		SVC001 /* PrayerTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017; };
-		SVC002 /* SeedImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC018; };
-		SVC003 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC019; };
-		SVC004 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC020; };
-
-		/* ViewModels */
-		VWM001 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC021; };
-		VWM002 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC022; };
-		VWM003 /* HisnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC023; };
-		VWM004 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC024; };
-		VWM005 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC025; };
-		VWM006 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC026; };
-
-		/* UI */
-		UIV001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC027; };
-		UIV002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC028; };
-		UIV003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC029; };
-		UIV004 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC030; };
-		UIV005 /* HisnLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC031; };
-		UIV006 /* DuaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC032; };
-		UIV007 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC033; };
-		UIV008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC034; };
-		UIV009 /* CounterCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC035; };
-
-		/* Utilities */
-		UTL001 /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC036; };
-		UTL002 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC037; };
-		UTL003 /* ArabicNumbers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC038; };
-
-		/* Resources */
-		RES001 /* daily_athkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001; };
-		RES002 /* hisn.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC002; };
-		RES003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RSC004; };
+		APP001 /* AdhkariApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC001 /* AdhkariApp.swift */; };
+		APP002 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC002 /* AppContainer.swift */; };
+		C38D27072F26FEA1005D2A1A /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27062F26FEA1005D2A1A /* NotificationService.swift */; };
+		C38D270F2F27001B005D2A1A /* PrayerTimesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27092F27001B005D2A1A /* PrayerTimesView.swift */; };
+		C38D27102F27001B005D2A1A /* ZakatCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */; };
+		C38D27112F27001B005D2A1A /* HijriCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27082F27001B005D2A1A /* HijriCalendarView.swift */; };
+		C38D27122F27001B005D2A1A /* TasbihView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270C2F27001B005D2A1A /* TasbihView.swift */; };
+		C38D27132F27001B005D2A1A /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270B2F27001B005D2A1A /* StatisticsView.swift */; };
+		C38D27142F27001B005D2A1A /* QiblaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270A2F27001B005D2A1A /* QiblaView.swift */; };
+		MDL001 /* DhikrItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC003 /* DhikrItem.swift */; };
+		MDL002 /* RoutineSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC004 /* RoutineSlot.swift */; };
+		MDL003 /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC005 /* SessionState.swift */; };
+		MDL004 /* FavoriteItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC006 /* FavoriteItem.swift */; };
+		MDL005 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC007 /* AppSettings.swift */; };
+		MDL006 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC008 /* OnboardingState.swift */; };
+		MDL007 /* PrayerTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009 /* PrayerTimes.swift */; };
+		MDL008 /* UserRoutineLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC010 /* UserRoutineLink.swift */; };
+		REP001 /* DhikrRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011 /* DhikrRepository.swift */; };
+		REP002 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC012 /* SessionRepository.swift */; };
+		REP003 /* FavoritesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC013 /* FavoritesRepository.swift */; };
+		REP004 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* SettingsRepository.swift */; };
+		REP005 /* OnboardingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* OnboardingRepository.swift */; };
+		REP006 /* UserRoutineLinkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* UserRoutineLinkRepository.swift */; };
+		RES001 /* daily_athkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001 /* daily_athkar.json */; };
+		RES002 /* hisn.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC002 /* hisn.json */; };
+		RES003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RSC004 /* Localizable.strings */; };
+		SVC001 /* PrayerTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017 /* PrayerTimeService.swift */; };
+		SVC002 /* SeedImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC018 /* SeedImportService.swift */; };
+		SVC003 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC019 /* HapticsService.swift */; };
+		SVC004 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC020 /* LocationService.swift */; };
+		UIV001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC027 /* MainTabView.swift */; };
+		UIV002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC028 /* OnboardingView.swift */; };
+		UIV003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC029 /* HomeView.swift */; };
+		UIV004 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC030 /* SessionView.swift */; };
+		UIV005 /* HisnLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC031 /* HisnLibraryView.swift */; };
+		UIV006 /* DuaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC032 /* DuaDetailView.swift */; };
+		UIV007 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC033 /* FavoritesView.swift */; };
+		UIV008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC034 /* SettingsView.swift */; };
+		UIV009 /* CounterCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC035 /* CounterCircle.swift */; };
+		UTL001 /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC036 /* DateHelpers.swift */; };
+		UTL002 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC037 /* AppColors.swift */; };
+		UTL003 /* ArabicNumbers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC038 /* ArabicNumbers.swift */; };
+		VWM001 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC021 /* HomeViewModel.swift */; };
+		VWM002 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC022 /* SessionViewModel.swift */; };
+		VWM003 /* HisnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC023 /* HisnViewModel.swift */; };
+		VWM004 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC024 /* FavoritesViewModel.swift */; };
+		VWM005 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC025 /* SettingsViewModel.swift */; };
+		VWM006 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC026 /* OnboardingViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		PROD001 /* Athkariapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Athkariapp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-
-		/* App */
+		C38D27062F26FEA1005D2A1A /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		C38D27082F27001B005D2A1A /* HijriCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HijriCalendarView.swift; sourceTree = "<group>"; };
+		C38D27092F27001B005D2A1A /* PrayerTimesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimesView.swift; sourceTree = "<group>"; };
+		C38D270A2F27001B005D2A1A /* QiblaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QiblaView.swift; sourceTree = "<group>"; };
+		C38D270B2F27001B005D2A1A /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		C38D270C2F27001B005D2A1A /* TasbihView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasbihView.swift; sourceTree = "<group>"; };
+		C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZakatCalculatorView.swift; sourceTree = "<group>"; };
+		PROD001 /* Athkariapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Athkariapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		RSC001 /* daily_athkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = daily_athkar.json; sourceTree = "<group>"; };
+		RSC002 /* hisn.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hisn.json; sourceTree = "<group>"; };
+		RSC003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		RSC004 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		SRC001 /* AdhkariApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdhkariApp.swift; sourceTree = "<group>"; };
 		SRC002 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
-
-		/* Models */
 		SRC003 /* DhikrItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrItem.swift; sourceTree = "<group>"; };
 		SRC004 /* RoutineSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineSlot.swift; sourceTree = "<group>"; };
 		SRC005 /* SessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionState.swift; sourceTree = "<group>"; };
@@ -81,30 +80,22 @@
 		SRC008 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		SRC009 /* PrayerTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimes.swift; sourceTree = "<group>"; };
 		SRC010 /* UserRoutineLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRoutineLink.swift; sourceTree = "<group>"; };
-
-		/* Repositories */
 		SRC011 /* DhikrRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrRepository.swift; sourceTree = "<group>"; };
 		SRC012 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
 		SRC013 /* FavoritesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesRepository.swift; sourceTree = "<group>"; };
 		SRC014 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
 		SRC015 /* OnboardingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingRepository.swift; sourceTree = "<group>"; };
 		SRC016 /* UserRoutineLinkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRoutineLinkRepository.swift; sourceTree = "<group>"; };
-
-		/* Services */
 		SRC017 /* PrayerTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimeService.swift; sourceTree = "<group>"; };
 		SRC018 /* SeedImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedImportService.swift; sourceTree = "<group>"; };
 		SRC019 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		SRC020 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
-
-		/* ViewModels */
 		SRC021 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		SRC022 /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		SRC023 /* HisnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisnViewModel.swift; sourceTree = "<group>"; };
 		SRC024 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		SRC025 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		SRC026 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
-
-		/* UI */
 		SRC027 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		SRC028 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		SRC029 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -114,17 +105,9 @@
 		SRC033 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		SRC034 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC035 /* CounterCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterCircle.swift; sourceTree = "<group>"; };
-
-		/* Utilities */
 		SRC036 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		SRC037 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		SRC038 /* ArabicNumbers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicNumbers.swift; sourceTree = "<group>"; };
-
-		/* Resources */
-		RSC001 /* daily_athkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = daily_athkar.json; sourceTree = "<group>"; };
-		RSC002 /* hisn.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hisn.json; sourceTree = "<group>"; };
-		RSC004 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
-		RSC003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +121,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C38D270E2F27001B005D2A1A /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				C38D27082F27001B005D2A1A /* HijriCalendarView.swift */,
+				C38D27092F27001B005D2A1A /* PrayerTimesView.swift */,
+				C38D270A2F27001B005D2A1A /* QiblaView.swift */,
+				C38D270B2F27001B005D2A1A /* StatisticsView.swift */,
+				C38D270C2F27001B005D2A1A /* TasbihView.swift */,
+				C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
 		GRP000 = {
 			isa = PBXGroup;
 			children = (
@@ -159,7 +155,7 @@
 				GRP009 /* Resources */,
 				RSC003 /* Info.plist */,
 			);
-			path = "Athkariapp";
+			path = Athkariapp;
 			sourceTree = "<group>";
 		};
 		GRP002 /* App */ = {
@@ -202,6 +198,7 @@
 		GRP005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C38D27062F26FEA1005D2A1A /* NotificationService.swift */,
 				SRC017 /* PrayerTimeService.swift */,
 				SRC018 /* SeedImportService.swift */,
 				SRC019 /* HapticsService.swift */,
@@ -226,6 +223,7 @@
 		GRP007 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				C38D270E2F27001B005D2A1A /* Tools */,
 				SRC027 /* MainTabView.swift */,
 				GRP010 /* Onboarding */,
 				GRP011 /* Home */,
@@ -328,7 +326,7 @@
 /* Begin PBXNativeTarget section */
 		TGT001 /* Athkariapp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CFG002;
+			buildConfigurationList = CFG002 /* Build configuration list for PBXNativeTarget "Athkariapp" */;
 			buildPhases = (
 				SRC100 /* Sources */,
 				FRM001 /* Frameworks */,
@@ -338,8 +336,8 @@
 			);
 			dependencies = (
 			);
-			name = "Athkariapp";
-			productName = "Athkariapp";
+			name = Athkariapp;
+			productName = Athkariapp;
 			productReference = PROD001 /* Athkariapp.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -351,14 +349,14 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					TGT001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = CFG001;
+			buildConfigurationList = CFG001 /* Build configuration list for PBXProject "Athkariapp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = ar;
 			hasScannedForEncodings = 0;
@@ -422,6 +420,13 @@
 				VWM006 /* OnboardingViewModel.swift in Sources */,
 				UIV001 /* MainTabView.swift in Sources */,
 				UIV002 /* OnboardingView.swift in Sources */,
+				C38D27072F26FEA1005D2A1A /* NotificationService.swift in Sources */,
+				C38D270F2F27001B005D2A1A /* PrayerTimesView.swift in Sources */,
+				C38D27102F27001B005D2A1A /* ZakatCalculatorView.swift in Sources */,
+				C38D27112F27001B005D2A1A /* HijriCalendarView.swift in Sources */,
+				C38D27122F27001B005D2A1A /* TasbihView.swift in Sources */,
+				C38D27132F27001B005D2A1A /* StatisticsView.swift in Sources */,
+				C38D27142F27001B005D2A1A /* QiblaView.swift in Sources */,
 				UIV003 /* HomeView.swift in Sources */,
 				UIV004 /* SessionView.swift in Sources */,
 				UIV005 /* HisnLibraryView.swift in Sources */,
@@ -496,6 +501,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -552,6 +558,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -564,27 +571,27 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = AAR68TQVR5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Athkariapp/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Athkariapp";
+				INFOPLIST_FILE = Athkariapp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "نحتاج إلى موقعك لحساب أوقات الصلاة الدقيقة واتجاه القبلة";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.athkari.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Athkariapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -595,34 +602,34 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = AAR68TQVR5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Athkariapp/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Athkariapp";
+				INFOPLIST_FILE = Athkariapp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "نحتاج إلى موقعك لحساب أوقات الصلاة الدقيقة واتجاه القبلة";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.athkari.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Athkariapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CFG001 /* Build configuration list for PBXProject */ = {
+		CFG001 /* Build configuration list for PBXProject "Athkariapp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CFG101 /* Debug */,
@@ -631,7 +638,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CFG002 /* Build configuration list for PBXNativeTarget */ = {
+		CFG002 /* Build configuration list for PBXNativeTarget "Athkariapp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CFG201 /* Debug */,

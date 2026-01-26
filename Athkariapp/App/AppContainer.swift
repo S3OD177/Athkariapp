@@ -40,7 +40,19 @@ final class AppContainer {
                 configurations: [modelConfiguration]
             )
         } catch {
+            // Recovery for development: if schema changes fail, wipe and restart
+            #if DEBUG
+            print("ModelContainer failed: \(error). Resetting store...")
+            let url = modelConfiguration.url
+            try? FileManager.default.removeItem(at: url)
+            do {
+                modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            } catch {
+                fatalError("Could not create ModelContainer even after reset: \(error)")
+            }
+            #else
             fatalError("Could not create ModelContainer: \(error)")
+            #endif
         }
 
         // Initialize services
@@ -81,7 +93,11 @@ final class AppContainer {
 
 // MARK: - Environment Key
 struct AppContainerKey: EnvironmentKey {
-    static let defaultValue: AppContainer = AppContainer.shared
+    static var defaultValue: AppContainer {
+        MainActor.assumeIsolated {
+            AppContainer.shared
+        }
+    }
 }
 
 extension EnvironmentValues {

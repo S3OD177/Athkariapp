@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 /// Daily summary item for home screen
 struct DailySummaryItem: Identifiable {
@@ -30,24 +31,44 @@ final class HomeViewModel {
     var todayGregorianDate: String = ""
     var isLoading = false
     var errorMessage: String?
+    
+    // Post-Prayer Status
+    var currentAdhan: Prayer?
+    var postPrayerCountdown: String?
 
     // MARK: - Dependencies
     private let sessionRepository: SessionRepository
     private let dhikrRepository: DhikrRepository
     private let prayerTimeService: PrayerTimeService
     private let settingsRepository: SettingsRepository
+    private let locationService: LocationService
 
     // MARK: - Initialization
     init(
         sessionRepository: SessionRepository,
         dhikrRepository: DhikrRepository,
         prayerTimeService: PrayerTimeService,
-        settingsRepository: SettingsRepository
+        settingsRepository: SettingsRepository,
+        locationService: LocationService
     ) {
         self.sessionRepository = sessionRepository
         self.dhikrRepository = dhikrRepository
         self.prayerTimeService = prayerTimeService
         self.settingsRepository = settingsRepository
+        self.locationService = locationService
+        
+        setupLocationBindings()
+    }
+
+    private func setupLocationBindings() {
+        locationService.onLocationUpdate = { [weak self] _ in
+            Task { @MainActor in
+                await self?.loadData()
+            }
+        }
+        
+        // Initial permission request
+        locationService.requestPermission()
     }
 
     // MARK: - Public Methods
@@ -56,12 +77,30 @@ final class HomeViewModel {
         errorMessage = nil
 
         do {
-            // Load prayer times
-            prayerTimes = prayerTimeService.getDefaultPrayerTimes()
+            // Load prayer times using location
+            if let location = locationService.currentLocation {
+                prayerTimes = try? await prayerTimeService.fetchPrayerTimes(
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    method: 4
+                )
+            } else {
+                // Try to start updating if not available
+                locationService.startUpdatingLocation()
+                prayerTimes = prayerTimeService.getDefaultPrayerTimes()
+            }
+            
             if let times = prayerTimes {
                 currentPrayer = times.currentPrayer()
                 if let next = times.nextPrayer() {
                     nextPrayerTime = next.time
+                }
+                
+                // Schedule notifications
+                let settings = try? settingsRepository.getSettings()
+                if settings?.notificationsEnabled == true {
+                    let offset = settings?.afterPrayerOffset ?? 15
+                    await NotificationService.shared.schedulePostPrayerNotifications(prayerTimes: times, offsetMinutes: offset)
                 }
             }
 
@@ -84,14 +123,85 @@ final class HomeViewModel {
         await loadData()
     }
 
-    /// Handle "صليت الآن" button tap
-    func handlePrayedNow() -> SlotKey? {
-        guard let times = prayerTimes else { return nil }
-        return times.afterPrayerSlot()
-    }
 
     func getSessionForSlot(_ slotKey: SlotKey) throws -> SessionState {
-        try sessionRepository.fetchOrCreateSession(date: Date(), slotKey: slotKey)
+        let session = try sessionRepository.fetchOrCreateSession(date: Date(), slotKey: slotKey)
+        
+        // If it's a post-prayer slot, tag with metadata if not already completed
+        if slotKey.isAfterPrayer && session.sessionStatus != .completed {
+            if let prayer = prayerTimes?.currentAdhan() {
+                session.prayerName = prayer.rawValue
+                session.shownMode = "timeBased"
+                session.offsetUsedMinutes = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+                
+                // Store the adhan time for on-time verification
+                switch prayer {
+                case .fajr: session.adhanTime = prayerTimes?.fajr
+                case .dhuhr: session.adhanTime = prayerTimes?.dhuhr
+                case .asr: session.adhanTime = prayerTimes?.asr
+                case .maghrib: session.adhanTime = prayerTimes?.maghrib
+                case .isha: session.adhanTime = prayerTimes?.isha
+                case .sunrise: break
+                }
+            }
+        }
+        
+        return session
+    }
+
+    func markSessionCompleted(_ session: SessionState) {
+        session.sessionStatus = .completed
+        session.completedAt = Date()
+        try? sessionRepository.update(session)
+        
+        Task {
+            try? await loadDailySummary()
+        }
+    }
+
+    var dailyProgress: Double {
+        let total = dailySummary.reduce(0) { $0 + $1.totalCount }
+        guard total > 0 else { return 0 }
+        let completed = dailySummary.reduce(0) { $0 + $1.completedCount }
+        return Double(completed) / Double(total)
+    }
+
+    var formattedProgress: String {
+        let percentage = Int(dailyProgress * 100)
+        return "\(percentage)%"
+    }
+
+    var activeSummaryItem: DailySummaryItem? {
+        // 1. Check for in-progress first
+        if let inProgress = dailySummary.first(where: { $0.status == .partial }) {
+            return inProgress
+        }
+        
+        // 2. Check for "After Prayer" priority if active
+        if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
+            return afterPrayerItem
+        }
+        
+        // 3. Check for upcoming priority based on time
+        let hour = Calendar.current.component(.hour, from: Date())
+        
+        // Refined timing for Waking Up / Morning
+        if hour >= 3 && hour < 6 {
+            return dailySummary.first(where: { $0.id == "waking_up" })
+        } else if hour >= 6 && hour < 11 {
+            return dailySummary.first(where: { $0.id == "morning" })
+        } else if hour >= 15 && hour < 20 {
+            return dailySummary.first(where: { $0.id == "evening" })
+        } else if hour >= 20 || hour < 3 {
+            return dailySummary.first(where: { $0.id == "sleep" })
+        }
+        
+        // 3. Fallback to first non-completed
+        return dailySummary.first(where: { $0.status != .completed }) ?? dailySummary.first
+    }
+
+    var currentSlot: SlotKey? {
+        activeSummaryItem?.slots.first
     }
 
     // MARK: - Private Methods
@@ -102,36 +212,50 @@ final class HomeViewModel {
         // Create summary items
         var summaryItems: [DailySummaryItem] = []
 
+        // Waking Up
+        let wakingUpStatus = getStatusForSlots([.wakingUp], sessionsBySlot: sessionsBySlot)
+        summaryItems.append(DailySummaryItem(
+            id: "waking_up",
+            title: "أذكار الاستيقاظ",
+            icon: "sunrise.fill",
+            slots: [.wakingUp],
+            status: wakingUpStatus.status,
+            completedCount: wakingUpStatus.completed,
+            totalCount: wakingUpStatus.total
+        ))
+
         // Morning
         let morningStatus = getStatusForSlots([.morning], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "morning",
-            title: NSLocalizedString("morning_session", comment: ""),
-            icon: "sunrise.fill",
+            title: "أذكار الصباح",
+            icon: "sun.max.fill",
             slots: [.morning],
             status: morningStatus.status,
             completedCount: morningStatus.completed,
             totalCount: morningStatus.total
         ))
 
-        // After prayers (aggregated)
-        let afterPrayerSlots: [SlotKey] = [.afterFajr, .afterDhuhr, .afterAsr, .afterMaghrib, .afterIsha]
-        let afterPrayerStatus = getStatusForSlots(afterPrayerSlots, sessionsBySlot: sessionsBySlot)
-        summaryItems.append(DailySummaryItem(
-            id: "prayers",
-            title: NSLocalizedString("after_prayers_session", comment: ""),
-            icon: "hands.and.sparkles.fill",
-            slots: afterPrayerSlots,
-            status: afterPrayerStatus.status,
-            completedCount: afterPrayerStatus.completed,
-            totalCount: afterPrayerStatus.total
-        ))
+        // After prayers (dynamic current slot)
+        let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 0
+        if let afterSlot = prayerTimes?.afterPrayerSlot(offsetMinutes: offset) {
+            let afterPrayerStatus = getStatusForSlots([afterSlot], sessionsBySlot: sessionsBySlot)
+            summaryItems.append(DailySummaryItem(
+                id: "prayers",
+                title: "أذكار بعد \(afterSlot.shortName)",
+                icon: "hands.and.sparkles.fill",
+                slots: [afterSlot],
+                status: afterPrayerStatus.status,
+                completedCount: afterPrayerStatus.completed,
+                totalCount: afterPrayerStatus.total
+            ))
+        }
 
         // Evening
         let eveningStatus = getStatusForSlots([.evening], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "evening",
-            title: NSLocalizedString("evening_session", comment: ""),
+            title: "أذكار المساء",
             icon: "sunset.fill",
             slots: [.evening],
             status: eveningStatus.status,
@@ -143,7 +267,7 @@ final class HomeViewModel {
         let sleepStatus = getStatusForSlots([.sleep], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "sleep",
-            title: NSLocalizedString("sleep_session", comment: ""),
+            title: "أذكار النوم",
             icon: "moon.zzz.fill",
             slots: [.sleep],
             status: sleepStatus.status,
@@ -152,6 +276,33 @@ final class HomeViewModel {
         ))
 
         dailySummary = summaryItems
+        updateAdhanStatus()
+    }
+
+    private func updateAdhanStatus() {
+        guard let times = prayerTimes else { return }
+        let now = Date()
+        currentAdhan = times.currentAdhan(at: now)
+        
+        let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+        
+        if let adhan = currentAdhan {
+            // Check if post-prayer is ready
+            let isReady = times.isPostPrayerReady(for: adhan, at: now, offsetMinutes: offset)
+            
+            // Handle countdown
+            if !isReady {
+                if let countdown = times.countdownToPostPrayer(at: now, offsetMinutes: offset) {
+                    let minutes = Int(countdown.remaining / 60)
+                    let seconds = Int(countdown.remaining.truncatingRemainder(dividingBy: 60))
+                    postPrayerCountdown = String(format: "%02d:%02d", minutes, seconds)
+                }
+            } else {
+                postPrayerCountdown = nil
+            }
+        } else {
+            postPrayerCountdown = nil
+        }
     }
 
     private func getStatusForSlots(

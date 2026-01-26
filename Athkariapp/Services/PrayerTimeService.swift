@@ -7,11 +7,19 @@ protocol PrayerTimeServiceProtocol: Sendable {
         location: CLLocationCoordinate2D,
         method: CalculationMethod
     ) -> PrayerTimes
+    
+    func fetchPrayerTimes(
+        latitude: Double,
+        longitude: Double,
+        method: Int
+    ) async throws -> PrayerTimes
 }
 
 /// Simple prayer time calculator using basic astronomical calculations
 /// This is a placeholder implementation that can be improved later
 final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
+    // Shared state for the app
+    var currentPrayerTimes: PrayerTimes?
 
     // Default location (Mecca) when no location is available
     private let defaultLocation = CLLocationCoordinate2D(latitude: 21.4225, longitude: 39.8262)
@@ -158,6 +166,69 @@ final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
         let totalSeconds = hour * 3600
         return date.addingTimeInterval(totalSeconds)
     }
+
+    // MARK: - API Implementation
+
+    func fetchPrayerTimes(
+        latitude: Double,
+        longitude: Double,
+        method: Int = 4 // Umm Al-Qura default
+    ) async throws -> PrayerTimes {
+        let urlString = "https://api.aladhan.com/v1/timings?latitude=\(latitude)&longitude=\(longitude)&method=\(method)"
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let response = try JSONDecoder().decode(AladhanResponse.self, from: data)
+        
+        let timings = response.data.timings
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        func parse(_ time: String) -> Date {
+            let components = time.split(separator: " ").first.map(String.init) ?? time
+            let datePart = formatter.date(from: components) ?? Date()
+            let hour = calendar.component(.hour, from: datePart)
+            let minute = calendar.component(.minute, from: datePart)
+            return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: today) ?? today
+        }
+
+        let prayerTimesResult = PrayerTimes(
+            date: today,
+            fajr: parse(timings.Fajr),
+            sunrise: parse(timings.Sunrise),
+            dhuhr: parse(timings.Dhuhr),
+            asr: parse(timings.Asr),
+            maghrib: parse(timings.Maghrib),
+            isha: parse(timings.Isha)
+        )
+        
+        self.currentPrayerTimes = prayerTimesResult
+        return prayerTimesResult
+    }
+}
+
+// MARK: - API Models
+
+struct AladhanResponse: Codable {
+    let data: AladhanData
+}
+
+struct AladhanData: Codable {
+    let timings: AladhanTimings
+}
+
+struct AladhanTimings: Codable {
+    let Fajr: String
+    let Sunrise: String
+    let Dhuhr: String
+    let Asr: String
+    let Maghrib: String
+    let Isha: String
 }
 
 // MARK: - Default Prayer Times
@@ -165,6 +236,8 @@ final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
 extension PrayerTimeService {
     /// Returns approximate prayer times for today using default location
     func getDefaultPrayerTimes(for date: Date = Date()) -> PrayerTimes {
-        getPrayerTimes(date: date, location: defaultLocation, method: .ummAlQura)
+        let prayerTimesResult = getPrayerTimes(date: date, location: defaultLocation, method: .ummAlQura)
+        self.currentPrayerTimes = prayerTimesResult
+        return prayerTimesResult
     }
 }

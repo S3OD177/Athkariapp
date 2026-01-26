@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @MainActor
 @Observable
@@ -13,6 +14,8 @@ final class SettingsViewModel {
     var routineIntensity: RoutineIntensity = .moderate
     var calculationMethod: CalculationMethod = .ummAlQura
     var iCloudEnabled: Bool = false
+    var fontSize: Double = 1.0
+    var afterPrayerOffset: Int = 15
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -24,16 +27,22 @@ final class SettingsViewModel {
     private let settingsRepository: SettingsRepository
     private let locationService: LocationService
     private let hapticsService: HapticsService
+    private let prayerTimeService: PrayerTimeService
+    private let modelContext: ModelContext
 
     // MARK: - Initialization
     init(
         settingsRepository: SettingsRepository,
         locationService: LocationService,
-        hapticsService: HapticsService
+        hapticsService: HapticsService,
+        prayerTimeService: PrayerTimeService,
+        modelContext: ModelContext
     ) {
         self.settingsRepository = settingsRepository
         self.locationService = locationService
         self.hapticsService = hapticsService
+        self.prayerTimeService = prayerTimeService
+        self.modelContext = modelContext
     }
 
     // MARK: - Public Methods
@@ -51,7 +60,9 @@ final class SettingsViewModel {
                 routineIntensity = s.intensity
                 calculationMethod = s.calculation
                 iCloudEnabled = s.iCloudEnabled
+                fontSize = s.fontSize
                 locationCity = s.lastLocationCity
+                afterPrayerOffset = s.afterPrayerOffset ?? 15
             }
 
             // Update location permission state
@@ -81,7 +92,15 @@ final class SettingsViewModel {
         notificationsEnabled = enabled
         settings?.notificationsEnabled = enabled
         saveSettings()
-        // TODO: Schedule/cancel notifications
+        
+        if enabled {
+            Task {
+                _ = try? await NotificationService.shared.requestAuthorization()
+                await rescheduleNotifications()
+            }
+        } else {
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        }
     }
 
     func updateRoutineIntensity(_ intensity: RoutineIntensity) {
@@ -103,8 +122,63 @@ final class SettingsViewModel {
         // TODO: Implement iCloud sync
     }
 
+    func updateFontSize(_ size: Double) {
+        fontSize = size
+        settings?.fontSize = size
+        saveSettings()
+    }
+
+    func updateAfterPrayerOffset(_ offset: Int) {
+        afterPrayerOffset = offset
+        settings?.afterPrayerOffset = offset
+        saveSettings()
+        
+        if notificationsEnabled {
+            Task {
+                await rescheduleNotifications()
+            }
+        }
+    }
+
+    private func rescheduleNotifications() async {
+        // Fetch current prayer times from the service
+        // (This assumes the service already has coordinates or default calculation method set)
+        if let times = prayerTimeService.currentPrayerTimes {
+            await NotificationService.shared.schedulePostPrayerNotifications(
+                prayerTimes: times, 
+                offsetMinutes: afterPrayerOffset
+            )
+        }
+    }
+
     func requestLocationPermission() {
         locationService.requestPermission()
+    }
+
+    func clearAllData() {
+        do {
+            // Delete all sessions
+            let sessions = try modelContext.fetch(FetchDescriptor<SessionState>())
+            for session in sessions {
+                modelContext.delete(session)
+            }
+            
+            // Delete all favorites
+            let favorites = try modelContext.fetch(FetchDescriptor<FavoriteItem>())
+            for favorite in favorites {
+                modelContext.delete(favorite)
+            }
+            
+            try modelContext.save()
+            
+            // Trigger haptic feedback
+            hapticsService.playImpact(.heavy)
+            
+            // Notify other views
+            NotificationCenter.default.post(name: .didClearData, object: nil)
+        } catch {
+            print("Error clearing data: \(error)")
+        }
     }
 
     func openAppSettings() {
@@ -150,4 +224,8 @@ final class SettingsViewModel {
             locationPermissionGranted = false
         }
     }
+}
+// MARK: - Constants
+extension Notification.Name {
+    static let didClearData = Notification.Name("didClearData")
 }

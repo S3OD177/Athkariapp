@@ -6,7 +6,6 @@ struct AdhkariApp: App {
     @State private var appContainer = AppContainer.shared
     @State private var isOnboardingCompleted = false
     @State private var isLoading = true
-    @State private var currentTheme: AppTheme = .system
 
     var body: some Scene {
         WindowGroup {
@@ -16,15 +15,16 @@ struct AdhkariApp: App {
                 } else if isOnboardingCompleted {
                     MainTabView()
                 } else {
-                    OnboardingView()
-                        .onDisappear {
-                            checkOnboardingStatus()
+                    OnboardingView(onFinished: {
+                        withAnimation {
+                            isOnboardingCompleted = true
                         }
+                    })
                 }
             }
             .environment(\.appContainer, appContainer)
             .environment(\.layoutDirection, .rightToLeft)
-            .preferredColorScheme(colorScheme)
+            .preferredColorScheme(.dark)
             .modelContainer(appContainer.modelContainer)
             .task {
                 await initializeApp()
@@ -32,13 +32,7 @@ struct AdhkariApp: App {
         }
     }
 
-    private var colorScheme: ColorScheme? {
-        switch currentTheme {
-        case .system: return nil
-        case .light: return .light
-        case .dark: return .dark
-        }
-    }
+
 
     @MainActor
     private func initializeApp() async {
@@ -52,9 +46,6 @@ struct AdhkariApp: App {
 
         // Check onboarding status
         checkOnboardingStatus()
-
-        // Load theme preference
-        loadThemePreference()
 
         // Done loading
         try? await Task.sleep(for: .milliseconds(500))
@@ -71,13 +62,7 @@ struct AdhkariApp: App {
         }
     }
 
-    @MainActor
-    private func loadThemePreference() {
-        let repository = appContainer.makeSettingsRepository()
-        if let settings = try? repository.getSettings() {
-            currentTheme = settings.appTheme
-        }
-    }
+
 }
 
 // MARK: - Splash View

@@ -3,12 +3,12 @@ import SwiftUI
 struct OnboardingView: View {
     @Environment(\.appContainer) private var container
     @State private var viewModel: OnboardingViewModel?
-    @State private var currentPage = 0
+    let onFinished: () -> Void
 
     var body: some View {
         Group {
             if let viewModel = viewModel {
-                OnboardingContent(viewModel: viewModel)
+                OnboardingContent(viewModel: viewModel, onFinished: onFinished)
             } else {
                 ProgressView()
                     .task { setupViewModel() }
@@ -27,6 +27,7 @@ struct OnboardingView: View {
 
 struct OnboardingContent: View {
     @Bindable var viewModel: OnboardingViewModel
+    let onFinished: () -> Void
 
     var body: some View {
         TabView(selection: Binding(
@@ -44,6 +45,7 @@ struct OnboardingContent: View {
             .tag(1)
 
             PermissionsStep(
+                isLoading: viewModel.isLoading,
                 locationEnabled: viewModel.locationEnabled,
                 notificationsEnabled: viewModel.notificationsEnabled,
                 onLocationToggle: { viewModel.requestLocationPermission() },
@@ -56,6 +58,11 @@ struct OnboardingContent: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .ignoresSafeArea()
         .background(Color.black)
+        .onChange(of: viewModel.isCompleted) { _, completed in
+            if completed {
+                onFinished()
+            }
+        }
     }
 }
 
@@ -64,79 +71,123 @@ struct WelcomeStep: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-
-            // Logo area
-            ZStack {
-                Circle()
-                    .stroke(Color.blue.opacity(0.3), lineWidth: 2)
-                    .frame(width: 200, height: 200)
-
-                Circle()
-                    .fill(Color.black.opacity(0.8))
-                    .frame(width: 180, height: 180)
-
-                // Placeholder for book/Quran image
-                Image(systemName: "book.closed.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.brown.opacity(0.8))
-
-                // Mosque icon at bottom of circle
-                VStack {
-                    Spacer()
-                    Image(systemName: "building.columns.fill")
-                        .font(.title)
-                        .foregroundStyle(.blue)
-                        .padding(.bottom, -10)
+        ZStack {
+            // Background & Blobs
+            AppColors.onboardingBackground.ignoresSafeArea()
+            
+            GeometryReader { proxy in
+                ZStack {
+                    Circle()
+                        .fill(AppColors.onboardingPrimary.opacity(0.1))
+                        .frame(width: 400, height: 400)
+                        .blur(radius: 120)
+                        .position(x: 0, y: 0)
+                    
+                    Circle()
+                        .fill(AppColors.onboardingPrimary.opacity(0.05))
+                        .frame(width: 400, height: 400)
+                        .blur(radius: 100)
+                        .position(x: proxy.size.width, y: proxy.size.height)
                 }
-                .frame(width: 200, height: 200)
             }
-            .padding(.bottom, 40)
+            .ignoresSafeArea()
 
-            // App title
-            Text("اذكاري")
-                .font(.system(size: 48, weight: .bold))
-                .foregroundStyle(.white)
+            VStack(spacing: 0) {
+                Spacer()
 
-            Text("رفيقك اليومي للذكر")
-                .font(.title3)
-                .foregroundStyle(.gray)
-                .padding(.top, 8)
+                // Hero Visual
+                ZStack {
+                    // Outer Ring
+                    Circle()
+                        .stroke(AppColors.onboardingPrimary.opacity(0.2), lineWidth: 1)
+                        .scaleEffect(1.1)
+                        .frame(width: 250, height: 250)
 
-            Spacer()
-            Spacer()
-
-            // Continue button
-            Button(action: onContinue) {
-                HStack {
-                    Image(systemName: "arrow.left")
-                    Text("متابعة")
+                    // Glow Container
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    AppColors.onboardingPrimary.opacity(0.1),
+                                    AppColors.onboardingPrimary.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 250, height: 250)
+                        .overlay(
+                            Circle().stroke(Color.white.opacity(0.05), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.2), radius: 20)
+                        .overlay {
+                             Image(systemName: "circle.grid.hex")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .opacity(0.1)
+                                .mask(Circle())
+                        }
+                    
+                    // Floating Badge
+                    VStack {
+                        Spacer()
+                        Circle()
+                            .fill(AppColors.onboardingBackground)
+                            .frame(width: 56, height: 56)
+                            .overlay(
+                                Circle().stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                            .shadow(radius: 8)
+                            .overlay(
+                                Image(systemName: "building.columns.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(AppColors.onboardingPrimary)
+                            )
+                            .offset(y: 28)
+                    }
+                    .frame(height: 250)
                 }
-                .font(.headline)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .padding(.horizontal, 24)
+                .padding(.bottom, 60)
 
-            // Terms text
-            Text("باستمرارك، أنت توافق على شروط الاستخدام")
-                .font(.caption)
-                .foregroundStyle(.gray)
-                .padding(.top, 16)
+                // Typography
+                Text("اذكاري")
+                    .font(.system(size: 48, weight: .black))
+                    .foregroundStyle(.white)
+                
+                Text("رفيقك اليومي للذكر")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(AppColors.textGray)
+                    .padding(.top, 12)
+
+                Spacer()
+                Spacer()
+
+                // Action
+                VStack(spacing: 20) {
+                    Button(action: onContinue) {
+                        HStack {
+                            Text("متابعة")
+                            Spacer().frame(width: 8)
+                            Image(systemName: "arrow.left") // RTL Arrow
+                        }
+                        .font(.headline)
+                        .bold()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .shadow(color: AppColors.onboardingPrimary.opacity(0.25), radius: 10, y: 5)
+                    }
+                    
+                    Text("باستمرارك، أنت توافق على شروط الاستخدام")
+                        .font(.caption)
+                        .foregroundStyle(Color.gray.opacity(0.5))
+                }
+                .padding(.horizontal, 24)
                 .padding(.bottom, 40)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                colors: [Color(red: 0.05, green: 0.1, blue: 0.15), .black],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
     }
 }
 
@@ -147,44 +198,45 @@ struct RoutineSelectionStep: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-                .frame(height: 60)
+        VStack(spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 8) {
+                Text("اختر روتينك")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Text("اختر مستوى الأذكار الذي يناسب يومك. يمكنك تغيير هذا الإعداد لاحقاً.")
+                    .font(.body)
+                    .foregroundStyle(AppColors.textGray)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.top, 60)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
 
-            Text("اختر روتينك")
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(.white)
-
-            Text("اختر مستوى الأذكار الذي يناسب يومك. يمكنك تغيير هذا الإعداد لاحقاً.")
-                .font(.body)
-                .foregroundStyle(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-
-            Spacer()
-                .frame(height: 20)
-
+            // Options List
             VStack(spacing: 16) {
                 RoutineOptionCard(
-                    title: "الصلوات فقط",
-                    description: "أذكار ما بعد الصلاة المفروضة",
-                    icon: "building.columns.fill",
+                    title: "أذكار الصباح والمساء",
+                    description: "الأذكار الأساسية اليومية فقط",
+                    icon: "sun.max.fill",
                     isSelected: selectedIntensity == .light,
                     onTap: { onSelect(.light) }
                 )
 
                 RoutineOptionCard(
-                    title: "الصباح والمساء",
-                    description: "أذكار الصباح، المساء، والصلاة",
-                    icon: "sunrise.fill",
+                    title: "أذكار اليوم والليلة",
+                    description: "أذكار الصباح والمساء",
+                    icon: "cloud.sun.fill",
                     isSelected: selectedIntensity == .moderate,
                     onTap: { onSelect(.moderate) }
                 )
 
                 RoutineOptionCard(
-                    title: "كامل الأذكار",
-                    description: "النوم، الاستيقاظ، وجميع المناسبات",
-                    icon: "book.fill",
+                    title: "أذكار المسلم اليومية",
+                    description: "أذكار النوم والاستيقاظ وكافة الأذكار",
+                    icon: "book.fill", // Using book.fill as per design 'menu_book'
                     isSelected: selectedIntensity == .complete,
                     onTap: { onSelect(.complete) }
                 )
@@ -193,81 +245,99 @@ struct RoutineSelectionStep: View {
 
             Spacer()
 
-            Button(action: onContinue) {
-                Text("متابعة")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            // Continue Button (Sticky Bottom)
+            VStack {
+                Button(action: onContinue) {
+                    Text("متابعة")
+                        .font(.headline)
+                        .bold()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .shadow(color: AppColors.onboardingPrimary.opacity(0.25), radius: 10, y: 5)
+                }
+                .padding(.bottom, 40)
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
+        .background(AppColors.onboardingBackground)
     }
 }
 
 struct RoutineOptionCard: View {
     let title: String
     let description: String
-    let icon: String
+    let icon: String // SF Symbol Name
     let isSelected: Bool
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                // Radio button
-                Circle()
-                    .stroke(isSelected ? Color.blue : Color.gray.opacity(0.5), lineWidth: 2)
-                    .fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
-                    .frame(width: 24, height: 24)
-                    .overlay {
-                        if isSelected {
-                            Circle()
-                                .fill(Color.blue)
-                                .frame(width: 12, height: 12)
-                        }
-                    }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.headline)
-                        .foregroundStyle(.white)
-
+                        .bold()
+                        .foregroundStyle(isSelected ? AppColors.onboardingPrimary : .white)
+                    
                     Text(description)
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppColors.textGray)
+                        .multilineTextAlignment(.leading)
                 }
-
-                // Icon
+                
+                Spacer()
+                
+                // Icon Box
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(white: 0.15))
-                    .frame(width: 50, height: 50)
+                    .fill(isSelected ? AppColors.onboardingPrimary : Color(hex: "25252c"))
+                    .frame(width: 48, height: 48)
                     .overlay {
                         Image(systemName: icon)
                             .font(.title2)
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(isSelected ? .white : .gray)
                     }
+
+                // Checkmark (Circle Indicator) - Left side
+                ZStack {
+                    Circle()
+                        .stroke(isSelected ? AppColors.onboardingPrimary : AppColors.onboardingBorder, lineWidth: 2)
+                        .frame(width: 24, height: 24)
+                    
+                    if isSelected {
+                        Circle()
+                            .fill(AppColors.onboardingPrimary)
+                            .frame(width: 14, height: 14)
+                    }
+                }
             }
-            .padding(16)
+            .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(white: 0.1))
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                    .fill(isSelected ? AppColors.onboardingPrimary.opacity(0.05) : AppColors.onboardingSurface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isSelected ? AppColors.onboardingPrimary : AppColors.onboardingBorder, lineWidth: 2)
+                    )
             )
+            .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(.plain)
     }
 }
 
+// MARK: - Extensions managed in AppColors.swift
+// Color extensions moved to Utilities/AppColors.swift to avoid duplication
+
+
 // MARK: - Permissions Step
 struct PermissionsStep: View {
+    let isLoading: Bool
     let locationEnabled: Bool
     let notificationsEnabled: Bool
     let onLocationToggle: () -> Void
@@ -279,33 +349,32 @@ struct PermissionsStep: View {
     @State private var notificationToggle = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-                .frame(height: 60)
+        VStack(spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 16) {
+                Text("الموقع والتنبيهات")
+                    .font(.system(size: 30, weight: .bold)) // text-3xl
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.leading)
 
-            Text("الموقع والتنبيهات")
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(.white)
-
-            Text("نحتاج إلى هذه الأذونات لتقديم تجربة روحانية متكاملة، بما في ذلك أوقات الصلاة الدقيقة وتذكيرات الأذكار.")
-                .font(.body)
-                .foregroundStyle(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-
-            Spacer()
-                .frame(height: 20)
-
+                Text("نحتاج إلى هذه الأذونات لتقديم تجربة روحانية متكاملة، بما في ذلك أوقات الصلاة الدقيقة وتذكيرات الأذكار.")
+                    .font(.system(size: 16)) // text-base
+                    .foregroundStyle(Color(hex: "94a3b8")) // slate-400
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(4)
+            }
+            .padding(.top, 32)
+            .padding(.bottom, 32)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Cards
             VStack(spacing: 16) {
                 PermissionCard(
                     title: "تفعيل الموقع",
                     description: "لمعرفة أوقات الصلاة واتجاه القبلة بدقة.",
-                    icon: "location.fill",
-                    iconColor: .white,
-                    iconBackground: Color(white: 0.2),
+                    icon: "location.fill", // material: location_on
                     isEnabled: $locationToggle,
                     onToggle: {
-                        locationToggle.toggle()
                         if locationToggle {
                             onLocationToggle()
                         }
@@ -315,40 +384,49 @@ struct PermissionsStep: View {
                 PermissionCard(
                     title: "تفعيل التنبيهات",
                     description: "لتذكيرك بالأذكار اليومية ومواقيت الصلاة.",
-                    icon: "bell.fill",
-                    iconColor: .white,
-                    iconBackground: Color(white: 0.2),
+                    icon: "bell.fill", // material: notifications_active
                     isEnabled: $notificationToggle,
                     onToggle: {
-                        notificationToggle.toggle()
                         onNotificationsToggle(notificationToggle)
                     }
                 )
             }
-            .padding(.horizontal, 24)
 
             Spacer()
 
-            Button(action: onComplete) {
-                Text("ابدأ الاستخدام")
-                    .font(.headline)
+            // Buttons
+            VStack(spacing: 16) {
+                Button(action: onComplete) {
+                    Group {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("ابدأ الاستخدام")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                    }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .padding(.horizontal, 24)
+                    .frame(height: 56) // h-14
+                    .background(Color.onboardingPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12)) // rounded-xl
+                    .shadow(color: Color.onboardingPrimary.opacity(0.2), radius: 10, y: 4)
+                }
+                .disabled(isLoading)
 
-            Button(action: onSkip) {
-                Text("تخطي الآن")
-                    .font(.subheadline)
-                    .foregroundStyle(.gray)
+                Button(action: onSkip) {
+                    Text("تخطي الآن")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color(hex: "64748b")) // slate-500
+                }
+                .padding(.bottom, 8)
             }
-            .padding(.bottom, 40)
+            .padding(.bottom, 24)
         }
+        .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
+        .background(Color.onboardingBackground)
     }
 }
 
@@ -356,51 +434,55 @@ struct PermissionCard: View {
     let title: String
     let description: String
     let icon: String
-    let iconColor: Color
-    let iconBackground: Color
     @Binding var isEnabled: Bool
     let onToggle: () -> Void
 
     var body: some View {
         HStack(spacing: 16) {
-            Toggle("", isOn: $isEnabled)
-                .labelsHidden()
-                .onChange(of: isEnabled) { _, _ in
-                    onToggle()
+            // Icon
+            ContainerRelativeShape()
+                .fill(Color.onboardingIconBg)
+                .frame(width: 48, height: 48) // h-12 w-12
+                .overlay {
+                    Image(systemName: icon)
+                        .font(.system(size: 24))
+                        .foregroundStyle(.white)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 12)) // rounded-xl
 
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
+            // Text
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.headline)
+                    .font(.system(size: 16, weight: .bold)) // text-base
                     .foregroundStyle(.white)
 
                 Text(description)
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                    .multilineTextAlignment(.trailing)
+                    .font(.system(size: 14)) // text-sm
+                    .foregroundStyle(Color(hex: "94a3b8")) // slate-400
+                    .multilineTextAlignment(.leading)
             }
 
-            RoundedRectangle(cornerRadius: 12)
-                .fill(iconBackground)
-                .frame(width: 50, height: 50)
-                .overlay {
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundStyle(iconColor)
+            Spacer()
+
+            // Toggle
+            Toggle("", isOn: $isEnabled)
+                .labelsHidden()
+                .tint(Color.onboardingPrimary)
+                .onChange(of: isEnabled) { _, _ in
+                    onToggle()
                 }
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(white: 0.1))
+            RoundedRectangle(cornerRadius: 16) // rounded-2xl
+                .fill(Color.onboardingCard)
+                .stroke(Color.onboardingBorder, lineWidth: 1)
         )
     }
 }
 
 #Preview {
-    OnboardingView()
+    OnboardingView(onFinished: {})
         .environment(\.layoutDirection, .rightToLeft)
         .preferredColorScheme(.dark)
 }

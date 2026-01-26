@@ -8,6 +8,8 @@ protocol LocationServiceProtocol {
     func requestPermission()
     func startUpdatingLocation()
     func stopUpdatingLocation()
+    func startUpdatingHeading()
+    func stopUpdatingHeading()
 }
 
 @MainActor
@@ -21,11 +23,12 @@ final class LocationService: NSObject, LocationServiceProtocol {
 
     var onLocationUpdate: ((CLLocationCoordinate2D) -> Void)?
     var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
+    var onHeadingUpdate: ((CLLocationDirection) -> Void)?
 
     override init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
     func requestPermission() {
@@ -39,6 +42,14 @@ final class LocationService: NSObject, LocationServiceProtocol {
     func stopUpdatingLocation() {
         locationManager.stopUpdatingLocation()
     }
+
+    func startUpdatingHeading() {
+        locationManager.startUpdatingHeading()
+    }
+
+    func stopUpdatingHeading() {
+        locationManager.stopUpdatingHeading()
+    }
 }
 
 extension LocationService: CLLocationManagerDelegate {
@@ -49,10 +60,18 @@ extension LocationService: CLLocationManagerDelegate {
             self.onLocationUpdate?(location.coordinate)
         }
     }
+    
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        let heading = newHeading.trueHeading > 0 ? newHeading.trueHeading : newHeading.magneticHeading
+        Task { @MainActor in
+            self.onHeadingUpdate?(heading)
+        }
+    }
 
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let status = manager.authorizationStatus
         Task { @MainActor in
-            self.onAuthorizationChange?(manager.authorizationStatus)
+            self.onAuthorizationChange?(status)
         }
     }
 

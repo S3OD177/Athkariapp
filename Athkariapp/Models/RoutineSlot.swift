@@ -3,6 +3,7 @@ import SwiftData
 
 /// Time slots for daily routines
 enum SlotKey: String, Codable, CaseIterable {
+    case wakingUp = "waking_up"
     case morning = "morning"
     case afterFajr = "after_fajr"
     case afterDhuhr = "after_dhuhr"
@@ -14,6 +15,7 @@ enum SlotKey: String, Codable, CaseIterable {
 
     var arabicName: String {
         switch self {
+        case .wakingUp: return "أذكار الاستيقاظ"
         case .morning: return "أذكار الصباح"
         case .afterFajr: return "بعد الفجر"
         case .afterDhuhr: return "بعد الظهر"
@@ -27,6 +29,7 @@ enum SlotKey: String, Codable, CaseIterable {
 
     var shortName: String {
         switch self {
+        case .wakingUp: return "الاستيقاظ"
         case .morning: return "الصباح"
         case .afterFajr: return "الفجر"
         case .afterDhuhr: return "الظهر"
@@ -40,6 +43,7 @@ enum SlotKey: String, Codable, CaseIterable {
 
     var icon: String {
         switch self {
+        case .wakingUp: return "sunrise.fill"
         case .morning: return "sunrise.fill"
         case .afterFajr: return "sunrise.fill"
         case .afterDhuhr: return "sun.max.fill"
@@ -53,14 +57,15 @@ enum SlotKey: String, Codable, CaseIterable {
 
     var sortOrder: Int {
         switch self {
-        case .morning: return 0
-        case .afterFajr: return 1
-        case .afterDhuhr: return 2
-        case .afterAsr: return 3
-        case .afterMaghrib: return 4
-        case .afterIsha: return 5
-        case .evening: return 6
-        case .sleep: return 7
+        case .wakingUp: return 0
+        case .morning: return 1
+        case .afterFajr: return 2
+        case .afterDhuhr: return 3
+        case .afterAsr: return 4
+        case .afterMaghrib: return 5
+        case .afterIsha: return 6
+        case .evening: return 7
+        case .sleep: return 8
         }
     }
 
@@ -76,7 +81,7 @@ enum SlotKey: String, Codable, CaseIterable {
     /// Maps to DhikrCategory for filtering
     var dhikrCategory: DhikrCategory {
         switch self {
-        case .morning: return .morning
+        case .wakingUp, .morning: return .morning
         case .afterFajr, .afterDhuhr, .afterAsr, .afterMaghrib, .afterIsha:
             return .afterPrayer
         case .evening: return .evening
