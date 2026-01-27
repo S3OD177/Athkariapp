@@ -94,18 +94,9 @@ struct HomeContent: View {
                 
                 Spacer()
                 
-                // Notifications Button
-                Button {
-                    // Action
-                } label: {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Image(systemName: "bell")
-                                .foregroundStyle(Color.white)
-                        )
-                }
+                Spacer()
+                
+                // Notifications Button Removed
             }
             .padding(.horizontal, 16)
             .padding(.top, 10)
@@ -183,6 +174,10 @@ struct HomeContent: View {
                                 Text("متاح بعد \(countdown)")
                                     .font(.system(size: 11, weight: .bold))
                                     .foregroundStyle(Color.black.opacity(0.5))
+                            } else if let nextDhikr = viewModel.timeToNextDhikr {
+                                Text(nextDhikr)
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(Color.black.opacity(0.5))
                             }
                             
                             Spacer()
@@ -220,7 +215,27 @@ struct HomeContent: View {
             
             HStack(spacing: 12) {
                 summaryCard(title: "أذكار اليوم", value: viewModel.formattedProgress, badge: "متفوق", icon: "sparkles", color: AppColors.appPrimary)
-                summaryCard(title: "الورد الحالي", value: viewModel.activeSummaryItem?.title ?? "أذكار", badge: "الآن", icon: "book.fill", color: .purple)
+                
+                // Persistent After Prayer Button
+                if let prayerItem = viewModel.afterPrayerSummaryItem {
+                   Button {
+                       if let firstSlot = prayerItem.slots.first {
+                           navigationPath.append(firstSlot)
+                       }
+                   } label: {
+                       summaryCard(
+                           title: "أذكار بعد الصلاة", // Static Title
+                           value: "اضغط للقراءة", // Actionable text
+                           badge: "اقرأ",
+                           icon: "hands.and.sparkles.fill",
+                           color: .purple
+                       )
+                   }
+                   .buttonStyle(.plain)
+                } else {
+                    // Fallback if no prayer time logic is active (rare)
+                    summaryCard(title: "الورد الحالي", value: viewModel.activeSummaryItem?.title ?? "أذكار", badge: "الآن", icon: "book.fill", color: .purple)
+                }
             }
         }
     }
@@ -276,7 +291,7 @@ struct HomeContent: View {
             .padding(.top, 8)
             
             VStack(spacing: 12) {
-                ForEach(viewModel.dailySummary) { item in
+                ForEach(viewModel.dailySummary.filter { $0.id != "prayers" }) { item in
                     Button {
                         if let firstSlot = item.slots.first {
                             navigationPath.append(firstSlot)

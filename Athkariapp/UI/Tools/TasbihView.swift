@@ -5,6 +5,7 @@ import SwiftUI
 final class TasbihViewModel {
     var count: Int = 0
     var target: Int = 33
+    var customTarget: Int? // For custom entries
     var currentDhikr: String = "سبحان الله"
     var isHapticsEnabled: Bool = true
     
@@ -18,21 +19,35 @@ final class TasbihViewModel {
         "اللهم صل على محمد"
     ]
     
-    // History Logic (Simple in-memory for now)
+    // History Logic
     var history: [(date: Date, count: Int, dhikr: String)] = []
     
     // Dependencies
     private let hapticsService = HapticsService.shared
     
     func increment() {
-        count += 1
-        if isHapticsEnabled {
-            hapticsService.playImpact(.light)
-        }
-        
-        if count % target == 0 {
+        // Prevent counting past target if desired, or just loop/notify
+        // Here we notify on completion but allow continuous counting if user wants, 
+        // OR we can cap it. Let's strictly follow target logic:
+        if count < target {
+            count += 1
+            if count == target {
+                if isHapticsEnabled {
+                    hapticsService.playNotification(.success)
+                }
+            } else {
+                if isHapticsEnabled {
+                   hapticsService.playImpact(.light)
+                }
+            }
+        } else {
+            // Already reached target. User tapped again.
+            // Reset automatically? Or just bounce? 
+            // Let's reset for continuous flow like a real misbaha
+            addToHistory()
+            count = 1
             if isHapticsEnabled {
-                hapticsService.playNotification(.success)
+                hapticsService.playImpact(.light)
             }
         }
     }
@@ -49,7 +64,6 @@ final class TasbihViewModel {
     
     private func addToHistory() {
         history.insert((Date(), count, currentDhikr), at: 0)
-        // Keep last 20 entries
         if history.count > 20 {
             history.removeLast()
         }
@@ -72,6 +86,15 @@ final class TasbihViewModel {
     
     func updateTarget(_ newTarget: Int) {
         target = newTarget
+        customTarget = nil // Clear custom if picking standard
+        // Reset count if target changed? Usually yes.
+        count = 0
+    }
+    
+    func setCustomTarget(_ val: Int) {
+        target = val
+        customTarget = val
+        count = 0
     }
 }
 
@@ -88,12 +111,12 @@ struct TasbihView: View {
             AppColors.homeBackground.ignoresSafeArea()
             
             VStack {
-                // Header
+                // Header - Swapped Buttons as requested (X Left/Leading, History Right/Trailing)
                 HStack {
                     Button {
-                        showHistory = true
+                        dismiss()
                     } label: {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: "xmark")
                             .font(.title2)
                             .foregroundStyle(.white)
                             .padding(12)
@@ -110,9 +133,9 @@ struct TasbihView: View {
                     Spacer()
                     
                     Button {
-                        dismiss()
+                        showHistory = true
                     } label: {
-                        Image(systemName: "xmark")
+                        Image(systemName: "clock.arrow.circlepath")
                             .font(.title2)
                             .foregroundStyle(.white)
                             .padding(12)
@@ -123,57 +146,59 @@ struct TasbihView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
                 
+                // Active Dhikr Title
+                Text(viewModel.currentDhikr)
+                    .font(.title) // Increased size
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.top, 32)
+                
                 // Target Pill
                 Button {
                     showSettings = true
                 } label: {
-                    Text("الهدف: \(viewModel.target)")
-                        .font(.subheadline)
-                        .foregroundStyle(AppColors.onboardingPrimary)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 8)
-                        .background(AppColors.onboardingPrimary.opacity(0.15))
-                        .overlay(
-                            Capsule()
-                                .stroke(AppColors.onboardingPrimary.opacity(0.3), lineWidth: 1)
-                        )
-                        .clipShape(Capsule())
+                    HStack(spacing: 6) {
+                        Image(systemName: "target")
+                            .font(.caption)
+                        Text("الهدف: \(viewModel.target)")
+                            .font(.subheadline.bold())
+                    }
+                    .foregroundStyle(AppColors.onboardingPrimary)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(AppColors.onboardingPrimary.opacity(0.15))
+                    .overlay(
+                        Capsule()
+                            .stroke(AppColors.onboardingPrimary.opacity(0.3), lineWidth: 1)
+                    )
+                    .clipShape(Capsule())
                 }
-                .padding(.top, 20)
+                .padding(.top, 16)
                 
                 Spacer()
                 
-                // Main Counter Area
-                Button {
+                // Main Counter Ring
+                CounterCircle(
+                    currentCount: viewModel.count,
+                    targetCount: viewModel.target,
+                    size: 280,
+                    activeColor: AppColors.onboardingPrimary
+                ) {
                     viewModel.increment()
-                } label: {
-                    VStack(spacing: 24) {
-                        Text(viewModel.currentDhikr)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        
-                        Text("\(viewModel.count)")
-                            .font(.system(size: 96, weight: .bold))
-                            .foregroundStyle(AppColors.onboardingPrimary)
-                            .contentTransition(.numericText(value: Double(viewModel.count)))
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
                 
-                Text("المس في أي مكان للتسبيح")
+                Text("المس الدائرة للتسبيح")
                     .font(.caption)
                     .foregroundStyle(.gray.opacity(0.6))
-                    .padding(.bottom, 40)
+                    .padding(.top, 24)
                 
                 Spacer()
                 
                 // Bottom Controls
-                HStack(spacing: 16) {
+                HStack(spacing: 24) { // Increased spacing
+                    // Toggle Haptics
                     Button {
                         viewModel.toggleHaptics()
                     } label: {
@@ -184,38 +209,40 @@ struct TasbihView: View {
                                 .font(.caption2)
                         }
                         .foregroundStyle(viewModel.isHapticsEnabled ? AppColors.onboardingPrimary : .gray)
-                        .frame(width: 80, height: 80)
+                        .frame(width: 70, height: 70) // Slightly smaller
                         .background(Color.white.opacity(0.05))
                         .clipShape(Circle())
                     }
                     
+                    // Change Dhikr (Prominent)
                     Button {
                         showDhikrList = true
                     } label: {
-                        HStack {
+                        VStack(spacing: 4) {
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 20))
                             Text("تغيير الذكر")
-                                .font(.headline)
-                            Image(systemName: "arrow.left.arrow.right")
+                                .font(.caption2)
                         }
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
+                        .frame(width: 70, height: 70)
                         .background(AppColors.onboardingPrimary)
-                        .clipShape(Capsule())
+                        .clipShape(Circle())
                         .shadow(color: AppColors.onboardingPrimary.opacity(0.3), radius: 10, y: 5)
                     }
                     
+                    // Reset
                     Button {
                         viewModel.reset()
                     } label: {
                         VStack(spacing: 4) {
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.system(size: 20))
-                            Text("إعادة ضبط")
+                            Text("تصفير")
                                 .font(.caption2)
                         }
                         .foregroundStyle(.gray)
-                        .frame(width: 80, height: 80)
+                        .frame(width: 70, height: 70)
                         .background(Color.white.opacity(0.05))
                         .clipShape(Circle())
                     }
@@ -225,7 +252,7 @@ struct TasbihView: View {
             }
         }
         .sheet(isPresented: $showSettings) {
-             TasbihSettingsSheet(target: $viewModel.target)
+             TasbihSettingsSheet(viewModel: viewModel)
         }
         .sheet(isPresented: $showHistory) {
             TasbihHistorySheet(history: viewModel.history)
@@ -242,9 +269,11 @@ struct TasbihView: View {
 
 struct TasbihSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var target: Int
+    @Bindable var viewModel: TasbihViewModel
+    @State private var customTargetText = ""
+    @FocusState private var isCustomFocused: Bool
     
-    let targets = [33, 100, 1000, 10000]
+    let targets = [33, 100, 1000]
     
     var body: some View {
         ZStack {
@@ -255,17 +284,19 @@ struct TasbihSettingsSheet: View {
                     .foregroundStyle(.white)
                     .padding(.top, 24)
                 
+                // Presets
                 ForEach(targets, id: \.self) { val in
                     Button {
-                        target = val
+                        viewModel.updateTarget(val)
                         dismiss()
                     } label: {
                         HStack {
                             Text("\(val)")
-                                .font(.body)
+                                .font(.body.bold())
                             Spacer()
-                            if target == val {
+                            if viewModel.target == val && viewModel.customTarget == nil {
                                 Image(systemName: "checkmark")
+                                    .foregroundStyle(AppColors.onboardingPrimary)
                             }
                         }
                         .foregroundStyle(.white)
@@ -275,11 +306,50 @@ struct TasbihSettingsSheet: View {
                     }
                 }
                 
+                // Custom Target Input
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("هدف مخصص")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                        .padding(.horizontal, 4)
+                        
+                    HStack {
+                        TextField("أدخل الرقم", text: $customTargetText)
+                            .keyboardType(.numberPad)
+                            .focused($isCustomFocused)
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(12)
+                            .foregroundStyle(.white)
+                        
+                        Button {
+                            // Save custom
+                            if let val = Int(customTargetText), val > 0 {
+                                viewModel.setCustomTarget(val)
+                                dismiss()
+                            }
+                        } label: {
+                            Text("حفظ")
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 14)
+                                .background(AppColors.onboardingPrimary)
+                                .cornerRadius(12)
+                        }
+                    }
+                }
+                
                 Spacer()
             }
             .padding(24)
         }
         .presentationDetents([.medium])
+        .onAppear {
+            if let custom = viewModel.customTarget {
+                customTargetText = "\(custom)"
+            }
+        }
     }
 }
 
@@ -298,6 +368,7 @@ struct TasbihHistorySheet: View {
                 if history.isEmpty {
                     Spacer()
                     ContentUnavailableView("لا يوجد سجل", systemImage: "clock", description: Text("ابدأ التسبيح وسوف يظهر سجلك هنا"))
+                        .foregroundStyle(.gray)
                     Spacer()
                 } else {
                     List(history, id: \.date) { item in

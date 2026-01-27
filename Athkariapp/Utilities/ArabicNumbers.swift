@@ -1,19 +1,17 @@
 import Foundation
 
 extension Int {
-    /// Convert to Arabic-Indic numerals
+    /// Convert to English numerals (Pass-through for consistency)
     var arabicNumeral: String {
-        let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: "ar")
-        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
+        return "\(self)"
     }
 }
 
 extension Double {
-    /// Convert to Arabic-Indic numerals
+    /// Convert to English numerals
     var arabicNumeral: String {
         let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: "ar")
+        formatter.locale = Locale(identifier: "en")
         formatter.maximumFractionDigits = 2
         return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
@@ -25,13 +23,8 @@ extension String {
         "\u{200F}" + self // Right-to-left mark
     }
     
-    /// Converts all ASCII digits in the string to Arabic-Indic digits
+    /// Returns the string as is (English/Western digits)
     var arabicNumeral: String {
-        let arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"]
-        var result = self
-        for (i, digit) in arabicDigits.enumerated() {
-            result = result.replacingOccurrences(of: "\(i)", with: digit)
-        }
-        return result
+        return self
     }
 }

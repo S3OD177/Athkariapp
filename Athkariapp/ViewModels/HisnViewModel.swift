@@ -19,17 +19,14 @@ final class HisnViewModel {
 
     // MARK: - Dependencies
     private let dhikrRepository: DhikrRepository
-    private let favoritesRepository: FavoritesRepository
     private let settingsRepository: SettingsRepositoryProtocol
 
     // MARK: - Initialization
     init(
         dhikrRepository: DhikrRepository,
-        favoritesRepository: FavoritesRepository,
         settingsRepository: SettingsRepositoryProtocol
     ) {
         self.dhikrRepository = dhikrRepository
-        self.favoritesRepository = favoritesRepository
         self.settingsRepository = settingsRepository
     }
 
@@ -59,14 +56,6 @@ final class HisnViewModel {
             selectedCategory = category
         }
         filterDuas()
-    }
-
-    func toggleFavorite(_ dua: DhikrItem) throws -> Bool {
-        try favoritesRepository.toggleFavorite(dhikrId: dua.id)
-    }
-
-    func isFavorite(_ dua: DhikrItem) throws -> Bool {
-        try favoritesRepository.isFavorite(dhikrId: dua.id)
     }
 
     // MARK: - Private Methods

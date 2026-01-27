@@ -22,9 +22,9 @@ final class SessionViewModel {
     var showFinishConfirmation: Bool = false
 
     // MARK: - Dependencies
+    // MARK: - Dependencies
     private let sessionRepository: SessionRepository
     private let dhikrRepository: DhikrRepository
-    private let favoritesRepository: FavoritesRepository
     private let hapticsService: HapticsService
     private var hapticsEnabled: Bool = true
 
@@ -51,7 +51,6 @@ final class SessionViewModel {
         slotKey: SlotKey,
         sessionRepository: SessionRepository,
         dhikrRepository: DhikrRepository,
-        favoritesRepository: FavoritesRepository,
         hapticsService: HapticsService,
         hapticsEnabled: Bool = true,
         fontSize: Double = 1.0
@@ -59,7 +58,6 @@ final class SessionViewModel {
         self.slotKey = slotKey
         self.sessionRepository = sessionRepository
         self.dhikrRepository = dhikrRepository
-        self.favoritesRepository = favoritesRepository
         self.hapticsService = hapticsService
         self.hapticsEnabled = hapticsEnabled
         self.fontSize = fontSize
@@ -160,23 +158,32 @@ final class SessionViewModel {
         saveSession()
     }
 
-    func forceFinish() {
+    func endSession() {
         guard let session = session else { return }
-        session.sessionStatus = .completed
-        session.completedAt = Date()
-        isCompleted = true
+        // Only mark as partial if started but not completed
+        if session.sessionStatus != .completed && (currentCount > 0 || !session.completedDhikrIds.isEmpty) {
+            session.sessionStatus = .partial
+        }
         saveSession()
     }
 
-    func toggleFavorite() async throws -> Bool {
-        guard let dhikr = currentDhikr else { return false }
-        return try favoritesRepository.toggleFavorite(dhikrId: dhikr.id)
+    func moveToNext() {
+        guard let current = currentDhikr, let index = dhikrList.firstIndex(where: { $0.id == current.id }) else { return }
+        let nextIndex = index + 1
+        if nextIndex < dhikrList.count {
+            switchDhikr(to: dhikrList[nextIndex])
+        }
     }
 
-    func isFavorite() throws -> Bool {
-        guard let dhikr = currentDhikr else { return false }
-        return try favoritesRepository.isFavorite(dhikrId: dhikr.id)
+    func moveToPrevious() {
+        guard let current = currentDhikr, let index = dhikrList.firstIndex(where: { $0.id == current.id }) else { return }
+        let prevIndex = index - 1
+        if prevIndex >= 0 {
+            switchDhikr(to: dhikrList[prevIndex])
+        }
     }
+
+
 
     func shareText() -> String {
         guard let dhikr = currentDhikr else { return "" }

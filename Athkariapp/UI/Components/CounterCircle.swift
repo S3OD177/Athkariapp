@@ -5,6 +5,7 @@ struct CounterCircle: View {
     let currentCount: Int
     let targetCount: Int
     var size: CGFloat = 250 // Configurable size with default
+    var activeColor: Color = AppColors.appPrimary // Configurable color
     let onTap: () -> Void
 
     private var progress: Double {
@@ -30,7 +31,7 @@ struct CounterCircle: View {
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(
-                        isCompleted ? AppColors.onboardingPrimary : AppColors.appPrimary,
+                        isCompleted ? AppColors.onboardingPrimary : activeColor,
                         style: StrokeStyle(
                             lineWidth: size * 0.048,
                             lineCap: .round

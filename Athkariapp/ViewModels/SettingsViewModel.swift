@@ -16,6 +16,17 @@ final class SettingsViewModel {
     var iCloudEnabled: Bool = false
     var fontSize: Double = 1.0
     var afterPrayerOffset: Int = 15
+    
+    // Time Configuration State
+    var wakingUpStart: Int = 3
+    var wakingUpEnd: Int = 6
+    var morningStart: Int = 6
+    var morningEnd: Int = 11
+    var eveningStart: Int = 15
+    var eveningEnd: Int = 20
+    var sleepStart: Int = 20
+    var sleepEnd: Int = 3
+    
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -63,6 +74,16 @@ final class SettingsViewModel {
                 fontSize = s.fontSize
                 locationCity = s.lastLocationCity
                 afterPrayerOffset = s.afterPrayerOffset ?? 15
+                
+                // Load Time Configuration
+                wakingUpStart = s.wakingUpStart
+                wakingUpEnd = s.wakingUpEnd
+                morningStart = s.morningStart
+                morningEnd = s.morningEnd
+                eveningStart = s.eveningStart
+                eveningEnd = s.eveningEnd
+                sleepStart = s.sleepStart
+                sleepEnd = s.sleepEnd
             }
 
             // Update location permission state
@@ -139,6 +160,55 @@ final class SettingsViewModel {
             }
         }
     }
+    
+    // Time Configuration Updates
+    func updateWakingUpStart(_ hour: Int) {
+        wakingUpStart = hour
+        settings?.wakingUpStart = hour
+        saveSettings()
+    }
+
+    func updateWakingUpEnd(_ hour: Int) {
+        wakingUpEnd = hour
+        settings?.wakingUpEnd = hour
+        saveSettings()
+    }
+    
+    func updateMorningStart(_ hour: Int) {
+        morningStart = hour
+        settings?.morningStart = hour
+        saveSettings()
+    }
+
+    func updateMorningEnd(_ hour: Int) {
+        morningEnd = hour
+        settings?.morningEnd = hour
+        saveSettings()
+    }
+    
+    func updateEveningStart(_ hour: Int) {
+        eveningStart = hour
+        settings?.eveningStart = hour
+        saveSettings()
+    }
+
+    func updateEveningEnd(_ hour: Int) {
+        eveningEnd = hour
+        settings?.eveningEnd = hour
+        saveSettings()
+    }
+    
+    func updateSleepStart(_ hour: Int) {
+        sleepStart = hour
+        settings?.sleepStart = hour
+        saveSettings()
+    }
+
+    func updateSleepEnd(_ hour: Int) {
+        sleepEnd = hour
+        settings?.sleepEnd = hour
+        saveSettings()
+    }
 
     private func rescheduleNotifications() async {
         // Fetch current prayer times from the service
@@ -164,10 +234,7 @@ final class SettingsViewModel {
             }
             
             // Delete all favorites
-            let favorites = try modelContext.fetch(FetchDescriptor<FavoriteItem>())
-            for favorite in favorites {
-                modelContext.delete(favorite)
-            }
+
             
             try modelContext.save()
             

@@ -28,7 +28,7 @@ final class LocationService: NSObject, LocationServiceProtocol {
     override init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
     }
 
     func requestPermission() {

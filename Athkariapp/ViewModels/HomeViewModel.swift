@@ -63,6 +63,8 @@ final class HomeViewModel {
     private func setupLocationBindings() {
         locationService.onLocationUpdate = { [weak self] _ in
             Task { @MainActor in
+                // Stop location updates after getting initial location (energy optimization)
+                self?.locationService.stopUpdatingLocation()
                 await self?.loadData()
             }
         }
@@ -85,8 +87,9 @@ final class HomeViewModel {
                     method: 4
                 )
             } else {
-                // Try to start updating if not available
+                // Request a single location update (not continuous) if not available
                 locationService.startUpdatingLocation()
+                // Will be stopped automatically in setupLocationBindings callback
                 prayerTimes = prayerTimeService.getDefaultPrayerTimes()
             }
             
@@ -177,22 +180,54 @@ final class HomeViewModel {
             return inProgress
         }
         
-        // 2. Check for "After Prayer" priority if active
+        // 2. Check for "After Prayer" priority if active AND timely
         if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
-            return afterPrayerItem
+            // Only prioritize in Hero Card if it's actually the active time
+            // (Since we made the item persistent, we must check isPostPrayerReady or similar)
+            if let times = prayerTimes, let prayer = times.currentAdhan(at: Date()) {
+                let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+                let isReady = times.isPostPrayerReady(for: prayer, at: Date(), offsetMinutes: offset)
+                // Also check if we are in the countdown phase (it's "next" but not ready yet)
+                // If ready or counting down, show it.
+                // If it's totally outside window (e.g. sunrise), don't show as main item
+                if isReady || times.countdownToPostPrayer(at: Date(), offsetMinutes: offset) != nil {
+                    return afterPrayerItem
+                }
+            }
         }
         
         // 3. Check for upcoming priority based on time
         let hour = Calendar.current.component(.hour, from: Date())
+        let settings = try? settingsRepository.getSettings()
         
-        // Refined timing for Waking Up / Morning
-        if hour >= 3 && hour < 6 {
+        // Defaults if settings not loaded
+        let wakingStart = settings?.wakingUpStart ?? 3
+        let wakingEnd = settings?.wakingUpEnd ?? 6
+        let morningStart = settings?.morningStart ?? 6
+        let morningEnd = settings?.morningEnd ?? 11
+        let eveningStart = settings?.eveningStart ?? 15
+        let eveningEnd = settings?.eveningEnd ?? 20
+        let sleepStart = settings?.sleepStart ?? 20
+        let sleepEnd = settings?.sleepEnd ?? 3
+        
+        // Helper to check time range
+        func isInRange(hour: Int, start: Int, end: Int) -> Bool {
+            if start < end {
+                return hour >= start && hour < end
+            } else {
+                // Crosses midnight (e.g. 20 to 3)
+                return hour >= start || hour < end
+            }
+        }
+        
+        // Refined timing
+        if isInRange(hour: hour, start: wakingStart, end: wakingEnd) {
             return dailySummary.first(where: { $0.id == "waking_up" })
-        } else if hour >= 6 && hour < 11 {
+        } else if isInRange(hour: hour, start: morningStart, end: morningEnd) {
             return dailySummary.first(where: { $0.id == "morning" })
-        } else if hour >= 15 && hour < 20 {
+        } else if isInRange(hour: hour, start: eveningStart, end: eveningEnd) {
             return dailySummary.first(where: { $0.id == "evening" })
-        } else if hour >= 20 || hour < 3 {
+        } else if isInRange(hour: hour, start: sleepStart, end: sleepEnd) {
             return dailySummary.first(where: { $0.id == "sleep" })
         }
         
@@ -202,6 +237,11 @@ final class HomeViewModel {
 
     var currentSlot: SlotKey? {
         activeSummaryItem?.slots.first
+    }
+
+    // New persistent accessor for After Prayer button
+    var afterPrayerSummaryItem: DailySummaryItem? {
+        dailySummary.first(where: { $0.id == "prayers" })
     }
 
     // MARK: - Private Methods
@@ -236,20 +276,30 @@ final class HomeViewModel {
             totalCount: morningStatus.total
         ))
 
-        // After prayers (dynamic current slot)
-        let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 0
-        if let afterSlot = prayerTimes?.afterPrayerSlot(offsetMinutes: offset) {
-            let afterPrayerStatus = getStatusForSlots([afterSlot], sessionsBySlot: sessionsBySlot)
-            summaryItems.append(DailySummaryItem(
-                id: "prayers",
-                title: "أذكار بعد \(afterSlot.shortName)",
-                icon: "hands.and.sparkles.fill",
-                slots: [afterSlot],
-                status: afterPrayerStatus.status,
-                completedCount: afterPrayerStatus.completed,
-                totalCount: afterPrayerStatus.total
-            ))
+        // After prayers (Always show)
+        let persistentSlot: SlotKey
+        if let current = prayerTimes?.currentPrayer() {
+            if let slot = current.afterPrayerSlot {
+                persistentSlot = slot
+            } else if current == .sunrise {
+                persistentSlot = .afterDhuhr
+            } else {
+                persistentSlot = .afterFajr // Fallback
+            }
+        } else {
+            persistentSlot = .afterFajr // Default fallback
         }
+
+        let afterPrayerStatus = getStatusForSlots([persistentSlot], sessionsBySlot: sessionsBySlot)
+        summaryItems.append(DailySummaryItem(
+            id: "prayers",
+            title: "أذكار بعد \(persistentSlot.shortName)",
+            icon: "hands.and.sparkles.fill",
+            slots: [persistentSlot],
+            status: afterPrayerStatus.status,
+            completedCount: afterPrayerStatus.completed,
+            totalCount: afterPrayerStatus.total
+        ))
 
         // Evening
         let eveningStatus = getStatusForSlots([.evening], sessionsBySlot: sessionsBySlot)
@@ -302,6 +352,67 @@ final class HomeViewModel {
             }
         } else {
             postPrayerCountdown = nil
+        }
+    }
+    
+    var timeToNextDhikr: String? {
+        let now = Date()
+        let calendar = Calendar.current
+        var nextEventDate: Date?
+        var eventName: String = ""
+        
+        // 1. Check Next Prayer
+        if let nextPrayer = nextPrayerTime {
+            nextEventDate = nextPrayer
+            eventName = "الصلاة القادمة"
+        }
+        
+        // 2. Check Static Times (Morning, Evening, etc.)
+        if let settings = try? settingsRepository.getSettings() {
+            let candidates: [(String, Int)] = [
+                ("أذكار الصباح", settings.morningStart),
+                ("أذكار المساء", settings.eveningStart),
+                ("أذكار النوم", settings.sleepStart),
+                ("أذكار الاستيقاظ", settings.wakingUpStart)
+            ]
+            
+            for (name, startHour) in candidates {
+                // Construct date for this start hour today
+                if let date = calendar.date(bySettingHour: startHour, minute: 0, second: 0, of: now) {
+                    var targetDate = date
+                    if targetDate <= now {
+                        // If passed today, verify if it's closer tomorrow than current nextEvent
+                        if let tomorrow = calendar.date(byAdding: .day, value: 1, to: targetDate) {
+                            targetDate = tomorrow
+                        } else {
+                            continue
+                        }
+                    }
+                    
+                    // If this target is sooner than current nextEvent (or if nextEvent is nil)
+                    if let currentNext = nextEventDate {
+                        if targetDate < currentNext {
+                            nextEventDate = targetDate
+                            eventName = name
+                        }
+                    } else {
+                        nextEventDate = targetDate
+                        eventName = name
+                    }
+                }
+            }
+        }
+        
+        guard let target = nextEventDate else { return nil }
+        
+        let diff = target.timeIntervalSince(now)
+        let hours = Int(diff) / 3600
+        let minutes = (Int(diff) % 3600) / 60
+        
+        if hours > 0 {
+            return "متبقي على \(eventName): \(hours)س \(minutes)د"
+        } else {
+            return "متبقي على \(eventName): \(minutes)د"
         }
     }
 

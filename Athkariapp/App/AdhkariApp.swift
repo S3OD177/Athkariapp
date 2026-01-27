@@ -36,19 +36,18 @@ struct AdhkariApp: App {
 
     @MainActor
     private func initializeApp() async {
-        // Import seed data
+        // Import seed data FIRST (must complete before home screen shows)
         let seedService = appContainer.makeSeedImportService()
         do {
             try await seedService.importSeedDataIfNeeded()
         } catch {
             print("Error importing seed data: \(error)")
         }
-
-        // Check onboarding status
+        
+        // Then check onboarding status
         checkOnboardingStatus()
 
-        // Done loading
-        try? await Task.sleep(for: .milliseconds(500))
+        // Now hide splash - data is ready
         withAnimation {
             isLoading = false
         }

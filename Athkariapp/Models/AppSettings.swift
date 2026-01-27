@@ -104,6 +104,16 @@ final class AppSettings {
     var lastLocationLongitude: Double?
     var lastLocationCity: String?
     var afterPrayerOffset: Int? // In minutes
+    
+    // Time Configuration (Hour 0-23)
+    var wakingUpStart: Int
+    var wakingUpEnd: Int
+    var morningStart: Int
+    var morningEnd: Int
+    var eveningStart: Int
+    var eveningEnd: Int
+    var sleepStart: Int
+    var sleepEnd: Int
 
     init(
         id: UUID = UUID(),
@@ -115,7 +125,15 @@ final class AppSettings {
         locationPermissionState: LocationPermissionState = .notDetermined,
         iCloudEnabled: Bool = false,
         fontSize: Double = 1.0,
-        afterPrayerOffset: Int = 15
+        afterPrayerOffset: Int = 15,
+        wakingUpStart: Int = 3,
+        wakingUpEnd: Int = 6,
+        morningStart: Int = 6,
+        morningEnd: Int = 11,
+        eveningStart: Int = 15,
+        eveningEnd: Int = 20,
+        sleepStart: Int = 20,
+        sleepEnd: Int = 3
     ) {
         self.id = id
         self.theme = theme.rawValue
@@ -127,6 +145,14 @@ final class AppSettings {
         self.iCloudEnabled = iCloudEnabled
         self.fontSize = fontSize
         self.afterPrayerOffset = afterPrayerOffset
+        self.wakingUpStart = wakingUpStart
+        self.wakingUpEnd = wakingUpEnd
+        self.morningStart = morningStart
+        self.morningEnd = morningEnd
+        self.eveningStart = eveningStart
+        self.eveningEnd = eveningEnd
+        self.sleepStart = sleepStart
+        self.sleepEnd = sleepEnd
     }
 
     var appTheme: AppTheme {

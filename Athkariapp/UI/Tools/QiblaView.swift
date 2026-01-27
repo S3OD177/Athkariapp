@@ -22,13 +22,7 @@ final class QiblaViewModel {
         setupBindings()
     }
     
-    deinit {
-        let service = locationService
-        Task { @MainActor in
-            service.stopUpdatingHeading()
-            service.stopUpdatingLocation()
-        }
-    }
+    // Note: Cleanup handled by QiblaContent.onDisappear calling stopUpdating()
     
     // MARK: - Public Methods
     func startUpdating() {
@@ -144,29 +138,29 @@ struct QiblaContent: View {
                 VStack(spacing: geometry.size.height * 0.04) {
                     // Header
                     HStack {
-                        // Spacer for symmetry
-                        Color.clear.frame(width: 40, height: 40)
-                        
-                        Spacer()
-                        
-                        Text("اتجاه القبلة")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
-                        
-                        Spacer()
-                        
                         Button {
                             dismiss()
                         } label: {
                             Circle()
                                 .fill(Color.white.opacity(0.1))
-                                .frame(width: 40, height: 40)
+                                .frame(width: 44, height: 44)
                                 .overlay(
                                     Image(systemName: "xmark")
-                                        .fontWeight(.bold)
+                                        .font(.system(size: 16, weight: .bold))
                                         .foregroundStyle(.white)
                                 )
                         }
+                        
+                        Spacer()
+                        
+                        Text("اتجاه القبلة")
+                            .font(.title3.bold())
+                            .foregroundStyle(.white)
+                        
+                        Spacer()
+                        
+                        // Empty space for balance
+                        Color.clear.frame(width: 44, height: 44)
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 10)

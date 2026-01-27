@@ -7,138 +7,118 @@ struct DuaDetailView: View {
     let dua: DhikrItem
     var fontSize: Double = 1.0
 
-    @State private var isFavorite = false
-    @State private var showAddToRoutineSheet = false
     @State private var showShareSheet = false
+    @State private var currentCount = 0
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // Bismillah
-                    Text("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")
-                        .font(.system(size: 18 * fontSize))
-                        .foregroundStyle(AppColors.onboardingPrimary)
-                        .padding(.top, 24)
+            ZStack {
+                AppColors.homeBackground.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 32) {
+                        // Header Section
+                        VStack(spacing: 16) {
+                            Text("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")
+                                .font(.system(size: 16 * fontSize, weight: .medium))
+                                .foregroundStyle(AppColors.onboardingPrimary.opacity(0.8))
+                                .padding(.top, 16)
 
-                    // Dua text
-                    Text(dua.text)
-                        .font(.system(size: 26 * fontSize, weight: .medium))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .lineSpacing(14 * fontSize)
-                        .padding(.horizontal, 20)
-
-                    // Reference and repeat count
-                    HStack {
-                        // Repeat count (Right in RTL -> leading)
-                        HStack(spacing: 4) {
-                            Text("\(dua.repeatCount)")
-                                .font(.caption.bold())
+                            // Dua text
+                            Text(dua.text)
+                                .font(.system(size: 24 * fontSize, weight: .semibold)) // Slightly bolder
+                                .multilineTextAlignment(.center)
                                 .foregroundStyle(.white)
-
-                            Image(systemName: "repeat")
-                                .font(.caption)
-                                .foregroundStyle(.gray)
+                                .lineSpacing(12 * fontSize)
+                                .padding(.horizontal, 24)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
 
-                        Spacer()
+                        // Counter Section
+                        VStack(spacing: 24) {
+                            CounterCircle(
+                                currentCount: currentCount,
+                                targetCount: dua.repeatCount,
+                                size: 220
+                            ) {
+                                if currentCount < dua.repeatCount {
+                                    currentCount += 1
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
+                                }
+                            }
+                            
+                            // Reset / Undo (Optional utility)
+                            if currentCount > 0 {
+                                Button {
+                                    withAnimation {
+                                        currentCount = 0
+                                    }
+                                } label: {
+                                    Label("إعادة العد", systemImage: "arrow.counterclockwise")
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                        }
 
-                        // Reference (Left in RTL -> trailing)
+                        // Reference
                         if let reference = dua.reference {
                             Text(reference)
-                                .font(.caption)
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-
-                    Divider()
-                        .background(AppColors.separator)
-                        .padding(.horizontal, 20)
-
-                    // Action buttons
-                    HStack(spacing: 20) {
-                        // Favorite
-                        DetailActionButton(
-                            title: "المفضلة",
-                            icon: isFavorite ? "star.fill" : "star",
-                            isActive: isFavorite
-                        ) {
-                            toggleFavorite()
+                                .font(.system(size: 14))
+                                .foregroundStyle(.gray.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
                         }
 
-                        // Add to routine
-                        DetailActionButton(
-                            title: "أضف للروتين",
-                            icon: "plus.circle",
-                            isActive: false
-                        ) {
-                            showAddToRoutineSheet = true
+                        Divider()
+                            .background(Color.white.opacity(0.1))
+                            .padding(.horizontal, 24)
+
+                        // Action buttons
+                        HStack(spacing: 16) {
+                            // Share
+                            DetailActionButton(
+                                title: "مشاركة",
+                                icon: "square.and.arrow.up",
+                                isActive: false
+                            ) {
+                                showShareSheet = true
+                            }
                         }
+                        .padding(.horizontal, 24)
 
-                        // Share
-                        DetailActionButton(
-                            title: "مشاركة",
-                            icon: "square.and.arrow.up",
-                            isActive: false
-                        ) {
-                            showShareSheet = true
+                        // Benefit if available
+                        if let benefit = dua.benefit {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("فضل الذكر", systemImage: "sparkles")
+                                    .font(.headline)
+                                    .foregroundStyle(AppColors.onboardingPrimary)
+
+                                Text(benefit)
+                                    .font(.system(size: 16 * fontSize))
+                                    .foregroundStyle(.white.opacity(0.9))
+                                    .multilineTextAlignment(.leading)
+                                    .lineSpacing(6)
+                            }
+                            .padding(20)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color(white: 0.12))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(AppColors.onboardingPrimary.opacity(0.3), lineWidth: 1)
+                            )
+                            .padding(.horizontal, 24)
                         }
-                    }
-                    .padding(.horizontal, 20)
-
-                    // Translation toggle (placeholder)
-                    HStack {
-                        Image(systemName: "globe")
-                            .foregroundStyle(.gray)
-
-                        Text("إظهار المعنى والتفسير")
-                            .font(.subheadline)
-                            .foregroundStyle(.gray)
 
                         Spacer()
-
-                        Text("الترجمة")
-                            .font(.subheadline)
-                            .foregroundStyle(.white)
-
-                        Toggle("", isOn: .constant(false))
-                            .labelsHidden()
+                            .frame(height: 100)
                     }
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(AppColors.onboardingSurface)
-                    )
-                    .padding(.horizontal, 20)
-
-                    // Benefit if available
-                    if let benefit = dua.benefit {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("فضل الذكر")
-                                .font(.headline)
-                                .foregroundStyle(.white)
-
-                            Text(benefit)
-                                .font(.system(size: 15 * fontSize))
-                                .foregroundStyle(.gray)
-                                .multilineTextAlignment(.leading)
-                        }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(AppColors.onboardingSurface)
-                        )
-                        .padding(.horizontal, 20)
-                    }
-
-                    Spacer()
-                        .frame(height: 100)
                 }
             }
-            .background(AppColors.homeBackground)
             .navigationTitle(dua.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -147,25 +127,10 @@ struct DuaDetailView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.right") // Points right for Arabic back
-                            .foregroundStyle(.gray)
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
                     }
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // More options
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .foregroundStyle(.gray)
-                    }
-                }
-            }
-            .task {
-                checkFavoriteStatus()
-            }
-            .sheet(isPresented: $showAddToRoutineSheet) {
-                AddToRoutineSheet(dua: dua)
-                    .presentationDetents([.medium])
             }
             .sheet(isPresented: $showShareSheet) {
                 ShareSheet(items: [shareText])
@@ -181,96 +146,6 @@ struct DuaDetailView: View {
         text += "\n\nمن تطبيق اذكاري"
         return text
     }
-
-    private func checkFavoriteStatus() {
-        let repo = container.makeFavoritesRepository()
-        isFavorite = (try? repo.isFavorite(dhikrId: dua.id)) ?? false
-    }
-
-    private func toggleFavorite() {
-        let repo = container.makeFavoritesRepository()
-        if let result = try? repo.toggleFavorite(dhikrId: dua.id) {
-            isFavorite = result
-        }
-    }
-}
-
-// MARK: - Detail Action Button
-struct DetailActionButton: View {
-    let title: String
-    let icon: String
-    let isActive: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(isActive ? AppColors.onboardingPrimary : .white)
-
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(AppColors.onboardingSurface)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Add to Routine Sheet
-struct AddToRoutineSheet: View {
-    @Environment(\.appContainer) private var container
-    @Environment(\.dismiss) private var dismiss
-
-    let dua: DhikrItem
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach([SlotKey.morning, .evening, .afterFajr, .sleep], id: \.self) { slot in
-                        Button {
-                            addToRoutine(slot)
-                        } label: {
-                            HStack {
-                                Spacer()
-                                Text(slot.arabicName)
-                                    .foregroundStyle(.white)
-                                Image(systemName: slot.icon)
-                                    .foregroundStyle(.gray)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("اختر الوقت")
-                        .foregroundStyle(.gray)
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle("إضافة للروتين")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("إلغاء") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    private func addToRoutine(_ slot: SlotKey) {
-        let repo = container.makeUserRoutineLinkRepository()
-        try? repo.addLink(dhikrId: dua.id, slotKey: slot)
-        dismiss()
-    }
 }
 
 // MARK: - Share Sheet
@@ -284,6 +159,41 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
+// MARK: - Helper Views
+struct DetailActionButton: View {
+    let title: String
+    let icon: String
+    let isActive: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundStyle(isActive ? AppColors.onboardingPrimary : .white)
+
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.gray)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(white: 0.12))
+            )
+            .overlay(
+                 RoundedRectangle(cornerRadius: 16)
+                    .stroke(isActive ? AppColors.onboardingPrimary.opacity(0.5) : Color.white.opacity(0.05), lineWidth: 1)
+            )
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+}
+
+
+
 #Preview {
     DuaDetailView(dua: DhikrItem(
         source: .hisn,
@@ -292,7 +202,7 @@ struct ShareSheet: UIViewControllerRepresentable {
         hisnCategory: .protection,
         text: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ",
         reference: "سورة البقرة - آية 255",
-        repeatCount: 1,
+        repeatMin: 1,
         benefit: "من قرأها في ليلة لم يزل عليه من الله حافظ"
     ), fontSize: 1.2)
     .environment(\.layoutDirection, .rightToLeft)

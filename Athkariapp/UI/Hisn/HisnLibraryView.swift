@@ -18,7 +18,6 @@ struct HisnLibraryView: View {
     private func setupViewModel() {
         viewModel = HisnViewModel(
             dhikrRepository: container.makeDhikrRepository(),
-            favoritesRepository: container.makeFavoritesRepository(),
             settingsRepository: container.makeSettingsRepository()
         )
     }
@@ -33,41 +32,39 @@ struct HisnLibraryContent: View {
             AppColors.homeBackground.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Title
-                HStack {
-                    Text("حصن المسلم")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundStyle(.white)
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 10)
-
-                // Search bar
-                searchBar
-                    .padding(.horizontal, 16)
-                    .padding(.top, 20)
-
-                // Category chips
-                categoryChips
+                // Premium Header
+                headerView
+                    .padding(.horizontal, 24)
                     .padding(.top, 16)
+                    .padding(.bottom, 24)
 
-                // Dua list
-                if viewModel.filteredDuaList.isEmpty {
-                    emptyState
-                } else {
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.filteredDuaList) { dua in
-                                DuaListRow(dua: dua, fontSize: viewModel.fontSize) {
-                                    selectedDua = dua
+                // Search & Categories & List
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
+                        // Search
+                        searchBar
+                            .padding(.horizontal, 20)
+
+                        // Usage of a real "Library" feel requires categories to be prominent
+                        categorySection
+
+                        // Dua List
+                        if viewModel.filteredDuaList.isEmpty {
+                            emptyState
+                                .frame(height: 300)
+                        } else {
+                            LazyVStack(spacing: 16) {
+                                ForEach(viewModel.filteredDuaList) { dua in
+                                    DuaListRow(dua: dua, fontSize: viewModel.fontSize) {
+                                        selectedDua = dua
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 120)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
-                        .padding(.bottom, 120)
                     }
+                    .padding(.top, 10)
                 }
             }
         }
@@ -79,110 +76,168 @@ struct HisnLibraryContent: View {
         }
     }
 
+    // MARK: - Premium Header
+    private var headerView: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("حصن المسلم")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                Text("الأذكار والدعوات من الكتاب والسنة")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppColors.textGray)
+            }
+            Spacer()
+            
+            // Decorative Icon/Logo
+            Image(systemName: "book.fill")
+                .font(.system(size: 28))
+                .foregroundStyle(AppColors.onboardingPrimary)
+                .padding(12)
+                .background(
+                    Circle()
+                        .fill(AppColors.onboardingSurface)
+                )
+                .overlay(
+                    Circle()
+                        .stroke(AppColors.onboardingBorder, lineWidth: 1)
+                )
+        }
+    }
+
     // MARK: - Search Bar
     private var searchBar: some View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(.gray.opacity(0.8))
+                .foregroundStyle(AppColors.textGray)
+                .font(.system(size: 18, weight: .medium))
 
-            TextField("", text: $viewModel.searchQuery, prompt: Text("بحث عن ذكر أو دعاء...").foregroundStyle(.gray.opacity(0.8)))
+            TextField("", text: $viewModel.searchQuery, prompt: Text("بحث...").foregroundStyle(AppColors.textGray.opacity(0.7)))
                 .foregroundStyle(.white)
                 .tint(AppColors.onboardingPrimary)
+                .font(.system(size: 16))
 
             if !viewModel.searchQuery.isEmpty {
                 Button {
-                    viewModel.searchQuery = ""
+                    withAnimation {
+                        viewModel.searchQuery = ""
+                    }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppColors.textGray)
                 }
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, 16) // Taller improved touch area
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(AppColors.onboardingSurface)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(AppColors.onboardingBorder, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
     }
 
-    // MARK: - Category Chips
-    private var categoryChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // All categories chip
-                CategoryChip(
-                    title: "الكل",
-                    isSelected: viewModel.selectedCategory == nil
-                ) {
-                    viewModel.selectCategory(nil)
-                }
+    // MARK: - Category Section
+    private var categorySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("التصنيفات")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
 
-                ForEach([HisnCategory.waking, .sleeping, .prayer, .travel], id: \.self) { category in
-                    CategoryChip(
-                        title: category.arabicName,
-                        isSelected: viewModel.selectedCategory == category
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    // "All" Category
+                    CategoryIcon(
+                        title: "الكل",
+                        icon: "square.grid.2x2",
+                        isSelected: viewModel.selectedCategory == nil
                     ) {
-                        viewModel.selectCategory(category)
+                        withAnimation(.snappy) {
+                            viewModel.selectCategory(nil)
+                        }
+                    }
+
+                    ForEach(HisnCategory.allCases, id: \.self) { category in
+                        CategoryIcon(
+                            title: category.arabicName,
+                            icon: category.icon,
+                            isSelected: viewModel.selectedCategory == category
+                        ) {
+                            withAnimation(.snappy) {
+                                viewModel.selectCategory(category)
+                            }
+                        }
                     }
                 }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 16)
         }
     }
     
     // MARK: - Empty State
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Spacer()
             
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 48))
-                .foregroundStyle(.gray.opacity(0.4))
+                .foregroundStyle(AppColors.textGray.opacity(0.5))
             
             Text("لا توجد نتائج")
                 .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(.gray)
-            
-            if !viewModel.searchQuery.isEmpty {
-                Text("جرب البحث بكلمات مختلفة")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.gray.opacity(0.8))
-            }
+                .foregroundStyle(AppColors.textGray)
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-// MARK: - Category Chip
-struct CategoryChip: View {
+// MARK: - Category Icon (Vertical)
+struct CategoryIcon: View {
     let title: String
+    let icon: String
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(isSelected ? .black : .white)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(
-                    Capsule()
+            VStack(spacing: 12) {
+                // Icon Circle
+                ZStack {
+                    Circle()
                         .fill(isSelected ? AppColors.onboardingPrimary : AppColors.onboardingSurface)
-                )
+                        .frame(width: 60, height: 60)
+                        
+                    Image(systemName: icon)
+                        .font(.system(size: 24))
+                        .foregroundStyle(isSelected ? .white : AppColors.textGray)
+                }
                 .overlay(
-                    Capsule()
-                        .strokeBorder(isSelected ? AppColors.onboardingPrimary : Color.clear, lineWidth: 1)
+                    Circle()
+                        .stroke(AppColors.onboardingBorder, lineWidth: isSelected ? 0 : 1)
                 )
+                .shadow(color: isSelected ? AppColors.onboardingPrimary.opacity(0.4) : .clear, radius: 8, x: 0, y: 4)
+
+                // Title
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(isSelected ? .white : AppColors.textGray)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+            }
+            .frame(width: 70) // Fixed width for alignment
         }
         .buttonStyle(ScaleButtonStyle())
     }
 }
 
-// MARK: - DuaListRow
+// MARK: - Dua List Row (Card)
 struct DuaListRow: View {
     let dua: DhikrItem
     let fontSize: Double
@@ -191,37 +246,44 @@ struct DuaListRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                // Content Stack
+                // Accent Bar
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(AppColors.onboardingPrimary)
+                    .frame(width: 4)
+                    .frame(maxHeight: .infinity)
+                    .padding(.vertical, 4)
+
+                // Content
                 VStack(alignment: .leading, spacing: 6) {
                     Text(dua.title)
-                        .font(.system(size: 17 * fontSize, weight: .bold))
+                        .font(.system(size: 18 * fontSize, weight: .semibold))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true) // Prevents truncation inappropriately
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Text(dua.text)
                         .font(.system(size: 14 * fontSize, weight: .regular))
-                        .foregroundStyle(.white.opacity(0.6))
-                        .lineLimit(2) // Allow 2 lines for better context
+                        .foregroundStyle(AppColors.textGray)
+                        .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // Chevron
-                // Use chevron.backward for RTL "Back" semantic, but here we want "Detail" indicator.
-                // In iOS RTL, standard disclosure indicator points LEFT (<).
-                // chevron.left points Left.
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 14, weight: .semibold)) // Slightly lighter weight
-                    .foregroundStyle(AppColors.onboardingPrimary.opacity(0.8)) // Tinted
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(AppColors.textGray.opacity(0.5))
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+            .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(AppColors.onboardingSurface)
             )
-            .contentShape(Rectangle()) // Improves tap area
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(AppColors.onboardingBorder, lineWidth: 1)
+            )
+            .contentShape(Rectangle())
         }
         .buttonStyle(ScaleButtonStyle())
     }
@@ -237,7 +299,7 @@ struct DuaListRow: View {
 
 // MARK: - Scale Button Style
 struct ScaleButtonStyle: ButtonStyle {
-    var scaleAmount: CGFloat = 0.96
+    var scaleAmount: CGFloat = 0.97
     var duration: Double = 0.1
     
     func makeBody(configuration: Configuration) -> some View {

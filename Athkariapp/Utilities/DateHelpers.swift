@@ -22,7 +22,7 @@ extension Date {
     /// Format time as HH:mm in Arabic locale
     func formatTimeArabic() -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ar")
+        formatter.locale = Locale(identifier: "ar@numbers=latn")
         formatter.dateFormat = "h:mm a"
         return formatter.string(from: self)
     }
@@ -30,7 +30,7 @@ extension Date {
     /// Format date as full Arabic date
     func formatDateArabic() -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ar")
+        formatter.locale = Locale(identifier: "ar@numbers=latn")
         formatter.dateStyle = .full
         return formatter.string(from: self)
     }
@@ -38,7 +38,7 @@ extension Date {
     /// Get Arabic weekday name
     var arabicWeekday: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ar")
+        formatter.locale = Locale(identifier: "ar@numbers=latn")
         formatter.dateFormat = "EEEE"
         return formatter.string(from: self)
     }
@@ -47,7 +47,7 @@ extension Date {
     func formatHijri() -> String {
         let islamicCalendar = Calendar(identifier: .islamicUmmAlQura)
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ar")
+        formatter.locale = Locale(identifier: "ar@numbers=latn")
         formatter.calendar = islamicCalendar
         formatter.dateStyle = .long
         return formatter.string(from: self)

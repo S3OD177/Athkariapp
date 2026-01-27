@@ -13,7 +13,6 @@ final class PrayerViewModel {
     
     private let prayerTimeService: PrayerTimeService
     private let locationService: LocationService
-    nonisolated(unsafe) private var timer: Timer?
     private var currentTimes: PrayerTimes?
     
     struct PrayerDisplayItem: Identifiable {
@@ -53,7 +52,6 @@ final class PrayerViewModel {
         }
         
         isLoading = false
-        startTimer()
     }
     
     private func fetchTimes(for location: CLLocationCoordinate2D) async {
@@ -63,9 +61,28 @@ final class PrayerViewModel {
                 longitude: location.longitude
             )
             updateWithTimes(times)
-            locationName = "موقعك الحالي"
+            
+            // Reverse geocode to get city name
+            await fetchCityName(for: location)
         } catch {
             print("Error fetching prayer times: \(error)")
+        }
+    }
+    
+    private func fetchCityName(for location: CLLocationCoordinate2D) async {
+        let geocoder = CLGeocoder()
+        let clLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(clLocation)
+            if let placemark = placemarks.first {
+                // Prefer locality (city), then administrativeArea, then country
+                let city = placemark.locality ?? placemark.administrativeArea ?? placemark.country ?? "موقعك الحالي"
+                locationName = city
+            }
+        } catch {
+            print("Geocoding error: \(error)")
+            locationName = "موقعك الحالي"
         }
     }
     
@@ -101,22 +118,20 @@ final class PrayerViewModel {
         }
     }
     
-    private func startTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.updateCountdown()
-            }
+    func startTicker() async {
+        while !Task.isCancelled {
+            await updateCountdown()
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
     }
     
-    private func updateCountdown() {
+    private func updateCountdown() async {
         guard let times = currentTimes, let next = times.nextPrayer() else { return }
         
         let remaining = next.time.timeIntervalSince(Date())
         if remaining <= 0 {
             // Refresh times if prayer started
-            Task { await loadData() }
+            await loadData()
             return
         }
         
@@ -125,10 +140,6 @@ final class PrayerViewModel {
         let seconds = Int(remaining) % 60
         
         timeRemaining = String(format: "%02d:%02d:%02d", hours, minutes, seconds).arabicNumeral
-    }
-    
-    deinit {
-        timer?.invalidate()
     }
 }
 
@@ -162,108 +173,152 @@ struct PrayerTimesContent: View {
         ZStack {
             AppColors.homeBackground.ignoresSafeArea()
             
+            // Ambient Background
+            AmbientBackground()
+                .opacity(0.5)
+            
             VStack(spacing: 0) {
                 // Header
                 HStack {
                     Button {
-                        // More options
+                        dismiss()
                     } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+                        Circle()
+                            .fill(Color.white.opacity(0.05))
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Image(systemName: "chevron.right") // RTL
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                            )
                     }
                     
                     Spacer()
                     
                     Text("مواقيت الصلاة")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.title3.bold())
                         .foregroundStyle(.white)
                     
                     Spacer()
                     
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
+                    // Empty spacer for balance
+                    Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
-                .padding(.bottom, 20)
+                .padding(.bottom, 24)
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         // Hero Card: Countdown
                         ZStack {
+                            // Background
                             RoundedRectangle(cornerRadius: 32)
-                                .fill(LinearGradient(
-                                    colors: [Color(hex: "FEF3C7"), Color(hex: "FFFBEB")],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
+                                .fill(AppColors.sessionSurface)
+                            
+                            // Gold Gradient Overlay
+                            RoundedRectangle(cornerRadius: 32)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            AppColors.onboardingPrimary.opacity(0.15),
+                                            Color.clear
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                            
+                            // Border
+                            RoundedRectangle(cornerRadius: 32)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            AppColors.onboardingPrimary.opacity(0.3),
+                                            Color.white.opacity(0.05)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
                             
                             HStack {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("تبقى لصلاة \(viewModel.nextPrayerName)")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundStyle(Color(hex: "92400E"))
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Circle()
+                                            .fill(AppColors.onboardingPrimary)
+                                            .frame(width: 6, height: 6)
+                                        
+                                        Text("الصلاة القادمة")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(AppColors.onboardingPrimary)
+                                            .textCase(.uppercase)
+                                            .tracking(1)
+                                    }
+                                    
+                                    Text(viewModel.nextPrayerName)
+                                        .font(.system(size: 28, weight: .bold))
+                                        .foregroundStyle(.white)
                                     
                                     Text(viewModel.timeRemaining)
-                                        .font(.system(size: 44, weight: .bold, design: .rounded))
-                                        .foregroundStyle(Color(hex: "1F2937"))
+                                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white.opacity(0.9))
                                         .contentTransition(.numericText())
+                                        .padding(.top, 4)
                                     
-                                    Button {
-                                        // Toggle alert
-                                    } label: {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "bell.fill")
-                                            Text("تنبيه الصلاة")
-                                        }
-                                        .font(.system(size: 14, weight: .bold))
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 10)
-                                        .background(AppColors.onboardingPrimary)
-                                        .foregroundStyle(.white)
-                                        .clipShape(Capsule())
+                                    // Location
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "mappin.and.ellipse")
+                                            .font(.caption)
+                                        Text(viewModel.locationName)
+                                            .font(.caption)
+                                            .fontWeight(.medium)
                                     }
+                                    .foregroundStyle(AppColors.textGray)
+                                    .padding(.top, 8)
                                 }
                                 
                                 Spacer()
                                 
-                                // Sun/Icon
+                                // Decorative Icon
                                 ZStack {
                                     Circle()
                                         .fill(AppColors.onboardingPrimary.opacity(0.1))
                                         .frame(width: 80, height: 80)
-                                    Image(systemName: "sun.max.fill")
-                                        .font(.system(size: 32))
-                                        .foregroundStyle(AppColors.onboardingPrimary)
+                                        .blur(radius: 20)
+                                    
+                                    Image(systemName: "sun.max.fill") // Could vary based on prayer
+                                        .font(.system(size: 40))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [AppColors.onboardingPrimary, .orange],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
                                 }
                             }
-                            .padding(32)
+                            .padding(24)
                         }
                         .frame(height: 200)
+                        .shadow(color: Color.black.opacity(0.2), radius: 20, y: 10)
                         
                         // Section Header
                         HStack {
                             Text("مواعيد اليوم")
-                                .font(.system(size: 22, weight: .bold))
+                                .font(.headline)
                                 .foregroundStyle(.white)
                             Spacer()
                             Text(viewModel.hijriDate)
-                                .font(.system(size: 14))
-                                .foregroundStyle(.gray)
+                                .font(.subheadline)
+                                .foregroundStyle(AppColors.onboardingPrimary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(AppColors.onboardingPrimary.opacity(0.1))
+                                .clipShape(Capsule())
                         }
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, 4)
                         
                         // Prayer Times List
                         VStack(spacing: 12) {
@@ -272,25 +327,18 @@ struct PrayerTimesContent: View {
                             }
                         }
                         
-                        // Location Footer
-                        HStack {
-                            Spacer()
-                            Text(viewModel.locationName)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.gray)
-                            Image(systemName: "mappin.and.ellipse")
-                                .foregroundStyle(AppColors.onboardingPrimary)
-                        }
-                        .padding(.top, 8)
-                        
-                        Spacer().frame(height: 40)
+                        Spacer(minLength: 40)
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
                 }
             }
         }
         .task {
+            // Start data loading and ticker concurrently
             await viewModel.loadData()
+        }
+        .task {
+             await viewModel.startTicker()
         }
     }
 }
@@ -303,37 +351,50 @@ struct PrayerRow: View {
             ZStack {
                 Circle()
                     .fill(prayer.isActive ? AppColors.onboardingPrimary : Color.white.opacity(0.05))
-                    .frame(width: 48, height: 48)
+                    .frame(width: 44, height: 44)
                 
                 Image(systemName: prayer.icon)
-                    .font(.system(size: 20))
-                    .foregroundStyle(prayer.isActive ? .white : .gray)
+                    .font(.system(size: 18))
+                    .foregroundStyle(prayer.isActive ? .white : AppColors.textGray)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(prayer.name)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(prayer.isActive ? .white : .gray)
+                    .font(.headline)
+                    .foregroundStyle(prayer.isActive ? .white : .white.opacity(0.8))
                 
                 if prayer.isActive {
-                    Text("الآن")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(AppColors.onboardingPrimary)
+                    Text("الصلاة الحالية")
+                        .font(.caption2.bold())
+                        .foregroundStyle(AppColors.onboardingPrimary.opacity(0.8))
                 }
             }
             
             Spacer()
             
             Text(prayer.time)
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundStyle(prayer.isActive ? .white : .gray)
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(prayer.isActive ? AppColors.onboardingPrimary : .white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(prayer.isActive ? AppColors.onboardingPrimary.opacity(0.1) : Color.white.opacity(0.05))
+                )
         }
-        .padding(16)
-        .background(prayer.isActive ? AppColors.onboardingSurface : Color.white.opacity(0.02))
-        .cornerRadius(24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(prayer.isActive ? AppColors.onboardingPrimary.opacity(0.3) : Color.clear, lineWidth: 1)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(AppColors.sessionSurface) // Lighter than bg
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(
+                    prayer.isActive ? AppColors.onboardingPrimary.opacity(0.5) : Color.white.opacity(0.03),
+                    lineWidth: 1
+                )
+        )
+        .scaleEffect(prayer.isActive ? 1.02 : 1.0)
+        .shadow(color: prayer.isActive ? AppColors.onboardingPrimary.opacity(0.1) : Color.clear, radius: 10)
     }
 }

@@ -23,7 +23,6 @@ final class AppContainer {
             DhikrItem.self,
             RoutineSlot.self,
             SessionState.self,
-            FavoriteItem.self,
             AppSettings.self,
             OnboardingState.self,
             UserRoutineLink.self
@@ -70,9 +69,7 @@ final class AppContainer {
         SessionRepository(modelContext: modelContainer.mainContext)
     }
 
-    func makeFavoritesRepository() -> FavoritesRepository {
-        FavoritesRepository(modelContext: modelContainer.mainContext)
-    }
+
 
     func makeSettingsRepository() -> SettingsRepository {
         SettingsRepository(modelContext: modelContainer.mainContext)

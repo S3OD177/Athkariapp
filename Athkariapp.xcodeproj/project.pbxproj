@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		APP001 /* AdhkariApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC001 /* AdhkariApp.swift */; };
 		APP002 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC002 /* AppContainer.swift */; };
+		C31217C52F283CA700BEF731 /* HijriDateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31217C42F283CA700BEF731 /* HijriDateService.swift */; };
 		C38D27072F26FEA1005D2A1A /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27062F26FEA1005D2A1A /* NotificationService.swift */; };
 		C38D270F2F27001B005D2A1A /* PrayerTimesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27092F27001B005D2A1A /* PrayerTimesView.swift */; };
 		C38D27102F27001B005D2A1A /* ZakatCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */; };
@@ -19,14 +20,12 @@
 		MDL001 /* DhikrItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC003 /* DhikrItem.swift */; };
 		MDL002 /* RoutineSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC004 /* RoutineSlot.swift */; };
 		MDL003 /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC005 /* SessionState.swift */; };
-		MDL004 /* FavoriteItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC006 /* FavoriteItem.swift */; };
 		MDL005 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC007 /* AppSettings.swift */; };
 		MDL006 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC008 /* OnboardingState.swift */; };
 		MDL007 /* PrayerTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009 /* PrayerTimes.swift */; };
 		MDL008 /* UserRoutineLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC010 /* UserRoutineLink.swift */; };
 		REP001 /* DhikrRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011 /* DhikrRepository.swift */; };
 		REP002 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC012 /* SessionRepository.swift */; };
-		REP003 /* FavoritesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC013 /* FavoritesRepository.swift */; };
 		REP004 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* SettingsRepository.swift */; };
 		REP005 /* OnboardingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* OnboardingRepository.swift */; };
 		REP006 /* UserRoutineLinkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* UserRoutineLinkRepository.swift */; };
@@ -43,7 +42,6 @@
 		UIV004 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC030 /* SessionView.swift */; };
 		UIV005 /* HisnLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC031 /* HisnLibraryView.swift */; };
 		UIV006 /* DuaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC032 /* DuaDetailView.swift */; };
-		UIV007 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC033 /* FavoritesView.swift */; };
 		UIV008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC034 /* SettingsView.swift */; };
 		UIV009 /* CounterCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC035 /* CounterCircle.swift */; };
 		UTL001 /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC036 /* DateHelpers.swift */; };
@@ -52,12 +50,13 @@
 		VWM001 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC021 /* HomeViewModel.swift */; };
 		VWM002 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC022 /* SessionViewModel.swift */; };
 		VWM003 /* HisnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC023 /* HisnViewModel.swift */; };
-		VWM004 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC024 /* FavoritesViewModel.swift */; };
 		VWM005 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC025 /* SettingsViewModel.swift */; };
 		VWM006 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC026 /* OnboardingViewModel.swift */; };
+		AST002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AST001 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C31217C42F283CA700BEF731 /* HijriDateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HijriDateService.swift; sourceTree = "<group>"; };
 		C38D27062F26FEA1005D2A1A /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		C38D27082F27001B005D2A1A /* HijriCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HijriCalendarView.swift; sourceTree = "<group>"; };
 		C38D27092F27001B005D2A1A /* PrayerTimesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimesView.swift; sourceTree = "<group>"; };
@@ -75,14 +74,12 @@
 		SRC003 /* DhikrItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrItem.swift; sourceTree = "<group>"; };
 		SRC004 /* RoutineSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineSlot.swift; sourceTree = "<group>"; };
 		SRC005 /* SessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionState.swift; sourceTree = "<group>"; };
-		SRC006 /* FavoriteItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteItem.swift; sourceTree = "<group>"; };
 		SRC007 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		SRC008 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		SRC009 /* PrayerTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimes.swift; sourceTree = "<group>"; };
 		SRC010 /* UserRoutineLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRoutineLink.swift; sourceTree = "<group>"; };
 		SRC011 /* DhikrRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrRepository.swift; sourceTree = "<group>"; };
 		SRC012 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
-		SRC013 /* FavoritesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesRepository.swift; sourceTree = "<group>"; };
 		SRC014 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
 		SRC015 /* OnboardingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingRepository.swift; sourceTree = "<group>"; };
 		SRC016 /* UserRoutineLinkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRoutineLinkRepository.swift; sourceTree = "<group>"; };
@@ -93,7 +90,6 @@
 		SRC021 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		SRC022 /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
 		SRC023 /* HisnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisnViewModel.swift; sourceTree = "<group>"; };
-		SRC024 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		SRC025 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		SRC026 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		SRC027 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -102,12 +98,12 @@
 		SRC030 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		SRC031 /* HisnLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisnLibraryView.swift; sourceTree = "<group>"; };
 		SRC032 /* DuaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuaDetailView.swift; sourceTree = "<group>"; };
-		SRC033 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		SRC034 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC035 /* CounterCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterCircle.swift; sourceTree = "<group>"; };
 		SRC036 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		SRC037 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		SRC038 /* ArabicNumbers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArabicNumbers.swift; sourceTree = "<group>"; };
+		AST001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +149,7 @@
 				GRP007 /* UI */,
 				GRP008 /* Utilities */,
 				GRP009 /* Resources */,
+				AST001 /* Assets.xcassets */,
 				RSC003 /* Info.plist */,
 			);
 			path = Athkariapp;
@@ -173,7 +170,6 @@
 				SRC003 /* DhikrItem.swift */,
 				SRC004 /* RoutineSlot.swift */,
 				SRC005 /* SessionState.swift */,
-				SRC006 /* FavoriteItem.swift */,
 				SRC007 /* AppSettings.swift */,
 				SRC008 /* OnboardingState.swift */,
 				SRC009 /* PrayerTimes.swift */,
@@ -187,7 +183,6 @@
 			children = (
 				SRC011 /* DhikrRepository.swift */,
 				SRC012 /* SessionRepository.swift */,
-				SRC013 /* FavoritesRepository.swift */,
 				SRC014 /* SettingsRepository.swift */,
 				SRC015 /* OnboardingRepository.swift */,
 				SRC016 /* UserRoutineLinkRepository.swift */,
@@ -198,6 +193,7 @@
 		GRP005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C31217C42F283CA700BEF731 /* HijriDateService.swift */,
 				C38D27062F26FEA1005D2A1A /* NotificationService.swift */,
 				SRC017 /* PrayerTimeService.swift */,
 				SRC018 /* SeedImportService.swift */,
@@ -213,7 +209,6 @@
 				SRC021 /* HomeViewModel.swift */,
 				SRC022 /* SessionViewModel.swift */,
 				SRC023 /* HisnViewModel.swift */,
-				SRC024 /* FavoritesViewModel.swift */,
 				SRC025 /* SettingsViewModel.swift */,
 				SRC026 /* OnboardingViewModel.swift */,
 			);
@@ -229,7 +224,6 @@
 				GRP011 /* Home */,
 				GRP012 /* Session */,
 				GRP013 /* Hisn */,
-				GRP014 /* Favorites */,
 				GRP015 /* Settings */,
 				GRP016 /* Components */,
 			);
@@ -287,14 +281,6 @@
 				SRC032 /* DuaDetailView.swift */,
 			);
 			path = Hisn;
-			sourceTree = "<group>";
-		};
-		GRP014 /* Favorites */ = {
-			isa = PBXGroup;
-			children = (
-				SRC033 /* FavoritesView.swift */,
-			);
-			path = Favorites;
 			sourceTree = "<group>";
 		};
 		GRP015 /* Settings */ = {
@@ -382,6 +368,7 @@
 				RES001 /* daily_athkar.json in Resources */,
 				RES002 /* hisn.json in Resources */,
 				RES003 /* Localizable.strings in Resources */,
+				AST002 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,15 +383,14 @@
 				APP002 /* AppContainer.swift in Sources */,
 				MDL001 /* DhikrItem.swift in Sources */,
 				MDL002 /* RoutineSlot.swift in Sources */,
+				C31217C52F283CA700BEF731 /* HijriDateService.swift in Sources */,
 				MDL003 /* SessionState.swift in Sources */,
-				MDL004 /* FavoriteItem.swift in Sources */,
 				MDL005 /* AppSettings.swift in Sources */,
 				MDL006 /* OnboardingState.swift in Sources */,
 				MDL007 /* PrayerTimes.swift in Sources */,
 				MDL008 /* UserRoutineLink.swift in Sources */,
 				REP001 /* DhikrRepository.swift in Sources */,
 				REP002 /* SessionRepository.swift in Sources */,
-				REP003 /* FavoritesRepository.swift in Sources */,
 				REP004 /* SettingsRepository.swift in Sources */,
 				REP005 /* OnboardingRepository.swift in Sources */,
 				REP006 /* UserRoutineLinkRepository.swift in Sources */,
@@ -415,7 +401,6 @@
 				VWM001 /* HomeViewModel.swift in Sources */,
 				VWM002 /* SessionViewModel.swift in Sources */,
 				VWM003 /* HisnViewModel.swift in Sources */,
-				VWM004 /* FavoritesViewModel.swift in Sources */,
 				VWM005 /* SettingsViewModel.swift in Sources */,
 				VWM006 /* OnboardingViewModel.swift in Sources */,
 				UIV001 /* MainTabView.swift in Sources */,
@@ -431,7 +416,6 @@
 				UIV004 /* SessionView.swift in Sources */,
 				UIV005 /* HisnLibraryView.swift in Sources */,
 				UIV006 /* DuaDetailView.swift in Sources */,
-				UIV007 /* FavoritesView.swift in Sources */,
 				UIV008 /* SettingsView.swift in Sources */,
 				UIV009 /* CounterCircle.swift in Sources */,
 				UTL001 /* DateHelpers.swift in Sources */,
@@ -575,7 +559,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Athkariapp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
+				INFOPLIST_KEY_CFBundleDisplayName = "Athkari | أذكاري";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "نحتاج إلى موقعك لحساب أوقات الصلاة الدقيقة واتجاه القبلة";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -606,7 +590,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Athkariapp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "اذكاري";
+				INFOPLIST_KEY_CFBundleDisplayName = "Athkari | أذكاري";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "نحتاج إلى موقعك لحساب أوقات الصلاة الدقيقة واتجاه القبلة";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

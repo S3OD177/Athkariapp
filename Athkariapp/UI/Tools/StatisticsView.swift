@@ -141,24 +141,29 @@ struct StatisticsContent: View {
             VStack(spacing: 0) {
                 // Header
                 HStack {
-                    Color.clear.frame(width: 40, height: 40)
-                    Spacer()
-                    Text("إحصائيات الذكر")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                    Spacer()
                     Button {
                         dismiss()
                     } label: {
                         Circle()
                             .fill(Color.white.opacity(0.1))
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .overlay(
                                 Image(systemName: "xmark")
-                                    .fontWeight(.bold)
+                                    .font(.system(size: 16, weight: .bold))
                                     .foregroundStyle(.white)
                             )
                     }
+                    
+                    Spacer()
+                    
+                    Text("إحصائيات الذكر")
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
+                    
+                    Spacer()
+                    
+                    // Empty space for balance
+                    Color.clear.frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 16)

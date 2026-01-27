@@ -42,6 +42,8 @@ enum HisnCategory: String, Codable, CaseIterable {
     case gratitude = "gratitude"
     case distress = "distress"
     case misc = "misc"
+    case adhan = "adhan"
+    case wudu = "wudu"
 
     var arabicName: String {
         switch self {
@@ -58,6 +60,8 @@ enum HisnCategory: String, Codable, CaseIterable {
         case .gratitude: return "الشكر"
         case .distress: return "الكرب"
         case .misc: return "متنوعة"
+        case .adhan: return "الأذان"
+        case .wudu: return "الوضوء"
         }
     }
 
@@ -76,6 +80,8 @@ enum HisnCategory: String, Codable, CaseIterable {
         case .gratitude: return "star.fill"
         case .distress: return "bolt.heart.fill"
         case .misc: return "ellipsis.circle.fill"
+        case .adhan: return "speaker.wave.3.fill"
+        case .wudu: return "drop.fill"
         }
     }
 }
@@ -83,38 +89,58 @@ enum HisnCategory: String, Codable, CaseIterable {
 @Model
 final class DhikrItem {
     @Attribute(.unique) var id: UUID
+    var sourceId: String? // Original ID from JSON (e.g., "morning-001") for duplicate detection
     var source: String // DhikrSource rawValue
     var title: String
     var category: String // DhikrCategory or HisnCategory rawValue
     var hisnCategory: String? // For hisn items
     var text: String
     var reference: String?
-    var repeatCount: Int
+    var repeatMin: Int
+    var repeatMax: Int
+    var repeatNote: String?
     var orderIndex: Int
     var benefit: String?
+    var grading: String?
+    var isOptional: Bool
+    
+    // Computed property for backward compatibility
+    var repeatCount: Int {
+        repeatMax
+    }
 
     init(
         id: UUID = UUID(),
+        sourceId: String? = nil,
         source: DhikrSource,
         title: String,
         category: String,
         hisnCategory: HisnCategory? = nil,
         text: String,
         reference: String? = nil,
-        repeatCount: Int = 1,
+        repeatMin: Int = 1,
+        repeatMax: Int = 1,
+        repeatNote: String? = nil,
         orderIndex: Int = 0,
-        benefit: String? = nil
+        benefit: String? = nil,
+        grading: String? = nil,
+        isOptional: Bool = false
     ) {
         self.id = id
+        self.sourceId = sourceId
         self.source = source.rawValue
         self.title = title
         self.category = category
         self.hisnCategory = hisnCategory?.rawValue
         self.text = text
         self.reference = reference
-        self.repeatCount = repeatCount
+        self.repeatMin = repeatMin
+        self.repeatMax = repeatMax
+        self.repeatNote = repeatNote
         self.orderIndex = orderIndex
         self.benefit = benefit
+        self.grading = grading
+        self.isOptional = isOptional
     }
 
     var dhikrSource: DhikrSource {

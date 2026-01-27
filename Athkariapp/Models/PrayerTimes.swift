@@ -71,6 +71,15 @@ struct PrayerTimes: Equatable, Sendable {
     func currentAdhan(at time: Date = Date()) -> Prayer? {
         let prayer = currentPrayer(at: time)
         if prayer == .sunrise { return nil }
+        
+        // Ensure the prayer time has actually passed
+        // This handles the case where currentPrayer returns .isha (early morning)
+        // but the 'isha' property represents tonight's Isha (future)
+        guard let adhanTime = timeForPrayer(prayer) else { return nil }
+        if time < adhanTime {
+            return nil
+        }
+        
         return prayer
     }
 
