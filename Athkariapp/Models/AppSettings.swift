@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+#if os(iOS)
+import UIKit
+#endif
 
 /// Theme preference
 enum AppTheme: String, Codable, CaseIterable {
@@ -24,36 +27,6 @@ enum AppTheme: String, Codable, CaseIterable {
     }
 }
 
-/// Routine intensity level
-enum RoutineIntensity: String, Codable, CaseIterable {
-    case light = "light"
-    case moderate = "moderate"
-    case complete = "complete"
-
-    var arabicName: String {
-        switch self {
-        case .light: return "أذكار الصباح والمساء"
-        case .moderate: return "أذكار اليوم والليلة"
-        case .complete: return "أذكار المسلم اليومية"
-        }
-    }
-
-    var arabicDescription: String {
-        switch self {
-        case .light: return "الأذكار الأساسية اليومية فقط"
-        case .moderate: return "أذكار الصباح والمساء"
-        case .complete: return "أذكار النوم والاستيقاظ وكافة الأذكار"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .light: return "leaf.fill"
-        case .moderate: return "flame.fill"
-        case .complete: return "star.fill"
-        }
-    }
-}
 
 /// Prayer calculation method
 enum CalculationMethod: String, Codable, CaseIterable {
@@ -93,13 +66,15 @@ enum LocationPermissionState: String, Codable {
 final class AppSettings {
     @Attribute(.unique) var id: UUID
     var theme: String // AppTheme rawValue
+    var userName: String
     var hapticsEnabled: Bool
     var notificationsEnabled: Bool
-    var routineIntensity: String // RoutineIntensity rawValue
     var calculationMethod: String // CalculationMethod rawValue
     var locationPermissionState: String // LocationPermissionState rawValue
-    var iCloudEnabled: Bool
-    var fontSize: Double // Dynamic Type multiplier (not used, respects system)
+    var iCloudSyncEnabled: Bool
+    var hapticIntensity: String // HapticIntensity rawValue
+    var autoAdvance: Bool
+
     var lastLocationLatitude: Double?
     var lastLocationLongitude: Double?
     var lastLocationCity: String?
@@ -114,17 +89,18 @@ final class AppSettings {
     var eveningEnd: Int
     var sleepStart: Int
     var sleepEnd: Int
-
+    
     init(
         id: UUID = UUID(),
+        userName: String = "",
         theme: AppTheme = .system,
         hapticsEnabled: Bool = true,
         notificationsEnabled: Bool = false,
-        routineIntensity: RoutineIntensity = .moderate,
         calculationMethod: CalculationMethod = .ummAlQura,
         locationPermissionState: LocationPermissionState = .notDetermined,
-        iCloudEnabled: Bool = false,
-        fontSize: Double = 1.0,
+        iCloudSyncEnabled: Bool = false,
+        hapticIntensity: HapticIntensity = .medium,
+        autoAdvance: Bool = false,
         afterPrayerOffset: Int = 15,
         wakingUpStart: Int = 3,
         wakingUpEnd: Int = 6,
@@ -136,14 +112,15 @@ final class AppSettings {
         sleepEnd: Int = 3
     ) {
         self.id = id
+        self.userName = userName
         self.theme = theme.rawValue
         self.hapticsEnabled = hapticsEnabled
         self.notificationsEnabled = notificationsEnabled
-        self.routineIntensity = routineIntensity.rawValue
         self.calculationMethod = calculationMethod.rawValue
         self.locationPermissionState = locationPermissionState.rawValue
-        self.iCloudEnabled = iCloudEnabled
-        self.fontSize = fontSize
+        self.iCloudSyncEnabled = iCloudSyncEnabled
+        self.hapticIntensity = hapticIntensity.rawValue
+        self.autoAdvance = autoAdvance
         self.afterPrayerOffset = afterPrayerOffset
         self.wakingUpStart = wakingUpStart
         self.wakingUpEnd = wakingUpEnd
@@ -160,10 +137,6 @@ final class AppSettings {
         set { theme = newValue.rawValue }
     }
 
-    var intensity: RoutineIntensity {
-        get { RoutineIntensity(rawValue: routineIntensity) ?? .moderate }
-        set { routineIntensity = newValue.rawValue }
-    }
 
     var calculation: CalculationMethod {
         get { CalculationMethod(rawValue: calculationMethod) ?? .ummAlQura }
@@ -174,4 +147,28 @@ final class AppSettings {
         get { LocationPermissionState(rawValue: locationPermissionState) ?? .notDetermined }
         set { locationPermissionState = newValue.rawValue }
     }
+}
+
+enum HapticIntensity: String, Codable, CaseIterable {
+    case light = "light"
+    case medium = "medium"
+    case heavy = "heavy"
+    
+    var arabicName: String {
+        switch self {
+        case .light: return "خفيف"
+        case .medium: return "متوسط"
+        case .heavy: return "قوي"
+        }
+    }
+    
+    #if os(iOS)
+    var feedbackStyle: UIImpactFeedbackGenerator.FeedbackStyle {
+        switch self {
+        case .light: return .light
+        case .medium: return .medium
+        case .heavy: return .heavy
+        }
+    }
+    #endif
 }

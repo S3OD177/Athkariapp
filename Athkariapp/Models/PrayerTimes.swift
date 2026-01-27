@@ -46,6 +46,12 @@ struct PrayerTimes: Equatable, Sendable {
     func afterPrayerSlot(at time: Date = Date(), offsetMinutes: Int = 0) -> SlotKey? {
         guard let prayer = currentAdhan(at: time) else { return nil }
         
+        // Handle midnight wrap for Isha
+        if prayer == .isha && time < fajr {
+            // We are well past the offset of last night's Isha
+            return prayer.afterPrayerSlot
+        }
+        
         // Define which prayer time to check against
         let adhanTime: Date
         switch prayer {
@@ -73,9 +79,16 @@ struct PrayerTimes: Equatable, Sendable {
         if prayer == .sunrise { return nil }
         
         // Ensure the prayer time has actually passed
-        // This handles the case where currentPrayer returns .isha (early morning)
-        // but the 'isha' property represents tonight's Isha (future)
         guard let adhanTime = timeForPrayer(prayer) else { return nil }
+        
+        // Special handling for Isha after midnight (early morning)
+        // If currentPrayer is .isha and we are before Fajr, it effectively refers to previous night's Isha.
+        // In this case, 'time' (e.g. 01:00) is definitely LESS than today's 'isha' (e.g. 20:00).
+        // But we are still legally "in" Isha time until Fajr.
+        if prayer == .isha && time < fajr {
+            return .isha
+        }
+        
         if time < adhanTime {
             return nil
         }
@@ -85,11 +98,23 @@ struct PrayerTimes: Equatable, Sendable {
 
     /// Check if post-prayer is ready for a specific prayer
     func isPostPrayerReady(for prayer: Prayer, at time: Date = Date(), offsetMinutes: Int) -> Bool {
+        // Midnight fallback
+        if prayer == .isha && time < fajr {
+            // Isha's post-prayer window (e.g. 8 PM + 15m + 45m = 9 PM) clearly expires before midnight.
+            // So if we are past midnight (before Fajr), we are definitely outside the window.
+            return false
+        }
+        
         guard let adhanTime = timeForPrayer(prayer) else { return false }
         let readyTime = adhanTime.addingTimeInterval(Double(offsetMinutes) * 60)
         
         // Is ready if time is between readyTime and next prayer
         if time < readyTime { return false }
+        
+        // STOP SHOWING if it's been more than 45 minutes after the "ready" time
+        // i.e. The user has 45 minutes window to see this card active.
+        let expirationTime = readyTime.addingTimeInterval(45 * 60)
+        if time > expirationTime { return false }
         
         if let next = nextPrayer(at: adhanTime) {
             return time < next.time
@@ -101,6 +126,12 @@ struct PrayerTimes: Equatable, Sendable {
     /// Countdown to post-prayer window
     func countdownToPostPrayer(at time: Date = Date(), offsetMinutes: Int) -> (prayer: Prayer, remaining: TimeInterval)? {
         guard let prayer = currentAdhan(at: time) else { return nil }
+        
+        // If midnight Isha, there is no countdown (it is ready)
+        if prayer == .isha && time < fajr {
+            return nil
+        }
+        
         guard let adhanTime = timeForPrayer(prayer) else { return nil }
         
         let readyTime = adhanTime.addingTimeInterval(Double(offsetMinutes) * 60)

@@ -26,9 +26,9 @@ struct SessionView: View {
             slotKey: slotKey,
             sessionRepository: container.makeSessionRepository(),
             dhikrRepository: container.makeDhikrRepository(),
+            settingsRepository: container.makeSettingsRepository(),
             hapticsService: container.hapticsService,
-            hapticsEnabled: settings?.hapticsEnabled ?? true,
-            fontSize: settings?.fontSize ?? 1.0
+            hapticsEnabled: settings?.hapticsEnabled ?? true
         )
     }
 }
@@ -52,154 +52,21 @@ struct SessionContent: View {
 
     var body: some View {
         ZStack {
-            // Background
-            ZStack {
-                AppColors.sessionBackground.ignoresSafeArea()
-                
-                // Subtle Gradient to match Onboarding premium feel
-                RadialGradient(
-                    gradient: Gradient(colors: [
-                        AppColors.sessionPrimary.opacity(0.15),
-                        AppColors.sessionBackground.opacity(0)
-                    ]),
-                    center: .top,
-                    startRadius: 100,
-                    endRadius: 600
-                )
-                .ignoresSafeArea()
-            }
+            backgroundView
             
-            // Ambient Blobs
-            AmbientBackground()
-
             VStack(spacing: 0) {
-                // Header
-                sessionHeader
-
+                topBar
+                
                 Spacer()
-
-                // Main Content (Dhikr + Counter)
+                
                 VStack(spacing: 32) {
-                    
-                    // Dhikr Text
-                    if let dhikr = viewModel.currentDhikr {
-                        Text(dhikr.text)
-                            .font(.system(size: 32 * viewModel.fontSize, weight: .bold)) // Scaled Font Size
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.white)
-                            .lineSpacing(10)
-                            .padding(.horizontal, 24)
-                            .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
-                    }
-                    
-                    // Counter Ring (Centerpiece)
-                    GeometryReader { geometry in
-                        let ringSize = min(geometry.size.width * 0.7, 280)
-                        ZStack {
-                            // Enhanced Glow behind
-                            Circle()
-                                .fill(AppColors.sessionPrimary.opacity(0.15))
-                                .frame(width: ringSize * 0.9, height: ringSize * 0.9)
-                                .blur(radius: 50)
-                            
-                            // Track
-                            Circle()
-                                .stroke(Color.white.opacity(0.05), lineWidth: 4)
-                                .frame(width: ringSize, height: ringSize)
-                            
-                            // Progress with enhanced shadow
-                            Circle()
-                                .trim(from: 0, to: viewModel.progress)
-                                .stroke(
-                                    AppColors.sessionPrimary,
-                                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                                )
-                                .frame(width: ringSize, height: ringSize)
-                                .rotationEffect(.degrees(-90))
-                                .shadow(color: AppColors.sessionPrimary.opacity(0.4), radius: 15, x: 0, y: 0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.progress)
-                            
-                            // Inner Info
-                            VStack(spacing: 4) {
-                                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                                    Text(viewModel.currentCount.arabicNumeral)
-                                        .font(.system(size: ringSize * 0.27, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .contentTransition(.numericText())
-                                    
-                                    Text("/ \(viewModel.targetCount.arabicNumeral)")
-                                        .font(.system(size: ringSize * 0.1, weight: .medium))
-                                        .foregroundStyle(Color.gray)
-                                }
-                                
-                                Text("اضغط للعد")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(AppColors.sessionPrimary.opacity(0.8))
-                                    .tracking(2)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Circle())
-                        .onTapGesture {
-                            viewModel.increment()
-                        }
-                    }
-                    .frame(height: 280)
+                    dhikrCard
+                    counterSection
                 }
-
+                
                 Spacer()
-
-                // Actions & Hint
-                VStack(spacing: 24) {
-                    // Hint with design-compliant style
-                    if Constants.showLockScreenHint {
-                         HStack(spacing: 8) {
-                            Image(systemName: "lock.circle")
-                                .font(.caption)
-                            Text("يظهر هذا الذكر في شاشة القفل أثناء القراءة")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(AppColors.textGray)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.03))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                )
-                        )
-                    }
-                    
-                    // Grid Controls
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {
-                        SessionControlButton(icon: "xmark", title: "إنهاء") {
-                            // Check if session is truly complete (all dhikr done, not just current)
-                            if viewModel.isCompleted {
-                                onDismiss()
-                            } else {
-                                viewModel.showFinishConfirmation = true
-                            }
-                        }
-                        
-                        SessionControlButton(icon: "arrow.counterclockwise", title: "إعادة ضبط") {
-                            viewModel.showResetConfirmation = true
-                        }
-                        
-                        SessionControlButton(icon: "arrow.left.arrow.right", title: "تبديل") {
-                            viewModel.showDhikrSwitcher = true
-                        }
-                        
-                        // Share button
-                        SessionControlButton(icon: "square.and.arrow.up", title: "مشاركة") {
-                            shareCurrentDhikr()
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                }
-                .padding(.bottom, 120) // Extra padding for tab bar
+                
+                bottomActions
             }
         }
         .task {
@@ -221,77 +88,371 @@ struct SessionContent: View {
         } message: {
             Text("هل تريد إعادة ضبط العداد إلى الصفر؟")
         }
-        .alert("إنهاء الجلسة", isPresented: $viewModel.showFinishConfirmation) {
-            Button("إلغاء", role: .cancel) { }
-            Button("إنهاء", role: .destructive) {
-                viewModel.showCompletionCelebration = false // Ensure celebration doesn't show
-                viewModel.endSession()
-                onDismiss()
-            }
-        } message: {
-            Text("لم تكمل جميع الأذكار. هل تريد الإنهاء على أي حال؟")
-        }
         .contentShape(Rectangle()) // Ensure empty areas are tappable
         .onTapGesture {
             viewModel.increment()
         }
-
         .overlay {
+            overlays
+        }
+    }
+    
+    // MARK: - Sub-views
+    
+    private var backgroundView: some View {
+        ZStack {
+            AppColors.sessionBackground.ignoresSafeArea()
+            
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    AppColors.onboardingPrimary.opacity(0.15),
+                    AppColors.sessionBackground.opacity(0)
+                ]),
+                center: .center,
+                startRadius: 50,
+                endRadius: 600
+            )
+            .ignoresSafeArea()
+            
+            AmbientBackground()
+                .opacity(0.6)
+                .blur(radius: 60)
+        }
+    }
+    
+    private var topBar: some View {
+        HStack {
+            Button {
+                viewModel.isCompleted ? onDismiss() : (viewModel.showFinishConfirmation = true)
+            } label: {
+                Circle()
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: "xmark")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    )
+            }
+            
+            Spacer()
+            
+            if !viewModel.dhikrList.isEmpty {
+                HStack(spacing: 6) {
+                    Text("الذكر \(viewModel.currentDhikrIndex + 1) من \(viewModel.dhikrList.count)")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                    
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.white.opacity(0.2)).frame(width: 30, height: 4)
+                        Capsule()
+                            .fill(AppColors.onboardingPrimary)
+                            .frame(width: 30 * (Double(viewModel.currentDhikrIndex + 1) / Double(viewModel.dhikrList.count)), height: 4)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Material.ultraThin)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1))
+            }
+            
+            Spacer()
+            
+            Button {
+                viewModel.showDhikrSwitcher = true
+            } label: {
+                Circle()
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: "list.bullet")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    )
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 16)
+    }
+    
+    private var dhikrCard: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 32)
+                .fill(Color.white.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 32))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.2), .white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+            
+            VStack(spacing: 24) {
+                if let dhikr = viewModel.currentDhikr {
+                    Spacer(minLength: 0)
+                    
+                    Text(dhikr.text)
+                        .font(.system(size: 32, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white)
+                        .lineSpacing(10)
+                        .minimumScaleFactor(0.4)
+                        .padding(.horizontal, 4)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 2)
+                        .id(dhikr.id)
+                    
+                    Spacer(minLength: 0)
+                    
+                    Divider().background(Color.white.opacity(0.1))
+                    
+                    VStack(spacing: 12) {
+                        if let benefit = dhikr.benefit, !benefit.isEmpty {
+                            HStack(alignment: .top, spacing: 12) {
+                                Image(systemName: "sparkles")
+                                    .foregroundStyle(AppColors.onboardingPrimary)
+                                    .font(.caption)
+                                    .padding(.top, 2)
+                                
+                                Text(benefit)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color.white.opacity(0.9))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .multilineTextAlignment(.leading)
+                                    .minimumScaleFactor(0.8)
+                            }
+                        }
+                        
+                        if let reference = dhikr.reference, !reference.isEmpty {
+                            HStack(spacing: 8) {
+                                Image(systemName: "book.closed.fill")
+                                    .font(.caption2)
+                                Text(reference)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundStyle(AppColors.textGray)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .padding(.horizontal, 24)
+        .frame(maxHeight: .infinity)
+        .layoutPriority(1)
+    }
+    
+    private var counterSection: some View {
+        HStack(spacing: 32) {
+            Button {
+                withAnimation { viewModel.moveToPrevious() }
+            } label: {
+                Circle()
+                    .fill(Color.white.opacity(0.05))
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Image(systemName: "arrow.backward")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.5))
+                    )
+            }
+            
+            CounterCircle(
+                currentCount: viewModel.currentCount,
+                targetCount: viewModel.targetCount,
+                size: 200,
+                accentColor: AppColors.onboardingPrimary
+            ) {
+                viewModel.increment()
+            }
+            
+            Button {
+                withAnimation { viewModel.moveToNext() }
+            } label: {
+                Circle()
+                    .fill(Color.white.opacity(0.05))
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Image(systemName: "arrow.forward")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.5))
+                    )
+            }
+        }
+    }
+    
+    private var bottomActions: some View {
+        HStack(spacing: 40) {
+            Button {
+                viewModel.showResetConfirmation = true
+            } label: {
+                VStack(spacing: 8) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.title3)
+                    Text("إعادة")
+                        .font(.caption2)
+                }
+                .foregroundStyle(AppColors.textGray)
+            }
+            
+            Button {
+                shareCurrentDhikr()
+            } label: {
+                VStack(spacing: 8) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.title3)
+                    Text("مشاركة")
+                        .font(.caption2)
+                }
+                .foregroundStyle(AppColors.textGray)
+            }
+        }
+        .padding(.bottom, 50)
+    }
+    
+    @ViewBuilder
+    private var overlays: some View {
+        ZStack {
             if viewModel.showCompletionCelebration {
                 CompletionCelebration {
                     viewModel.showCompletionCelebration = false
                     onDismiss()
                 }
+                .zIndex(2)
+            }
+            
+            if viewModel.showFinishConfirmation {
+                ExitConfirmationView(
+                    onResume: { viewModel.showFinishConfirmation = false },
+                    onExit: {
+                        viewModel.showFinishConfirmation = false
+                        viewModel.endSession()
+                        onDismiss()
+                    }
+                )
+                .zIndex(1)
             }
         }
-    }
-
-    // MARK: - Header
-    private var sessionHeader: some View {
-        HStack {
-            Button {
-                onDismiss()
-            } label: {
-                Circle()
-                    .fill(Color.white.opacity(0.05))
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Image(systemName: "chevron.right") // Match design RTL
-                            .foregroundStyle(AppColors.textGray)
-                    )
-            }
-            // In RTL design, back button is on Right usually?
-            // code.html has chevron_right on the left... actually `dir="rtl"` so first button is Right visually?
-            // HTML: <header class="flex ... justify-between"> <button chevron_right> </button> ... <button volume> </button> </header>
-            // In RTL, the first child is on the Right. Wait.
-            // Flex direction default is row.
-            // First child (chevron_right) -> Right side.
-            // Text center.
-            // Last child (volume) -> Left side.
-            // So my SwiftUI HStack will be Right-to-Left automatically if usage environment is RTL.
-            // So Button 1 (Dismiss) is first in code -> Right side.
-            
-            Spacer()
-
-            Text("جلسة ذكر")
-                .font(.caption)
-                .bold()
-                .foregroundStyle(AppColors.sessionPrimary)
-                .textCase(.uppercase)
-                .tracking(1)
-
-            Spacer()
-            
-            // Empty spacer to balance header (sound icon removed)
-            Color.clear
-                .frame(width: 40, height: 40)
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showFinishConfirmation)
+        .animation(.easeOut(duration: 0.2), value: viewModel.showCompletionCelebration)
     }
 }
 
+
 // MARK: - Helper Views
+
+struct CompletionCelebration: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.9)
+                .ignoresSafeArea()
+
+            VStack(spacing: 24) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundStyle(AppColors.appPrimary)
+
+                Text("أحسنت!")
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(.white)
+
+                Text("لقد أكملت أذكارك")
+                    .font(.title3)
+                    .foregroundStyle(.gray)
+
+                Button {
+                    onDismiss()
+                } label: {
+                    Text("إنهاء")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 48)
+                        .padding(.vertical, 14)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.top, 16)
+            }
+        }
+        .transition(.opacity)
+    }
+}
+
+struct ExitConfirmationView: View {
+    let onResume: () -> Void
+    let onExit: () -> Void
+    
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.6)
+                .ignoresSafeArea()
+                .onTapGesture { onResume() }
+            
+            VStack(spacing: 24) {
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(AppColors.onboardingPrimary)
+                        .padding(.top, 8)
+                    
+                    Text("هل تريد إنهاء الجلسة؟")
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
+                    
+                    Text("لم تكمل جميع الأذكار بعد.\nسيتم حفظ تقدمك الحالي.")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .lineSpacing(4)
+                }
+                .padding(.horizontal)
+                
+                HStack(spacing: 16) {
+                    Button(action: onExit) {
+                        Text("نعم، خروج")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    
+                    Button(action: onResume) {
+                        Text("متابعة")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(AppColors.onboardingPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                }
+            }
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(AppColors.sessionSurface.opacity(0.95))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+            )
+            .padding(24)
+        }
+        .transition(.opacity)
+    }
+}
 
 struct AmbientBackground: View {
     var body: some View {
@@ -306,38 +467,7 @@ struct AmbientBackground: View {
     }
 }
 
-struct SessionControlButton: View {
-    let icon: String
-    let title: String
-    var color: Color = AppColors.textGray
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppColors.sessionSurface)
-                    .frame(width: 60, height: 60)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.05), lineWidth: 1)
-                    )
-                    .overlay(
-                        Image(systemName: icon)
-                            .font(.title3)
-                            .foregroundStyle(title == "إنهاء" ? .red : .white)
-                    )
-                    .shadow(color: Color.black.opacity(0.2), radius: 8, y: 4)
-                
-                Text(title)
-                    .font(.caption2)
-                    .fontWeight(.medium)
-                    .foregroundStyle(AppColors.textGray)
-            }
-        }
-        .buttonStyle(ScaleButtonStyle())
-    }
-}
+
  
 // Dummy struct to fix compilation if Constants not defined
 enum Constants {
@@ -453,45 +583,7 @@ private struct DhikrSwitcherRow: View {
     }
 }
 
-// MARK: - Completion Celebration
-struct CompletionCelebration: View {
-    let onDismiss: () -> Void
 
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.9)
-                .ignoresSafeArea()
-
-            VStack(spacing: 24) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundStyle(AppColors.appPrimary)
-
-                Text("أحسنت!")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(.white)
-
-                Text("لقد أكملت أذكارك")
-                    .font(.title3)
-                    .foregroundStyle(.gray)
-
-                Button {
-                    onDismiss()
-                } label: {
-                    Text("إنهاء")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 48)
-                        .padding(.vertical, 14)
-                        .background(AppColors.onboardingPrimary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .padding(.top, 16)
-            }
-        }
-        .transition(.opacity)
-    }
-}
 
 #Preview {
     NavigationStack {

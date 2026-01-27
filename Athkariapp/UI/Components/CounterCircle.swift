@@ -6,7 +6,9 @@ struct CounterCircle: View {
     let targetCount: Int
     var size: CGFloat = 250 // Configurable size with default
     var activeColor: Color = AppColors.appPrimary // Configurable color
+    var accentColor: Color = AppColors.onboardingPrimary
     let onTap: () -> Void
+
 
     private var progress: Double {
         guard targetCount > 0 else { return 0 }
@@ -31,9 +33,9 @@ struct CounterCircle: View {
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(
-                        isCompleted ? AppColors.onboardingPrimary : activeColor,
+                        accentColor,
                         style: StrokeStyle(
-                            lineWidth: size * 0.048,
+                            lineWidth: 12,
                             lineCap: .round
                         )
                     )
@@ -42,12 +44,13 @@ struct CounterCircle: View {
 
                 // Counter text
                 VStack(spacing: size * 0.032) {
-                    Text(currentCount.arabicNumeral)
-                        .font(.system(size: size * 0.256, weight: .bold, design: .rounded))
+                    Text("\(currentCount)")
+                        .font(.system(size: size * 0.25, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
                         .contentTransition(.numericText())
                         .animation(.spring(duration: 0.3), value: currentCount)
 
-                    Text("من \(targetCount.arabicNumeral)")
+                    Text("من \(targetCount)")
                         .font(.system(size: size * 0.072))
                         .foregroundStyle(.secondary)
                 }

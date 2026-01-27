@@ -1,0 +1,48 @@
+
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <title>تقرير مقارنة API | أذكاري</title>
+        <style>
+            body { font-family: sans-serif; background: #f8fafc; padding: 20px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            h1 { color: #1e293b; text-align: center; }
+            table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+            th, td { padding: 15px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+            th { background: #f1f5f9; color: #475569; }
+            .status-Missing { color: #dc2626; font-weight: bold; }
+            .status-Mismatch { color: #d97706; font-weight: bold; }
+            .status-Repeat { color: #2563eb; font-weight: bold; }
+            .text-box { font-size: 0.9rem; line-height: 1.5; max-width: 400px; overflow: hidden; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>تقرير مقارنة البيانات مع API حصن المسلم</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الحالة</th>
+                        <th>القسم</th>
+                        <th>العنوان</th>
+                        <th>البيانات الرسمية (API)</th>
+                        <th>بيانات التطبيق الحالي</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    <tr>
+                        <td class="status-Repeat">Repeat Mismatch</td>
+                        <td>الأذكار بعد السلام من الصلاة</td>
+                        <td></td>
+                        <td><div class="text-box">Text: بسم الله الرحمن الرحيم ﴿قُلْ هُوَ اللَّهُ أَحَدٌ* اللَّهُ الصَّمَدُ* لَمْ يَلِدْ وَلَمْ يُولَدْ* وَل... | Repeat: 1</div></td>
+                        <td><div class="text-box">Text: بسم الله الرحمن الرحيم ﴿قُلْ هُوَ اللَّهُ أَحَدٌ* اللَّهُ الصَّمَدُ* لَمْ يَلِدْ وَلَمْ يُولَدْ* وَل... | Repeat: 3</div></td>
+                    </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </body>
+    </html>
+    

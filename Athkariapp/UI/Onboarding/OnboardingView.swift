@@ -49,30 +49,37 @@ struct OnboardingContent: View {
             .ignoresSafeArea()
             
             // Content
-            TabView(selection: $viewModel.currentStep) {
-                WelcomeStep(onContinue: viewModel.nextStep)
-                    .tag(0)
-
-                RoutineSelectionStep(
-                    selectedIntensity: viewModel.routineIntensity,
-                    onSelect: viewModel.selectRoutineIntensity,
-                    onContinue: viewModel.nextStep
-                )
-                .tag(1)
-
-                PermissionsStep(
-                    isLoading: viewModel.isLoading,
-                    locationEnabled: viewModel.locationEnabled,
-                    notificationsEnabled: viewModel.notificationsEnabled,
-                    onLocationToggle: { viewModel.requestLocationPermission() },
-                    onNotificationsToggle: { viewModel.setNotificationsEnabled($0) },
-                    onComplete: viewModel.completeOnboarding,
-                    onSkip: viewModel.skipOnboarding
-                )
-                .tag(2)
+            // Content
+            ZStack {
+                switch viewModel.currentStep {
+                case 0:
+                    WelcomeStep(onContinue: viewModel.nextStep)
+                        .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
+                case 1:
+                    NameInputStep(
+                        userName: $viewModel.userName,
+                        onContinue: viewModel.nextStep
+                    )
+                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading).combined(with: .opacity)))
+                case 2:
+                    TimeConfigurationStep(viewModel: viewModel, onContinue: viewModel.nextStep)
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading).combined(with: .opacity)))
+                case 3:
+                    PermissionsStep(
+                        isLoading: viewModel.isLoading,
+                        locationEnabled: viewModel.locationEnabled,
+                        notificationsEnabled: viewModel.notificationsEnabled,
+                        onLocationToggle: { viewModel.requestLocationPermission() },
+                        onNotificationsToggle: { viewModel.setNotificationsEnabled($0) },
+                        onComplete: viewModel.completeOnboarding,
+                        onSkip: viewModel.skipOnboarding
+                    )
+                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
+                default:
+                    EmptyView()
+                }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut(duration: 0.5), value: viewModel.currentStep)
+            .animation(.snappy(duration: 0.6), value: viewModel.currentStep)
         }
         .onChange(of: viewModel.isCompleted) { _, completed in
             if completed {
@@ -197,21 +204,21 @@ struct WelcomeStep: View {
     }
 }
 
-// MARK: - Routine Selection Step
-struct RoutineSelectionStep: View {
-    let selectedIntensity: RoutineIntensity
-    let onSelect: (RoutineIntensity) -> Void
+// MARK: - Name Input Step
+struct NameInputStep: View {
+    @Binding var userName: String
     let onContinue: () -> Void
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             // Header
             VStack(alignment: .leading, spacing: 12) {
-                Text("اختر وردك اليومي")
+                Text("ما اسمك؟")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                 
-                Text("اختر مستوى الأذكار الذي يناسب وقتك. يمكنك تغييره في أي وقت من الإعدادات.")
+                Text("لنتعرف عليك ونخاطبك باسمك في التطبيق")
                     .font(.body)
                     .foregroundStyle(AppColors.textGray)
                     .lineSpacing(4)
@@ -221,131 +228,328 @@ struct RoutineSelectionStep: View {
             .padding(.bottom, 40)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Options List
-            VStack(spacing: 16) {
-                RoutineOptionCard(
-                    title: "أذكار الصباح والمساء",
-                    description: "الأذكار الأساسية لبداية ونهاية يومك",
-                    icon: "sun.max.fill",
-                    color: .orange,
-                    isSelected: selectedIntensity == .light,
-                    onTap: { withAnimation { onSelect(.light) } }
-                )
-
-                RoutineOptionCard(
-                    title: "أذكار اليوم والليلة",
-                    description: "تشمل الصباح، المساء، وما بينهما",
-                    icon: "cloud.sun.fill",
-                    color: .blue,
-                    isSelected: selectedIntensity == .moderate,
-                    onTap: { withAnimation { onSelect(.moderate) } }
-                )
-
-                RoutineOptionCard(
-                    title: "أذكار المسلم الكاملة",
-                    description: "كل الأذكار من الاستيقاظ حتى النوم",
-                    icon: "book.fill",
-                    color: AppColors.onboardingPrimary,
-                    isSelected: selectedIntensity == .complete,
-                    onTap: { withAnimation { onSelect(.complete) } }
-                )
+            // Input Field
+            VStack {
+                TextField("الاسم", text: $userName)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .frame(height: 70)
+                    .background(AppColors.onboardingSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(AppColors.onboardingPrimary.opacity(isFocused ? 0.8 : 0.2), lineWidth: 2)
+                    )
+                    .focused($isFocused)
+                    .submitLabel(.continue)
+                    .onSubmit {
+                        if !userName.isEmpty {
+                            isFocused = false
+                            onContinue()
+                        }
+                    }
             }
             .padding(.horizontal, 24)
 
             Spacer()
 
             // Continue Button
-            Button(action: onContinue) {
+            Button(action: {
+                isFocused = false
+                onContinue()
+            }) {
                 Text("متابعة")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
-                    .background(AppColors.onboardingPrimary)
+                    .background(userName.isEmpty ? Color.gray.opacity(0.3) : AppColors.onboardingPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .shadow(color: AppColors.onboardingPrimary.opacity(0.3), radius: 10, y: 5)
+                    .shadow(color: userName.isEmpty ? .clear : AppColors.onboardingPrimary.opacity(0.3), radius: 10, y: 5)
             }
             .buttonStyle(ScaleButtonStyle())
+            .disabled(userName.isEmpty)
             .padding(.horizontal, 32)
             .padding(.bottom, 50)
         }
+        .onAppear {
+            isFocused = true
+        }
     }
 }
 
-struct RoutineOptionCard: View {
-    let title: String
-    let description: String
-    let icon: String // SF Symbol Name
-    let color: Color
-    let isSelected: Bool
-    let onTap: () -> Void
+// MARK: - Time Configuration Step
+struct TimeConfigurationStep: View {
+    @Bindable var viewModel: OnboardingViewModel
+    let onContinue: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 16) {
-                // Icon Box
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(color.opacity(isSelected ? 0.25 : 0.15))
-                        .frame(width: 56, height: 56)
-                    
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundStyle(color)
-                }
-
-                // Content
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                    
-                    Text(description)
-                        .font(.footnote)
-                        .foregroundStyle(AppColors.textGray)
-                        .multilineTextAlignment(.leading)
-                }
+        VStack(spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 12) {
+                Text("أوقاتك المفضلة")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
                 
-                Spacer()
-                
-                // Selection Indicator - Enhanced with checkmark
-                ZStack {
-                    Circle()
-                        .fill(isSelected ? color : Color.clear)
-                        .frame(width: 28, height: 28)
-                    
-                    Circle()
-                        .strokeBorder(isSelected ? color : Color.white.opacity(0.2), lineWidth: 2)
-                        .frame(width: 28, height: 28)
-                    
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.caption.bold())
-                            .foregroundStyle(.white)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+                Text("حدد الأوقات التي تناسب روتين يومك لنذكرك بالأذكار في الوقت المناسب.")
+                    .font(.body)
+                    .foregroundStyle(AppColors.textGray)
+                    .lineSpacing(4)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(AppColors.onboardingSurface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(isSelected ? color.opacity(0.5) : Color.white.opacity(0.05), lineWidth: 1)
+            .padding(.top, 40)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    // Waking Up
+                    OnboardingTimeSection(
+                        title: "أذكار الاستيقاظ",
+                        icon: "sunrise.fill",
+                        iconColor: .white,
+                        iconBg: Color(hex: "F59E0B"),
+                        startBinding: $viewModel.wakingUpStart,
+                        endBinding: $viewModel.wakingUpEnd
                     )
-            )
-            .scaleEffect(isSelected ? 1.02 : 1)
-            .shadow(color: isSelected ? color.opacity(0.15) : Color.clear, radius: 10)
+                    
+                    // Morning
+                    OnboardingTimeSection(
+                        title: "أذكار الصباح",
+                        icon: "sun.max.fill",
+                        iconColor: .white,
+                        iconBg: Color(hex: "FBBF24"),
+                        startBinding: $viewModel.morningStart,
+                        endBinding: $viewModel.morningEnd
+                    )
+                    
+                    // Evening
+                    OnboardingTimeSection(
+                        title: "أذكار المساء",
+                        icon: "sunset.fill",
+                        iconColor: .white,
+                        iconBg: Color(hex: "F97316"),
+                        startBinding: $viewModel.eveningStart,
+                        endBinding: $viewModel.eveningEnd
+                    )
+                    
+                    // Sleep
+                    OnboardingTimeSection(
+                        title: "أذكار النوم",
+                        icon: "moon.zzz.fill",
+                        iconColor: .white,
+                        iconBg: Color(hex: "4F46E5"),
+                        startBinding: $viewModel.sleepStart,
+                        endBinding: $viewModel.sleepEnd
+                    )
+                    
+                    // After Prayer
+                    OnboardingDurationSection(
+                        title: "أذكار بعد الصلاة",
+                        subtitle: "تذكير بالأذكار بعد الأذان بمدة...",
+                        icon: "hands.and.sparkles.fill",
+                        iconColor: .white,
+                        iconBg: Color(hex: "0EA5E9"), // Sky Blue
+                        minutesBinding: $viewModel.afterPrayerOffset
+                    )
+                    
+                    Spacer().frame(height: 100) // Spacing for button
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
+            }
+            .overlay(alignment: .bottom) {
+                // Continue Button (Fixed at bottom)
+                VStack {
+                    Button(action: onContinue) {
+                        Text("متابعة")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .background(AppColors.onboardingPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: AppColors.onboardingPrimary.opacity(0.3), radius: 10, y: 5)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 50)
+                .padding(.top, 20)
+                .background(
+                    LinearGradient(
+                        colors: [AppColors.onboardingBackground.opacity(0), AppColors.onboardingBackground],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
         }
-        .buttonStyle(ScaleButtonStyle())
     }
 }
 
-// MARK: - Permissions Step
+struct OnboardingTimeSection: View {
+    let title: String
+    let icon: String
+    let iconColor: Color
+    let iconBg: Color
+    @Binding var startBinding: Int
+    @Binding var endBinding: Int
+    
+    private func formatTime(_ hour: Int) -> String {
+        let period = hour < 12 ? "ص" : "م"
+        let hour12 = hour == 0 || hour == 12 ? 12 : hour % 12
+        return "\(hour12):00 \(period)"
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(iconBg)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Image(systemName: icon)
+                            .font(.system(size: 16))
+                            .foregroundStyle(iconColor)
+                    )
+                
+                Text(title)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, 8)
+            
+            HStack(spacing: 12) {
+                // Start Time
+                Menu {
+                    ForEach(0..<24, id: \.self) { hour in
+                        Button(formatTime(hour)) {
+                            startBinding = hour
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("من")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        Spacer()
+                        Text(formatTime(startBinding))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                    .background(AppColors.onboardingSurface)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                }
+                
+                // End Time
+                Menu {
+                    ForEach(0..<24, id: \.self) { hour in
+                        Button(formatTime(hour)) {
+                            endBinding = hour
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("إلى")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        Spacer()
+                        Text(formatTime(endBinding))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                    .background(AppColors.onboardingSurface)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                }
+            }
+        }
+        .padding(16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
+    }
+}
+
+struct OnboardingDurationSection: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let iconColor: Color
+    let iconBg: Color
+    @Binding var minutesBinding: Int
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+             // Header
+             HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(iconBg)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Image(systemName: icon)
+                            .font(.system(size: 16))
+                            .foregroundStyle(iconColor)
+                    )
+                
+                 VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
+                    
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                 }
+            }
+            .padding(.horizontal, 8)
+            
+            // Picker
+            Menu {
+                ForEach([0, 5, 10, 15, 20, 25, 30, 45, 60], id: \.self) { min in
+                    Button("\(min) دقيقة") {
+                        minutesBinding = min
+                    }
+                }
+            } label: {
+                HStack {
+                    Text("مدة الانتظار")
+                         .font(.caption)
+                         .foregroundStyle(.gray)
+                    Spacer()
+                    Text("\(minutesBinding) دقيقة")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .padding(12)
+                .background(AppColors.onboardingSurface)
+                .cornerRadius(12)
+                .overlay(
+                     RoundedRectangle(cornerRadius: 12)
+                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+            }
+        }
+        .padding(16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
+    }
+}
+
+
 struct PermissionsStep: View {
     let isLoading: Bool
     let locationEnabled: Bool

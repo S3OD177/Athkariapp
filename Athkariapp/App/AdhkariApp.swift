@@ -29,6 +29,18 @@ struct AdhkariApp: App {
             .task {
                 await initializeApp()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .didClearData)) { _ in
+                // Delay slightly to allow the heavy deletion logic to clear the main thread
+                // and for the alert to dismiss cleanly before switching views.
+                Task {
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                    await MainActor.run {
+                        withAnimation {
+                            isOnboardingCompleted = false
+                        }
+                    }
+                }
+            }
         }
     }
 

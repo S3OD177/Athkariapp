@@ -7,20 +7,32 @@ import SwiftData
 final class OnboardingViewModel {
     // MARK: - Published State
     var currentStep: Int = 0
-    var routineIntensity: RoutineIntensity = .moderate
+    var userName: String = ""
     var notificationsEnabled: Bool = false
     var locationEnabled: Bool = false
     var isCompleted: Bool = false
     var isLoading: Bool = false
     var errorMessage: String?
 
-    let totalSteps = 3
+    // Time Configuration State (Defaults)
+    var wakingUpStart: Int = 3
+    var wakingUpEnd: Int = 6
+    var morningStart: Int = 6
+    var morningEnd: Int = 11
+    var eveningStart: Int = 15
+    var eveningEnd: Int = 20
+    var sleepStart: Int = 20
+    var sleepEnd: Int = 3
+    var afterPrayerOffset: Int = 15
+
+    let totalSteps = 4
 
     var canProceed: Bool {
         switch currentStep {
         case 0: return true // Welcome
-        case 1: return true // Routine intensity
-        case 2: return true // Notifications (optional)
+        case 1: return !userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty // Name Input
+        case 2: return true // Time Config
+        case 3: return true // Permissions
         default: return true
         }
     }
@@ -51,8 +63,8 @@ final class OnboardingViewModel {
             let state = try onboardingRepository.getState()
             isCompleted = state.completed
             currentStep = state.currentStep
-            if let intensity = state.intensity {
-                routineIntensity = intensity
+            if let name = state.userName {
+                userName = name
             }
             notificationsEnabled = state.notificationsChoice
             locationEnabled = state.locationChosen
@@ -78,8 +90,8 @@ final class OnboardingViewModel {
         saveProgress()
     }
 
-    func selectRoutineIntensity(_ intensity: RoutineIntensity) {
-        routineIntensity = intensity
+    func setUserName(_ name: String) {
+        userName = name
         saveProgress()
     }
 
@@ -105,16 +117,29 @@ final class OnboardingViewModel {
                 // Update onboarding state
                 let state = try onboardingRepository.getState()
                 state.completed = true
-                state.intensity = routineIntensity
+                state.userName = userName
                 state.notificationsChoice = notificationsEnabled
                 state.locationChosen = locationEnabled
                 state.currentStep = totalSteps
                 try onboardingRepository.updateState(state)
 
                 // Update settings with chosen values
+                // Update settings with chosen values
                 let settings = try settingsRepository.getSettings()
-                settings.intensity = routineIntensity
+                settings.userName = userName
                 settings.notificationsEnabled = notificationsEnabled
+                
+                // Save time configuration
+                settings.wakingUpStart = wakingUpStart
+                settings.wakingUpEnd = wakingUpEnd
+                settings.morningStart = morningStart
+                settings.morningEnd = morningEnd
+                settings.eveningStart = eveningStart
+                settings.eveningEnd = eveningEnd
+                settings.sleepStart = sleepStart
+                settings.sleepEnd = sleepEnd
+                settings.afterPrayerOffset = afterPrayerOffset
+                
                 try settingsRepository.updateSettings(settings)
 
                 isCompleted = true
@@ -142,7 +167,7 @@ final class OnboardingViewModel {
         do {
             let state = try onboardingRepository.getState()
             state.currentStep = currentStep
-            state.intensity = routineIntensity
+            state.userName = userName
             state.notificationsChoice = notificationsEnabled
             state.locationChosen = locationEnabled
             try onboardingRepository.updateState(state)

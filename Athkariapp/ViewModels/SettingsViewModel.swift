@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import UserNotifications
+import CoreLocation
 
 @MainActor
 @Observable
@@ -11,11 +12,11 @@ final class SettingsViewModel {
     var theme: AppTheme = .system
     var hapticsEnabled: Bool = true
     var notificationsEnabled: Bool = false
-    var routineIntensity: RoutineIntensity = .moderate
     var calculationMethod: CalculationMethod = .ummAlQura
-    var iCloudEnabled: Bool = false
-    var fontSize: Double = 1.0
+    var hapticIntensity: HapticIntensity = .medium
+    var autoAdvance: Bool = false
     var afterPrayerOffset: Int = 15
+    var iCloudSyncEnabled: Bool = false
     
     // Time Configuration State
     var wakingUpStart: Int = 3
@@ -40,6 +41,8 @@ final class SettingsViewModel {
     private let hapticsService: HapticsService
     private let prayerTimeService: PrayerTimeService
     private let modelContext: ModelContext
+    private let modelContainer: ModelContainer
+    private let geocoder = CLGeocoder()
 
     // MARK: - Initialization
     init(
@@ -47,13 +50,15 @@ final class SettingsViewModel {
         locationService: LocationService,
         hapticsService: HapticsService,
         prayerTimeService: PrayerTimeService,
-        modelContext: ModelContext
+        modelContext: ModelContext,
+        modelContainer: ModelContainer
     ) {
         self.settingsRepository = settingsRepository
         self.locationService = locationService
         self.hapticsService = hapticsService
         self.prayerTimeService = prayerTimeService
         self.modelContext = modelContext
+        self.modelContainer = modelContainer
     }
 
     // MARK: - Public Methods
@@ -68,10 +73,10 @@ final class SettingsViewModel {
                 theme = s.appTheme
                 hapticsEnabled = s.hapticsEnabled
                 notificationsEnabled = s.notificationsEnabled
-                routineIntensity = s.intensity
                 calculationMethod = s.calculation
-                iCloudEnabled = s.iCloudEnabled
-                fontSize = s.fontSize
+                iCloudSyncEnabled = s.iCloudSyncEnabled
+                hapticIntensity = HapticIntensity(rawValue: s.hapticIntensity) ?? .medium
+                autoAdvance = s.autoAdvance
                 locationCity = s.lastLocationCity
                 afterPrayerOffset = s.afterPrayerOffset ?? 15
                 
@@ -124,11 +129,7 @@ final class SettingsViewModel {
         }
     }
 
-    func updateRoutineIntensity(_ intensity: RoutineIntensity) {
-        routineIntensity = intensity
-        settings?.intensity = intensity
-        saveSettings()
-    }
+
 
     func updateCalculationMethod(_ method: CalculationMethod) {
         calculationMethod = method
@@ -136,18 +137,32 @@ final class SettingsViewModel {
         saveSettings()
     }
 
-    func updateiCloudEnabled(_ enabled: Bool) {
-        iCloudEnabled = enabled
-        settings?.iCloudEnabled = enabled
+    func updateICloudSyncEnabled(_ enabled: Bool) {
+        iCloudSyncEnabled = enabled
+        settings?.iCloudSyncEnabled = enabled
         saveSettings()
         // TODO: Implement iCloud sync
     }
 
-    func updateFontSize(_ size: Double) {
-        fontSize = size
-        settings?.fontSize = size
+
+    func updateHapticIntensity(_ intensity: HapticIntensity) {
+        hapticIntensity = intensity
+        settings?.hapticIntensity = intensity.rawValue
+        #if os(iOS)
+        hapticsService.setIntensity(intensity.feedbackStyle)
+        #endif
         saveSettings()
     }
+
+    func updateAutoAdvance(_ enabled: Bool) {
+        autoAdvance = enabled
+        settings?.autoAdvance = enabled
+        saveSettings()
+    }
+
+
+
+
 
     func updateAfterPrayerOffset(_ offset: Int) {
         afterPrayerOffset = offset
@@ -223,28 +238,89 @@ final class SettingsViewModel {
 
     func requestLocationPermission() {
         locationService.requestPermission()
+        if locationPermissionGranted {
+            refreshLocation()
+        }
+    }
+
+    func refreshLocation() {
+        locationService.startUpdatingLocation()
+        
+        // Listen for the next update
+        locationService.onLocationUpdate = { [weak self] coordinate in
+            guard let self = self else { return }
+            self.locationService.stopUpdatingLocation()
+            
+            Task {
+                await self.updateLocationAndCity(coordinate)
+            }
+        }
+    }
+
+    private func updateLocationAndCity(_ coordinate: CLLocationCoordinate2D) async {
+        settings?.lastLocationLatitude = coordinate.latitude
+        settings?.lastLocationLongitude = coordinate.longitude
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude))
+            if let city = placemarks.first?.locality {
+                self.locationCity = city
+                self.settings?.lastLocationCity = city
+            }
+            saveSettings()
+            
+            // Trigger haptic feedback
+            hapticsService.playImpact(.medium)
+        } catch {
+            print("Error reverse geocoding: \(error)")
+        }
     }
 
     func clearAllData() {
-        do {
-            // Delete all sessions
-            let sessions = try modelContext.fetch(FetchDescriptor<SessionState>())
-            for session in sessions {
-                modelContext.delete(session)
+        isLoading = true
+        
+        Task {
+            // 1. Perform heavy session deletion on a background thread
+            let container = self.modelContainer
+            await Task.detached(priority: .userInitiated) {
+                let bgContext = ModelContext(container)
+                // Fetch only IDs to minimize memory usage if possible, but SwiftData fetches objects.
+                // We fetch batches or all. Since loop delete is the only way in basic SwiftData:
+                do {
+                    let descriptor = FetchDescriptor<SessionState>()
+                    let sessions = try bgContext.fetch(descriptor)
+                    for session in sessions {
+                        bgContext.delete(session)
+                    }
+                    try bgContext.save()
+                } catch {
+                    print("Error clearing sessions in background: \(error)")
+                }
+            }.value
+
+            // 2. Perform remaining cleanup on Main Actor (lightweight)
+            do {
+                // Delete Onboarding State
+                let onboardingStates = try modelContext.fetch(FetchDescriptor<OnboardingState>())
+                for state in onboardingStates {
+                    modelContext.delete(state)
+                }
+                
+                // Reset Settings to Defaults
+                settings = try settingsRepository.resetToDefaults()
+                
+                try modelContext.save()
+                
+                // Trigger haptic feedback
+                hapticsService.playImpact(.heavy)
+                
+                // Notify other views
+                NotificationCenter.default.post(name: .didClearData, object: nil)
+            } catch {
+                print("Error clearing data on main thread: \(error)")
             }
             
-            // Delete all favorites
-
-            
-            try modelContext.save()
-            
-            // Trigger haptic feedback
-            hapticsService.playImpact(.heavy)
-            
-            // Notify other views
-            NotificationCenter.default.post(name: .didClearData, object: nil)
-        } catch {
-            print("Error clearing data: \(error)")
+            isLoading = false
         }
     }
 

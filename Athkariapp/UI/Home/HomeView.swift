@@ -54,7 +54,33 @@ struct HomeContent: View {
                         // Spacer for Header
                         Color.clear.frame(height: 90)
                         
-                        
+                        // Location Warning
+                        if viewModel.showLocationWarning {
+                            Button {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "location.slash.fill")
+                                        .foregroundStyle(.white)
+                                    
+                                    Text("يرجى تفعيل الموقع للحصول على مواقيت الصلاة")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundStyle(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.left")
+                                        .font(.caption)
+                                        .foregroundStyle(.white.opacity(0.6))
+                                }
+                                .padding()
+                                .background(Color.red.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                            }
+                            .buttonStyle(.plain)
+                        }
                         heroCard
                         summaryGrid
                         routineSection
@@ -88,7 +114,7 @@ struct HomeContent: View {
         VStack(spacing: 0) {
             // Title Row with Notification Button
             HStack {
-                Text("أذكاري")
+                Text(viewModel.userName.isEmpty ? "أذكاري" : "مرحباً، \(viewModel.userName)")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(Color.white)
                 
@@ -214,7 +240,7 @@ struct HomeContent: View {
                 .foregroundStyle(.white)
             
             HStack(spacing: 12) {
-                summaryCard(title: "أذكار اليوم", value: viewModel.formattedProgress, badge: "متفوق", icon: "sparkles", color: AppColors.appPrimary)
+                summaryCard(title: "أذكار اليوم", value: viewModel.formattedProgress, badge: "متفوق", icon: "sparkles", color: AppColors.onboardingPrimary)
                 
                 // Persistent After Prayer Button
                 if let prayerItem = viewModel.afterPrayerSummaryItem {
@@ -224,11 +250,11 @@ struct HomeContent: View {
                        }
                    } label: {
                        summaryCard(
-                           title: "أذكار بعد الصلاة", // Static Title
-                           value: "اضغط للقراءة", // Actionable text
-                           badge: "اقرأ",
+                           title: "أذكار بعد الصلاة", // Hardcoded title
+                           value: "\(prayerItem.completedCount)/\(prayerItem.totalCount)", // Dynamic value
+                           badge: "اقرأ", // Static badge
                            icon: "hands.and.sparkles.fill",
-                           color: .purple
+                           color: AppColors.onboardingPrimary // Changed color
                        )
                    }
                    .buttonStyle(.plain)
@@ -302,7 +328,7 @@ struct HomeContent: View {
                             subtitle: item.status == .completed ? "مكتمل" : (item.status == .partial ? "قيد القراءة" : "تحتاج للقراءة"),
                             status: mapStatus(item),
                             icon: item.icon,
-                            color: item.status == .completed ? AppColors.appPrimary : (item.status == .partial || viewModel.activeSummaryItem?.id == item.id ? AppColors.onboardingPrimary : .gray)
+                            color: item.status == .completed ? AppColors.onboardingPrimary : (item.status == .partial || viewModel.activeSummaryItem?.id == item.id ? AppColors.onboardingPrimary : .gray)
                         )
                     }
                     .buttonStyle(.plain)

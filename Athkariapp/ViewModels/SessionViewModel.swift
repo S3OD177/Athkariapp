@@ -15,6 +15,8 @@ final class SessionViewModel {
     var showCompletionCelebration: Bool = false
     var isLoading: Bool = false
     var errorMessage: String?
+    var autoAdvance: Bool = false
+    var hapticIntensityStyle: UIImpactFeedbackGenerator.FeedbackStyle = .medium
 
     // MARK: - Navigation State
     var showDhikrSwitcher: Bool = false
@@ -25,12 +27,13 @@ final class SessionViewModel {
     // MARK: - Dependencies
     private let sessionRepository: SessionRepository
     private let dhikrRepository: DhikrRepository
+    private let settingsRepository: SettingsRepositoryProtocol
     private let hapticsService: HapticsService
     private var hapticsEnabled: Bool = true
 
     // MARK: - Properties
     let slotKey: SlotKey
-    let fontSize: Double
+
 
     var progress: Double {
         guard targetCount > 0 else { return 0 }
@@ -51,16 +54,16 @@ final class SessionViewModel {
         slotKey: SlotKey,
         sessionRepository: SessionRepository,
         dhikrRepository: DhikrRepository,
+        settingsRepository: SettingsRepositoryProtocol,
         hapticsService: HapticsService,
-        hapticsEnabled: Bool = true,
-        fontSize: Double = 1.0
+        hapticsEnabled: Bool = true
     ) {
         self.slotKey = slotKey
         self.sessionRepository = sessionRepository
         self.dhikrRepository = dhikrRepository
+        self.settingsRepository = settingsRepository
         self.hapticsService = hapticsService
         self.hapticsEnabled = hapticsEnabled
-        self.fontSize = fontSize
     }
 
     // MARK: - Public Methods
@@ -97,6 +100,12 @@ final class SessionViewModel {
             print("Error loading session: \(error)")
         }
 
+        if let settings = try? settingsRepository.getSettings() {
+            autoAdvance = settings.autoAdvance
+            hapticIntensityStyle = HapticIntensity(rawValue: settings.hapticIntensity)?.feedbackStyle ?? .medium
+            hapticsService.setIntensity(hapticIntensityStyle)
+        }
+
         isLoading = false
     }
 
@@ -107,7 +116,7 @@ final class SessionViewModel {
 
         // Play haptic
         if hapticsEnabled {
-            hapticsService.playImpact(.light)
+            hapticsService.playImpact() // Uses default intensity
         }
 
         // Update session
@@ -218,8 +227,8 @@ final class SessionViewModel {
             if hapticsEnabled {
                 hapticsService.playNotification(.success)
             }
-        } else {
-            // Move to next dhikr
+        } else if autoAdvance {
+            // Move to next dhikr automatically if preference is enabled
             moveToNextDhikr()
         }
     }

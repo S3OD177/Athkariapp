@@ -120,7 +120,7 @@ struct TabBarItem: View {
                         .fixedSize(horizontal: true, vertical: false)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .frame(height: 44) // Fixed height
                 .background(AppColors.onboardingPrimary)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
@@ -132,6 +132,7 @@ struct TabBarItem: View {
                         .font(.system(size: 10, weight: .medium))
                 }
                 .foregroundStyle(.white.opacity(0.4))
+                .frame(height: 44) // Fixed height to match selected state
             }
         }
         .frame(maxWidth: .infinity)

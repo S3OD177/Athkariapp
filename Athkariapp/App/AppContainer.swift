@@ -16,6 +16,8 @@ final class AppContainer {
     let hapticsService: HapticsService
     let locationService: LocationService
 
+    // MARK: - Services
+
     // MARK: - Initialization
     private init() {
         // Configure SwiftData model container
@@ -58,6 +60,11 @@ final class AppContainer {
         prayerTimeService = PrayerTimeService()
         hapticsService = HapticsService()
         locationService = LocationService()
+
+        // Load initial theme settings
+        if let _ = try? makeSettingsRepository().getSettings() {
+            // Theme settings logic if needed
+        }
     }
 
     // MARK: - Repository Factory Methods

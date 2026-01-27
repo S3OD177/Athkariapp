@@ -24,6 +24,7 @@ struct DailySummaryItem: Identifiable {
 final class HomeViewModel {
     // MARK: - Published State
     var dailySummary: [DailySummaryItem] = []
+    var userName: String = ""
     var prayerTimes: PrayerTimes?
     var currentPrayer: Prayer?
     var nextPrayerTime: Date?
@@ -31,10 +32,15 @@ final class HomeViewModel {
     var todayGregorianDate: String = ""
     var isLoading = false
     var errorMessage: String?
+    var showLocationWarning: Bool = false
+    var currentTime: Date = Date() // Triggers UI updates based on time
     
     // Post-Prayer Status
     var currentAdhan: Prayer?
     var postPrayerCountdown: String?
+    
+    // Timer Task
+    // No explicit property needed as we rely on weak self for cancellation naturally
 
     // MARK: - Dependencies
     private let sessionRepository: SessionRepository
@@ -58,6 +64,30 @@ final class HomeViewModel {
         self.locationService = locationService
         
         setupLocationBindings()
+        setupLocationBindings()
+        startTimeUpdater()
+    }
+    
+    private func startTimeUpdater() {
+        // Update every minute to refresh time-based UI
+        Task { [weak self] in
+            while true {
+                // Sleep for 60 seconds
+                try? await Task.sleep(nanoseconds: 60 * 1_000_000_000)
+                
+                guard let self = self else { return }
+                
+                await MainActor.run {
+                    self.currentTime = Date()
+                    self.updateAdhanStatus()
+                    
+                    // Also refresh daily summary if needed (e.g. crossing midnight)
+                    if Calendar.current.component(.second, from: Date()) < 60 {
+                        // Simple check ensures UI updates
+                    }
+                }
+            }
+        }
     }
 
     private func setupLocationBindings() {
@@ -69,8 +99,20 @@ final class HomeViewModel {
             }
         }
         
-        // Initial permission request
-        locationService.requestPermission()
+        locationService.onAuthorizationChange = { [weak self] status in
+            Task { @MainActor in
+                self?.showLocationWarning = (status == .denied || status == .restricted)
+            }
+        }
+        
+        // Initial permission check
+        let status = locationService.authorizationStatus
+        showLocationWarning = (status == .denied || status == .restricted)
+        
+        // Request if needed
+        if status == .notDetermined {
+             locationService.requestPermission()
+        }
     }
 
     // MARK: - Public Methods
@@ -80,12 +122,23 @@ final class HomeViewModel {
 
         do {
             // Load prayer times using location
+            // Load prayer times
             if let location = locationService.currentLocation {
-                prayerTimes = try? await prayerTimeService.fetchPrayerTimes(
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    method: 4
-                )
+                do {
+                    prayerTimes = try await prayerTimeService.fetchPrayerTimes(
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        method: 4
+                    )
+                } catch {
+                    print("API fetch failed, falling back to local calculation: \(error)")
+                    // Fallback to manual calculation with current location
+                    prayerTimes = prayerTimeService.getPrayerTimes(
+                        date: Date(),
+                        location: location,
+                        method: .ummAlQura
+                    )
+                }
             } else {
                 // Request a single location update (not continuous) if not available
                 locationService.startUpdatingLocation()
@@ -101,9 +154,12 @@ final class HomeViewModel {
                 
                 // Schedule notifications
                 let settings = try? settingsRepository.getSettings()
-                if settings?.notificationsEnabled == true {
-                    let offset = settings?.afterPrayerOffset ?? 15
-                    await NotificationService.shared.schedulePostPrayerNotifications(prayerTimes: times, offsetMinutes: offset)
+                if let s = settings {
+                    userName = s.userName
+                    if s.notificationsEnabled {
+                        let offset = s.afterPrayerOffset ?? 15
+                        await NotificationService.shared.schedulePostPrayerNotifications(prayerTimes: times, offsetMinutes: offset)
+                    }
                 }
             }
 
@@ -175,29 +231,24 @@ final class HomeViewModel {
     }
 
     var activeSummaryItem: DailySummaryItem? {
-        // 1. Check for in-progress first
-        if let inProgress = dailySummary.first(where: { $0.status == .partial }) {
-            return inProgress
-        }
-        
-        // 2. Check for "After Prayer" priority if active AND timely
+        // 1. Check for "After Prayer" priority if active AND timely
         if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
             // Only prioritize in Hero Card if it's actually the active time
             // (Since we made the item persistent, we must check isPostPrayerReady or similar)
-            if let times = prayerTimes, let prayer = times.currentAdhan(at: Date()) {
+            if let times = prayerTimes, let prayer = times.currentAdhan(at: currentTime) {
                 let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
-                let isReady = times.isPostPrayerReady(for: prayer, at: Date(), offsetMinutes: offset)
+                let isReady = times.isPostPrayerReady(for: prayer, at: currentTime, offsetMinutes: offset)
                 // Also check if we are in the countdown phase (it's "next" but not ready yet)
                 // If ready or counting down, show it.
                 // If it's totally outside window (e.g. sunrise), don't show as main item
-                if isReady || times.countdownToPostPrayer(at: Date(), offsetMinutes: offset) != nil {
+                if isReady || times.countdownToPostPrayer(at: currentTime, offsetMinutes: offset) != nil {
                     return afterPrayerItem
                 }
             }
         }
-        
-        // 3. Check for upcoming priority based on time
-        let hour = Calendar.current.component(.hour, from: Date())
+
+        // 3. Time-based selection (with gap handling)
+        let hour = Calendar.current.component(.hour, from: currentTime)
         let settings = try? settingsRepository.getSettings()
         
         // Defaults if settings not loaded
@@ -220,7 +271,7 @@ final class HomeViewModel {
             }
         }
         
-        // Refined timing
+        // 1. Exact Match
         if isInRange(hour: hour, start: wakingStart, end: wakingEnd) {
             return dailySummary.first(where: { $0.id == "waking_up" })
         } else if isInRange(hour: hour, start: morningStart, end: morningEnd) {
@@ -231,7 +282,27 @@ final class HomeViewModel {
             return dailySummary.first(where: { $0.id == "sleep" })
         }
         
-        // 3. Fallback to first non-completed
+        // 2. Gap Handling: Find the period that started most recently
+        // We calculate "hours since start" for each period, handling wrapping
+        let periods: [(id: String, start: Int)] = [
+            ("waking_up", wakingStart),
+            ("morning", morningStart),
+            ("evening", eveningStart),
+            ("sleep", sleepStart)
+        ]
+        
+        let sortedPeriods = periods.sorted { p1, p2 in
+            // Calculate elapsed time from start to now (0..23)
+            let elapsed1 = (hour - p1.start + 24) % 24
+            let elapsed2 = (hour - p2.start + 24) % 24
+            return elapsed1 < elapsed2 // Smaller elapsed means it started more recently
+        }
+        
+        if let bestMatch = sortedPeriods.first {
+            return dailySummary.first(where: { $0.id == bestMatch.id })
+        }
+        
+        // 3. Fallback (should rarely reach here)
         return dailySummary.first(where: { $0.status != .completed }) ?? dailySummary.first
     }
 
@@ -331,7 +402,7 @@ final class HomeViewModel {
 
     private func updateAdhanStatus() {
         guard let times = prayerTimes else { return }
-        let now = Date()
+        let now = currentTime
         currentAdhan = times.currentAdhan(at: now)
         
         let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
@@ -356,7 +427,7 @@ final class HomeViewModel {
     }
     
     var timeToNextDhikr: String? {
-        let now = Date()
+        let now = currentTime
         let calendar = Calendar.current
         var nextEventDate: Date?
         var eventName: String = ""

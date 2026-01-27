@@ -58,14 +58,14 @@ extension Calendar {
     /// Returns Arabic calendar
     static var arabic: Calendar {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.locale = Locale(identifier: "ar")
+        calendar.locale = Locale(identifier: "ar@numbers=latn")
         return calendar
     }
 
     /// Returns Islamic (Umm Al-Qura) calendar
     static var islamic: Calendar {
         var calendar = Calendar(identifier: .islamicUmmAlQura)
-        calendar.locale = Locale(identifier: "ar")
+        calendar.locale = Locale(identifier: "ar@numbers=latn")
         return calendar
     }
 }

@@ -174,7 +174,7 @@ final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
         longitude: Double,
         method: Int = 4 // Umm Al-Qura default
     ) async throws -> PrayerTimes {
-        let urlString = "https://api.aladhan.com/v1/timings?latitude=\(latitude)&longitude=\(longitude)&method=\(method)"
+        let urlString = "https://api.aladhan.com/v1/timings/today?latitude=\(latitude)&longitude=\(longitude)&method=\(method)"
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }

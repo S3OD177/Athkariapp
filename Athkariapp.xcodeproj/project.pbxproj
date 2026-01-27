@@ -29,8 +29,7 @@
 		REP004 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* SettingsRepository.swift */; };
 		REP005 /* OnboardingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* OnboardingRepository.swift */; };
 		REP006 /* UserRoutineLinkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* UserRoutineLinkRepository.swift */; };
-		RES001 /* daily_athkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001 /* daily_athkar.json */; };
-		RES002 /* hisn.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC002 /* hisn.json */; };
+		RES001 /* adhkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001 /* adhkar.json */; };
 		RES003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RSC004 /* Localizable.strings */; };
 		SVC001 /* PrayerTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017 /* PrayerTimeService.swift */; };
 		SVC002 /* SeedImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC018 /* SeedImportService.swift */; };
@@ -65,8 +64,7 @@
 		C38D270C2F27001B005D2A1A /* TasbihView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasbihView.swift; sourceTree = "<group>"; };
 		C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZakatCalculatorView.swift; sourceTree = "<group>"; };
 		PROD001 /* Athkariapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Athkariapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		RSC001 /* daily_athkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = daily_athkar.json; sourceTree = "<group>"; };
-		RSC002 /* hisn.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hisn.json; sourceTree = "<group>"; };
+		RSC001 /* adhkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = adhkar.json; sourceTree = "<group>"; };
 		RSC003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		RSC004 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		SRC001 /* AdhkariApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdhkariApp.swift; sourceTree = "<group>"; };
@@ -243,8 +241,7 @@
 		GRP009 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				RSC001 /* daily_athkar.json */,
-				RSC002 /* hisn.json */,
+				RSC001 /* adhkar.json */,
 				RSC004 /* Localizable.strings */,
 			);
 			path = Resources;
@@ -365,8 +362,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				RES001 /* daily_athkar.json in Resources */,
-				RES002 /* hisn.json in Resources */,
+				RES001 /* adhkar.json in Resources */,
 				RES003 /* Localizable.strings in Resources */,
 				AST002 /* Assets.xcassets in Resources */,
 			);

@@ -55,7 +55,7 @@ struct HisnLibraryContent: View {
                         } else {
                             LazyVStack(spacing: 16) {
                                 ForEach(viewModel.filteredDuaList) { dua in
-                                    DuaListRow(dua: dua, fontSize: viewModel.fontSize) {
+                                    DuaListRow(dua: dua) {
                                         selectedDua = dua
                                     }
                                 }
@@ -72,7 +72,7 @@ struct HisnLibraryContent: View {
             await viewModel.loadDuas()
         }
         .sheet(item: $selectedDua) { dua in
-            DuaDetailView(dua: dua, fontSize: viewModel.fontSize)
+            DuaDetailView(dua: dua)
         }
     }
 
@@ -240,7 +240,6 @@ struct CategoryIcon: View {
 // MARK: - Dua List Row (Card)
 struct DuaListRow: View {
     let dua: DhikrItem
-    let fontSize: Double
     let onTap: () -> Void
 
     var body: some View {
@@ -256,13 +255,13 @@ struct DuaListRow: View {
                 // Content
                 VStack(alignment: .leading, spacing: 6) {
                     Text(dua.title)
-                        .font(.system(size: 18 * fontSize, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(dua.text)
-                        .font(.system(size: 14 * fontSize, weight: .regular))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(AppColors.textGray)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)

@@ -21,7 +21,8 @@ struct SettingsView: View {
             locationService: container.locationService,
             hapticsService: container.hapticsService,
             prayerTimeService: container.prayerTimeService,
-            modelContext: container.modelContainer.mainContext
+            modelContext: container.modelContainer.mainContext,
+            modelContainer: container.modelContainer
         )
     }
 }
@@ -49,18 +50,15 @@ struct SettingsContent: View {
 
                     // Sections
                     VStack(spacing: 24) {
-                        appearanceSection
                         preferencesSection
                         timeConfigurationSection
-                        prayerTimesSection
+                        locationSection
                     }
                     .padding(.horizontal, 24)
                     
-                    // Data Management
                     dataManagementSection
                         .padding(.horizontal, 24)
                     
-                    // Footer
                     appInfoSection
                     
                     Spacer().frame(height: 100)
@@ -80,58 +78,6 @@ struct SettingsContent: View {
         }
     }
 
-    // MARK: - Appearance Section
-    private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("المظهر والعرض")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.gray)
-                .padding(.horizontal, 8)
-
-            VStack(spacing: 20) {
-                // Font Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("الخط")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                    
-                    // Preview Card
-                    VStack {
-                        Text("سبحان الله وبحمده")
-                        Text("سبحان الله العظيم")
-                    }
-                    .font(.system(size: 20 * viewModel.fontSize, weight: .medium))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
-                    .frame(height: 120)
-                    .background(Color(hex: "2c2c2e"))
-                    .cornerRadius(12)
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.fontSize)
-                    
-                    // Custom Slider
-                    HStack(spacing: 12) {
-                        Text("أ")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.gray)
-                        
-                        Slider(value: Binding(
-                            get: { viewModel.fontSize },
-                            set: { viewModel.updateFontSize($0) }
-                        ), in: 0.8...1.5)
-                        .tint(.white)
-                        
-                        Text("أ")
-                            .font(.system(size: 24))
-                            .foregroundStyle(.gray)
-                    }
-                }
-            }
-            .padding(16)
-            .background(AppColors.onboardingSurface)
-            .cornerRadius(16)
-        }
-    }
 
     // MARK: - Preferences Section
     private var preferencesSection: some View {
@@ -140,13 +86,48 @@ struct SettingsContent: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.gray)
                 .padding(.horizontal, 8)
-            
+
             VStack(spacing: 0) {
+                // iCloud Sync
                 SettingsRow(
-                    title: "الاهتزاز عند التسبيح",
-                    icon: "iphone.radiowaves.left.and.right",
+                    title: "مزامنة iCloud",
+                    icon: "cloud.fill",
                     iconColor: .white,
-                    iconBg: AppColors.onboardingPrimary
+                    iconBg: .blue
+                ) {
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.iCloudSyncEnabled },
+                        set: { viewModel.updateICloudSyncEnabled($0) }
+                    ))
+                    .labelsHidden()
+                    .tint(.blue)
+                }
+                
+                Divider().background(Color.white.opacity(0.1))
+                
+                // Auto Advance
+                SettingsRow(
+                    title: "الانتقال التلقائي",
+                    icon: "forward.frame.fill",
+                    iconColor: .white,
+                    iconBg: .green
+                ) {
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.autoAdvance },
+                        set: { viewModel.updateAutoAdvance($0) }
+                    ))
+                    .labelsHidden()
+                    .tint(.blue)
+                }
+                
+                Divider().background(Color.white.opacity(0.1))
+                
+                // Haptics Toggle
+                SettingsRow(
+                    title: "اللمس الاهتزازي",
+                    icon: "hand.tap.fill",
+                    iconColor: .white,
+                    iconBg: .orange
                 ) {
                     Toggle("", isOn: Binding(
                         get: { viewModel.hapticsEnabled },
@@ -154,18 +135,45 @@ struct SettingsContent: View {
                     ))
                     .labelsHidden()
                     .tint(.blue)
-                    .sensoryFeedback(.selection, trigger: viewModel.hapticsEnabled)
                 }
                 
-                Divider().background(Color.white.opacity(0.05)).padding(.leading, 56)
+                Divider().background(Color.white.opacity(0.1))
                 
+                // Notifications Toggle
                 SettingsRow(
-                    title: "التذكير",
-                    icon: "bell.fill",
+                    title: "إشعارات الأذكار",
+                    icon: "bell.badge.fill",
                     iconColor: .white,
-                    iconBg: Color(hex: "FF3B30"), // Red
-                    showChevron: true
-                )
+                    iconBg: .red
+                ) {
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.notificationsEnabled },
+                        set: { viewModel.updateNotificationsEnabled($0) }
+                    ))
+                    .labelsHidden()
+                    .tint(.blue)
+                }
+                
+                if viewModel.hapticsEnabled {
+                    Divider().background(Color.white.opacity(0.1))
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("شدة الاهتزاز")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.8))
+                        
+                        Picker("الشدة", selection: Binding(
+                            get: { viewModel.hapticIntensity },
+                            set: { viewModel.updateHapticIntensity($0) }
+                        )) {
+                            ForEach(HapticIntensity.allCases, id: \.self) { intensity in
+                                Text(intensity.arabicName).tag(intensity)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .padding(16)
+                }
             }
             .background(AppColors.onboardingSurface)
             .cornerRadius(16)
@@ -196,23 +204,42 @@ struct SettingsContent: View {
         }
     }
 
-    // MARK: - Prayer Times Section
-    private var prayerTimesSection: some View {
+    // MARK: - Location Section
+    private var locationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("مواقيت الصلاة")
+            Text("الموقع والمنطقة")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.gray)
                 .padding(.horizontal, 8)
             
             VStack(spacing: 0) {
                 SettingsRow(
-                    title: "طريقة الحساب",
-                    icon: "clock.fill",
+                    title: "المدينة الحالية",
+                    icon: "mappin.and.ellipse",
                     iconColor: .white,
-                    iconBg: Color(hex: "5856D6"), // Indigo
-                    valueText: viewModel.calculationMethod.arabicName,
-                    showChevron: true
+                    iconBg: .cyan,
+                    valueText: viewModel.locationCity ?? "غير محدد"
                 )
+                
+                Divider().background(Color.white.opacity(0.1))
+                
+                Button {
+                    if viewModel.locationPermissionGranted {
+                        // In a real app we might trigger a refresh
+                        viewModel.requestLocationPermission()
+                    } else {
+                        viewModel.openAppSettings()
+                    }
+                } label: {
+                    SettingsRow(
+                        title: viewModel.locationPermissionGranted ? "تحديث الموقع" : "تفعيل الوصول للموقع",
+                        icon: "location.fill",
+                        iconColor: .white,
+                        iconBg: .blue,
+                        showChevron: !viewModel.locationPermissionGranted
+                    )
+                }
+                .buttonStyle(.plain)
             }
             .background(AppColors.onboardingSurface)
             .cornerRadius(16)
@@ -378,97 +405,120 @@ struct TimeConfigSettingsView: View {
             // Background
             AppColors.settingsBackground.ignoresSafeArea()
             
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // Header
-                    HStack {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundStyle(.white)
-                        }
-                        
-                        Text("تكوين الأوقات")
-                            .font(.system(size: 24, weight: .bold))
+            VStack(spacing: 0) {
+                // Header (Pinned)
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("أوقاتك المفضلة")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                         
-                        Spacer()
+                        Text("حدد الأوقات التي تناسب روتين يومك لنذكرك بالأذكار في الوقت المناسب.")
+                            .font(.body)
+                            .foregroundStyle(AppColors.textGray)
+                            .lineSpacing(4)
                     }
-                    .padding(.top, 10)
-                    .padding(.horizontal, 24)
-
-                    // Waking Up Section
-                    timeSection(
-                        title: "وقت الاستيقاظ",
-                        icon: "sunrise.fill",
-                        iconColor: .white,
-                        iconBg: Color(hex: "F59E0B"), // Amber
-                        startBinding: Binding(
-                            get: { viewModel.wakingUpStart },
-                            set: { viewModel.updateWakingUpStart($0) }
-                        ),
-                        endBinding: Binding(
-                            get: { viewModel.wakingUpEnd },
-                            set: { viewModel.updateWakingUpEnd($0) }
-                        )
-                    )
                     
-                    // Morning Section
-                    timeSection(
-                        title: "وقت الصباح",
-                        icon: "sun.max.fill",
-                        iconColor: .white,
-                        iconBg: Color(hex: "FBBF24"), // Yellow
-                        startBinding: Binding(
-                            get: { viewModel.morningStart },
-                            set: { viewModel.updateMorningStart($0) }
-                        ),
-                        endBinding: Binding(
-                            get: { viewModel.morningEnd },
-                            set: { viewModel.updateMorningEnd($0) }
-                        )
-                    )
+                    Spacer()
                     
-                    // Evening Section
-                    timeSection(
-                        title: "وقت المساء",
-                        icon: "sunset.fill",
-                        iconColor: .white,
-                        iconBg: Color(hex: "F97316"), // Orange
-                        startBinding: Binding(
-                            get: { viewModel.eveningStart },
-                            set: { viewModel.updateEveningStart($0) }
-                        ),
-                        endBinding: Binding(
-                            get: { viewModel.eveningEnd },
-                            set: { viewModel.updateEveningEnd($0) }
-                        )
-                    )
-                    
-                    // Sleep Section
-                    timeSection(
-                        title: "وقت النوم",
-                        icon: "moon.zzz.fill",
-                        iconColor: .white,
-                        iconBg: Color(hex: "4F46E5"), // Indigo
-                        startBinding: Binding(
-                            get: { viewModel.sleepStart },
-                            set: { viewModel.updateSleepStart($0) }
-                        ),
-                        endBinding: Binding(
-                            get: { viewModel.sleepEnd },
-                            set: { viewModel.updateSleepEnd($0) }
-                        )
-                    )
-                    
-                    // After Prayer Section
-                    afterPrayerSection
-                    
-                    Spacer().frame(height: 50)
+                    // Back Button
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundStyle(Color.gray.opacity(0.5))
+                    }
+                    .padding(.top, 4)
                 }
+                .padding(.top, 40) // Matched OnboardingView padding (was 20)
                 .padding(.horizontal, 24)
+                .padding(.bottom, 20)
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Waking Up Section
+                        timeSection(
+                            title: "أذكار الاستيقاظ",
+                            icon: "sunrise.fill",
+                            iconColor: .white,
+                            iconBg: Color(hex: "F59E0B"), // Amber
+                            startBinding: Binding(
+                                get: { viewModel.wakingUpStart },
+                                set: { viewModel.updateWakingUpStart($0) }
+                            ),
+                            endBinding: Binding(
+                                get: { viewModel.wakingUpEnd },
+                                set: { viewModel.updateWakingUpEnd($0) }
+                            )
+                        )
+                        
+                        // Morning Section
+                        timeSection(
+                            title: "أذكار الصباح",
+                            icon: "sun.max.fill",
+                            iconColor: .white,
+                            iconBg: Color(hex: "FBBF24"), // Yellow
+                            startBinding: Binding(
+                                get: { viewModel.morningStart },
+                                set: { viewModel.updateMorningStart($0) }
+                            ),
+                            endBinding: Binding(
+                                get: { viewModel.morningEnd },
+                                set: { viewModel.updateMorningEnd($0) }
+                            )
+                        )
+                        
+                        // Evening Section
+                        timeSection(
+                            title: "أذكار المساء",
+                            icon: "sunset.fill",
+                            iconColor: .white,
+                            iconBg: Color(hex: "F97316"), // Orange
+                            startBinding: Binding(
+                                get: { viewModel.eveningStart },
+                                set: { viewModel.updateEveningStart($0) }
+                            ),
+                            endBinding: Binding(
+                                get: { viewModel.eveningEnd },
+                                set: { viewModel.updateEveningEnd($0) }
+                            )
+                        )
+                        
+                        // Sleep Section
+                        timeSection(
+                            title: "أذكار النوم",
+                            icon: "moon.zzz.fill",
+                            iconColor: .white,
+                            iconBg: Color(hex: "4F46E5"), // Indigo
+                            startBinding: Binding(
+                                get: { viewModel.sleepStart },
+                                set: { viewModel.updateSleepStart($0) }
+                            ),
+                            endBinding: Binding(
+                                get: { viewModel.sleepEnd },
+                                set: { viewModel.updateSleepEnd($0) }
+                            )
+                        )
+                        
+                        // After Prayer Section
+                        durationSection(
+                            title: "أذكار بعد الصلاة",
+                            subtitle: "تذكير بالأذكار بعد الأذان بمدة...",
+                            icon: "hands.and.sparkles.fill",
+                            iconColor: .white,
+                            iconBg: Color(hex: "0EA5E9"), // Sky Blue
+                            minutesBinding: Binding(
+                                get: { viewModel.afterPrayerOffset },
+                                set: { viewModel.updateAfterPrayerOffset($0) }
+                            )
+                        )
+                        
+                        Spacer().frame(height: 50)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
+                }
             }
         }
         .navigationBarHidden(true)
@@ -500,75 +550,119 @@ struct TimeConfigSettingsView: View {
             }
             .padding(.horizontal, 8)
             
-            VStack(spacing: 0) {
+            HStack(spacing: 12) {
                 // Start Time
-                SettingsRow(
-                    title: "من",
-                    icon: "clock.arrow.circlepath",
-                    iconColor: .white,
-                    iconBg: Color.gray.opacity(0.3)
-                ) {
-                    Picker("", selection: startBinding) {
-                        ForEach(0..<24, id: \.self) { hour in
-                            Text(formatTime(hour)).tag(hour)
+                Menu {
+                    ForEach(0..<24, id: \.self) { hour in
+                        Button(formatTime(hour)) {
+                            startBinding.wrappedValue = hour
                         }
                     }
-                    .pickerStyle(.menu)
-                    .tint(.gray)
+                } label: {
+                    HStack {
+                        Text("من")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        Spacer()
+                        Text(formatTime(startBinding.wrappedValue))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                    .background(AppColors.onboardingSurface)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
                 }
-                
-                Divider().background(Color.white.opacity(0.05)).padding(.leading, 56)
                 
                 // End Time
-                SettingsRow(
-                    title: "إلى",
-                    icon: "clock.arrow.circlepath",
-                    iconColor: .white,
-                    iconBg: Color.gray.opacity(0.3)
-                ) {
-                    Picker("", selection: endBinding) {
-                        ForEach(0..<24, id: \.self) { hour in
-                            Text(formatTime(hour)).tag(hour)
+                Menu {
+                    ForEach(0..<24, id: \.self) { hour in
+                        Button(formatTime(hour)) {
+                            endBinding.wrappedValue = hour
                         }
                     }
-                    .pickerStyle(.menu)
-                    .tint(.gray)
+                } label: {
+                    HStack {
+                        Text("إلى")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                        Spacer()
+                        Text(formatTime(endBinding.wrappedValue))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(12)
+                    .background(AppColors.onboardingSurface)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
                 }
             }
-            .background(AppColors.onboardingSurface)
-            .cornerRadius(16)
         }
+        .padding(16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
     }
     
-    private var afterPrayerSection: some View {
+    private func durationSection(title: String, subtitle: String, icon: String, iconColor: Color, iconBg: Color, minutesBinding: Binding<Int>) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("إعدادات الأذان")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 8)
-            
-            VStack(spacing: 0) {
-                SettingsRow(
-                    title: "انتظار بعد الأذان (النافذة)",
-                    icon: "timer",
-                    iconColor: .white,
-                    iconBg: AppColors.onboardingPrimary
-                ) {
-                    Picker("", selection: Binding(
-                        get: { viewModel.afterPrayerOffset },
-                        set: { viewModel.updateAfterPrayerOffset($0) }
-                    )) {
-                        ForEach([0, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120], id: \.self) { minutes in
-                            Text("\(minutes) دقيقة").tag(minutes)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.gray)
-                }
+             // Header
+             HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(iconBg)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Image(systemName: icon)
+                            .font(.system(size: 16))
+                            .foregroundStyle(iconColor)
+                    )
+                
+                 VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
+                    
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                 }
             }
-            .background(AppColors.onboardingSurface)
-            .cornerRadius(16)
+            .padding(.horizontal, 8)
+            
+            // Picker
+            Menu {
+                ForEach([0, 5, 10, 15, 20, 25, 30, 45, 60], id: \.self) { min in
+                    Button("\(min) دقيقة") {
+                        minutesBinding.wrappedValue = min
+                    }
+                }
+            } label: {
+                HStack {
+                    Text("مدة الانتظار")
+                         .font(.caption)
+                         .foregroundStyle(.gray)
+                    Spacer()
+                    Text("\(minutesBinding.wrappedValue) دقيقة")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .padding(12)
+                .background(AppColors.onboardingSurface)
+                .cornerRadius(12)
+                .overlay(
+                     RoundedRectangle(cornerRadius: 12)
+                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+            }
         }
+        .padding(16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
     }
 }
 
@@ -579,7 +673,8 @@ struct TimeConfigSettingsView: View {
         locationService: container.locationService,
         hapticsService: container.hapticsService,
         prayerTimeService: container.prayerTimeService,
-        modelContext: container.modelContainer.mainContext
+        modelContext: container.modelContainer.mainContext,
+        modelContainer: container.modelContainer
     )
     
     TimeConfigSettingsView(viewModel: viewModel)

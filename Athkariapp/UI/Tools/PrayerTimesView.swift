@@ -66,6 +66,14 @@ final class PrayerViewModel {
             await fetchCityName(for: location)
         } catch {
             print("Error fetching prayer times: \(error)")
+            // Fallback to manual calculation
+            let times = prayerTimeService.getPrayerTimes(
+                date: Date(),
+                location: location,
+                method: .ummAlQura
+            )
+            updateWithTimes(times)
+            locationName = "حساب محلي (تعذر الاتصال)"
         }
     }
     
@@ -126,11 +134,23 @@ final class PrayerViewModel {
     }
     
     private func updateCountdown() async {
-        guard let times = currentTimes, let next = times.nextPrayer() else { return }
+        guard let times = currentTimes else { return }
         
-        let remaining = next.time.timeIntervalSince(Date())
+        var nextTime: Date
+        
+        if let next = times.nextPrayer() {
+            nextTime = next.time
+            nextPrayerName = next.prayer.arabicName
+        } else {
+            // If no next prayer (passed Isha), next is tomorrow's Fajr
+            // Approximate by adding 24 hours to today's Fajr
+            nextTime = times.fajr.addingTimeInterval(86400) // 24 hours
+            nextPrayerName = Prayer.fajr.arabicName
+        }
+        
+        let remaining = nextTime.timeIntervalSince(Date())
         if remaining <= 0 {
-            // Refresh times if prayer started
+            // Refresh times if prayer started (or if we drifted past Fajr next day)
             await loadData()
             return
         }
@@ -139,7 +159,7 @@ final class PrayerViewModel {
         let minutes = (Int(remaining) % 3600) / 60
         let seconds = Int(remaining) % 60
         
-        timeRemaining = String(format: "%02d:%02d:%02d", hours, minutes, seconds).arabicNumeral
+        timeRemaining = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
@@ -159,6 +179,7 @@ struct PrayerTimesView: View {
                             prayerTimeService: container.prayerTimeService,
                             locationService: container.locationService
                         )
+
                     }
             }
         }
@@ -232,13 +253,14 @@ struct PrayerTimesContent: View {
                             // Border
                             RoundedRectangle(cornerRadius: 32)
                                 .stroke(
-                                    LinearGradient(
-                                        colors: [
-                                            AppColors.onboardingPrimary.opacity(0.3),
-                                            Color.white.opacity(0.05)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
+                                    RadialGradient(
+                                        gradient: Gradient(colors: [
+                                            AppColors.onboardingPrimary.opacity(0.15),
+                                            AppColors.sessionBackground.opacity(0)
+                                        ]),
+                                        center: .topLeading,
+                                        startRadius: 0,
+                                        endRadius: 200
                                     ),
                                     lineWidth: 1
                                 )
@@ -284,7 +306,7 @@ struct PrayerTimesContent: View {
                                 // Decorative Icon
                                 ZStack {
                                     Circle()
-                                        .fill(AppColors.onboardingPrimary.opacity(0.1))
+                                        .stroke(AppColors.onboardingPrimary.opacity(0.4), lineWidth: 1)
                                         .frame(width: 80, height: 80)
                                         .blur(radius: 20)
                                     
@@ -366,7 +388,7 @@ struct PrayerRow: View {
                 if prayer.isActive {
                     Text("الصلاة الحالية")
                         .font(.caption2.bold())
-                        .foregroundStyle(AppColors.onboardingPrimary.opacity(0.8))
+                        .foregroundStyle(prayer.isActive ? AppColors.onboardingPrimary.opacity(0.8) : .white)
                 }
             }
             
