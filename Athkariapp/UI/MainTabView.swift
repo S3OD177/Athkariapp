@@ -150,12 +150,16 @@ struct TabBarItem: View {
 // MARK: - Tools Section
 
 struct ToolsView: View {
+    @Environment(\.appContainer) private var container
     @State private var showingQibla = false
     @State private var showingTasbih = false
     @State private var showingHijri = false
     @State private var showingZakat = false
     @State private var showingStats = false
     @State private var showingPrayerTimes = false
+    
+    // View Model for real data
+    @State private var statsViewModel: StatisticsViewModel?
     
     // Stable chart heights for the weekly progress visualization
     private let chartHeights: [CGFloat] = [65, 85, 55, 95, 70, 80, 60]
@@ -259,39 +263,67 @@ struct ToolsView: View {
                             VStack(spacing: 20) {
                                 // Weekly Progress Placeholder
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("التقدم الأسبوعي")
+                                    Text("الأسبوع الحالي") // Changed title slightly
                                         .font(.system(size: 14, weight: .medium))
                                         .foregroundStyle(Color.gray)
                                     
                                     HStack(alignment: .lastTextBaseline, spacing: 8) {
-                                        Text("١,٢٥٠")
-                                            .font(.system(size: 32, weight: .bold))
-                                            .foregroundStyle(.white)
+                                        if let stats = statsViewModel {
+                                            Text(stats.totalDhikrs.formatted())
+                                                .font(.system(size: 32, weight: .bold))
+                                                .foregroundStyle(.white)
+                                        } else {
+                                            Text("...")
+                                                .font(.system(size: 32, weight: .bold))
+                                                .foregroundStyle(.white)
+                                        }
+                                        
                                         Text("ذكر")
                                             .font(.system(size: 16))
                                             .foregroundStyle(Color.gray)
                                         
                                         Spacer()
                                         
-                                        Text("+١٢%")
+                                        if let stats = statsViewModel {
+                                            HStack(spacing: 2) {
+                                                Image(systemName: stats.growthPercentage >= 0 ? "arrow.up" : "arrow.down")
+                                                Text("\(Int(abs(stats.growthPercentage)))%")
+                                            }
                                             .font(.system(size: 12, weight: .bold))
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 4)
                                             .background(AppColors.onboardingPrimary.opacity(0.1))
-                                            .foregroundStyle(AppColors.success)
+                                            .foregroundStyle(stats.growthPercentage >= 0 ? AppColors.success : .red)
                                             .clipShape(Capsule())
-                                    }
-                                    
-                                    // Simplified Chart Placeholder
-                                    HStack(alignment: .bottom, spacing: 12) {
-                                        ForEach(0..<7, id: \.self) { index in
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .fill(AppColors.onboardingPrimary)
-                                                .frame(maxWidth: .infinity)
-                                                .frame(height: chartHeights[index])
                                         }
                                     }
-                                    .padding(.top, 10)
+                                    
+                                    // Simplified Chart
+                                    if let stats = statsViewModel, !stats.chartData.isEmpty {
+                                        Chart(stats.chartData, id: \.label) { item in
+                                            BarMark(
+                                                x: .value("Day", item.label),
+                                                y: .value("Count", item.count)
+                                            )
+                                            .foregroundStyle(AppColors.onboardingPrimary.gradient)
+                                            .cornerRadius(4)
+                                        }
+                                        .chartXAxis(.hidden)
+                                        .chartYAxis(.hidden)
+                                        .frame(height: 60)
+                                        .padding(.top, 10)
+                                    } else {
+                                        // Loading or Empty State
+                                        HStack(alignment: .bottom, spacing: 12) {
+                                            ForEach(0..<7, id: \.self) { index in
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(Color.white.opacity(0.05))
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 40)
+                                            }
+                                        }
+                                        .padding(.top, 10)
+                                    }
                                 }
                                 .padding(24)
                                 .background(AppColors.onboardingSurface)
@@ -339,6 +371,17 @@ struct ToolsView: View {
         }
         .fullScreenCover(isPresented: $showingPrayerTimes) {
             PrayerTimesView()
+        }
+        .onAppear {
+            if statsViewModel == nil {
+                statsViewModel = StatisticsViewModel(
+                    repository: container.makeSessionRepository(),
+                    haptics: container.hapticsService
+                )
+            }
+            Task {
+                await statsViewModel?.loadData()
+            }
         }
     }
 }

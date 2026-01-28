@@ -99,6 +99,11 @@ struct HomeContent: View {
         .task {
             await viewModel.loadData()
         }
+        .onAppear {
+            Task {
+                await viewModel.refreshData()
+            }
+        }
         .refreshable {
             await viewModel.refreshData()
         }
@@ -161,12 +166,22 @@ struct HomeContent: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("الذكر الحالي")
+                            Text(viewModel.hasActiveEvent ? "الذكر الحالي" : "الذكر القادم")
                                 .font(.system(size: 14, weight: .semibold))
                                 .opacity(0.7)
                             
-                            Text(viewModel.activeSummaryItem?.title ?? "أذكار المسلم")
-                                .font(.system(size: 24, weight: .heavy))
+                            if viewModel.hasActiveEvent {
+                                Text(viewModel.activeSummaryItem?.title ?? "أذكار المسلم")
+                                    .font(.system(size: 24, weight: .heavy))
+                            } else {
+                                if let next = viewModel.nextUpcomingEvent {
+                                    Text(next.name)
+                                        .font(.system(size: 24, weight: .heavy))
+                                } else {
+                                    Text("لا يوجد ذكر حالي")
+                                        .font(.system(size: 24, weight: .heavy))
+                                }
+                            }
                         }
                         
                         Spacer()
@@ -175,42 +190,64 @@ struct HomeContent: View {
                             .fill(Color.white.opacity(0.3))
                             .frame(width: 48, height: 48)
                             .overlay(
-                                Image(systemName: viewModel.activeSummaryItem?.icon ?? "hand.raised.fill")
+                                Image(systemName: viewModel.hasActiveEvent ? (viewModel.activeSummaryItem?.icon ?? "hand.raised.fill") : "clock.fill")
                                     .foregroundStyle(Color(hex: "2C261F"))
                             )
                     }
                     
                     VStack(spacing: 8) {
-                        // Progress Bar
-                        GeometryReader { proxy in
-                            ZStack(alignment: .leading) {
-                                Capsule()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(height: 6)
-                                
-                                Capsule()
-                                    .fill(Color(hex: "2C261F"))
-                                    .frame(width: proxy.size.width * (viewModel.activeSummaryItem?.progress ?? 0), height: 6)
+                        // Progress Bar (Only show if active)
+                        if viewModel.hasActiveEvent {
+                            GeometryReader { proxy in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.black.opacity(0.1))
+                                        .frame(height: 6)
+                                    
+                                    Capsule()
+                                        .fill(Color(hex: "2C261F"))
+                                        .frame(width: proxy.size.width * (viewModel.activeSummaryItem?.progress ?? 0), height: 6)
+                                }
                             }
+                            .frame(height: 6)
+                        } else {
+                            // Divider or simple spacer for gap mode
+                            Divider()
+                                .background(Color.black.opacity(0.1))
                         }
-                        .frame(height: 6)
                         
                         HStack {
                             if let countdown = viewModel.postPrayerCountdown {
                                 Text("متاح بعد \(countdown)")
                                     .font(.system(size: 11, weight: .bold))
                                     .foregroundStyle(Color.black.opacity(0.5))
-                            } else if let nextDhikr = viewModel.timeToNextDhikr {
-                                Text(nextDhikr)
+                            } else if let remaining = viewModel.currentEventRemainingTime {
+                                // Active Session Mode
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("ينتهي الذكر الحالي خلال \(remaining)")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(Color.black.opacity(0.6))
+                                    
+                                    if let next = viewModel.nextEventName {
+                                        Text("التالي: \(next)")
+                                            .font(.system(size: 10, weight: .medium))
+                                            .foregroundStyle(Color.black.opacity(0.4))
+                                    }
+                                }
+                            } else if let nextTime = viewModel.nextEventRemainingTime {
+                                // Gap Mode
+                                Text("يبدأ بعد \(nextTime)")
                                     .font(.system(size: 11, weight: .bold))
                                     .foregroundStyle(Color.black.opacity(0.5))
                             }
                             
                             Spacer()
                             
-                            Text(statusText(for: viewModel.activeSummaryItem))
-                                .font(.system(size: 12, weight: .medium))
-                                .opacity(0.6)
+                            if viewModel.hasActiveEvent {
+                                Text(statusText(for: viewModel.activeSummaryItem))
+                                    .font(.system(size: 12, weight: .medium))
+                                    .opacity(0.6)
+                            }
                         }
                     }
                 }
@@ -233,67 +270,64 @@ struct HomeContent: View {
 
     // MARK: - Summary Grid
     private var summaryGrid: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("ملخص اليوم")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundStyle(.white)
-            
+        HStack(spacing: 0) {
+            // Hijri Date Section
             HStack(spacing: 12) {
-                summaryCard(title: "أذكار اليوم", value: viewModel.formattedProgress, badge: "متفوق", icon: "sparkles", color: AppColors.onboardingPrimary)
+                ZStack {
+                    Circle()
+                        .fill(AppColors.onboardingPrimary.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "calendar")
+                        .foregroundStyle(AppColors.onboardingPrimary)
+                        .font(.system(size: 20))
+                }
                 
-                // Persistent After Prayer Button
-                if let prayerItem = viewModel.afterPrayerSummaryItem {
-                   Button {
-                       if let firstSlot = prayerItem.slots.first {
-                           navigationPath.append(firstSlot)
-                       }
-                   } label: {
-                       summaryCard(
-                           title: "أذكار بعد الصلاة", // Hardcoded title
-                           value: "\(prayerItem.completedCount)/\(prayerItem.totalCount)", // Dynamic value
-                           badge: "اقرأ", // Static badge
-                           icon: "hands.and.sparkles.fill",
-                           color: AppColors.onboardingPrimary // Changed color
-                       )
-                   }
-                   .buttonStyle(.plain)
-                } else {
-                    // Fallback if no prayer time logic is active (rare)
-                    summaryCard(title: "الورد الحالي", value: viewModel.activeSummaryItem?.title ?? "أذكار", badge: "الآن", icon: "book.fill", color: .purple)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("التاريخ الهجري")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.gray)
+                    Text(viewModel.todayHijriDate)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
-        }
-    }
-
-    private func summaryCard(title: String, value: String, badge: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: icon == "prayer_times" ? "bolt.fill" : "book.fill") // Map to proper icons
-                    .foregroundStyle(color)
-                    .padding(8)
-                    .background(color.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                Spacer()
-                
-                Text(badge)
-                    .font(.system(size: 10, weight: .bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.gray)
+            // Divider
+            Rectangle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 1, height: 40)
+                .padding(.horizontal, 16)
+            
+            // Next Prayer Section
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(AppColors.onboardingPrimary.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "clock.fill")
+                        .foregroundStyle(AppColors.onboardingPrimary)
+                        .font(.system(size: 20))
+                }
                 
-                Text(value)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(.white)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.nextPrayerName ?? "الصلاة القادمة")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.gray)
+                    
+                    if let nextTime = viewModel.nextPrayerTime {
+                        Text(nextTime, style: .time)
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
+                    } else {
+                        Text("--:--")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
         .background(AppColors.onboardingSurface)

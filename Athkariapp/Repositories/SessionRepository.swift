@@ -1,5 +1,5 @@
-import Foundation
-import SwiftData
+@preconcurrency import Foundation
+@preconcurrency import SwiftData
 
 @MainActor
 protocol SessionRepositoryProtocol {
@@ -22,16 +22,25 @@ final class SessionRepository: SessionRepositoryProtocol {
 
     func fetchTodaySessions() throws -> [SessionState] {
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
-        return allSessions.filter { $0.date == startOfDay }
-            .sorted { $0.slotKey < $1.slotKey }
+        let predicate = #Predicate<SessionState> { $0.date == startOfDay }
+        let descriptor = FetchDescriptor<SessionState>(
+            predicate: predicate
+        )
+        return try modelContext.fetch(descriptor).sorted { $0.slotKey < $1.slotKey }
     }
 
     func fetchSession(date: Date, slotKey: SlotKey) throws -> SessionState? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let slotValue = slotKey.rawValue
-        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
-        return allSessions.first { $0.date == startOfDay && $0.slotKey == slotValue }
+        
+        // Note: Predicates on multiple fields
+        let predicate = #Predicate<SessionState> {
+            $0.date == startOfDay && $0.slotKey == slotValue
+        }
+        var descriptor = FetchDescriptor<SessionState>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        
+        return try modelContext.fetch(descriptor).first
     }
 
     func fetchOrCreateSession(date: Date, slotKey: SlotKey) throws -> SessionState {
@@ -39,7 +48,8 @@ final class SessionRepository: SessionRepositoryProtocol {
             return existing
         }
 
-        let session = SessionState(date: date, slotKey: slotKey)
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let session = SessionState(date: startOfDay, slotKey: slotKey)
         modelContext.insert(session)
         try modelContext.save()
         return session
@@ -63,8 +73,18 @@ final class SessionRepository: SessionRepositoryProtocol {
     func fetchSessionsForDateRange(from: Date, to: Date) throws -> [SessionState] {
         let fromStart = Calendar.current.startOfDay(for: from)
         let toStart = Calendar.current.startOfDay(for: to)
-        let allSessions = try modelContext.fetch(FetchDescriptor<SessionState>())
-        return allSessions.filter { $0.date >= fromStart && $0.date <= toStart }
-            .sorted { ($0.date, $0.slotKey) < ($1.date, $1.slotKey) }
+        // Predicates don't support date comparisons perfectly in all SwiftData versions without expanding,
+        // but standard >= and <= usually work on Date attributes.
+        let predicate = #Predicate<SessionState> {
+            $0.date >= fromStart && $0.date <= toStart
+        }
+        let descriptor = FetchDescriptor<SessionState>(
+            predicate: predicate
+        )
+        let sessions = try modelContext.fetch(descriptor)
+        return sessions.sorted { 
+            if $0.date != $1.date { return $0.date < $1.date }
+            return $0.slotKey < $1.slotKey
+        }
     }
 }

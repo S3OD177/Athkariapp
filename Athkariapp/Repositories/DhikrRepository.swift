@@ -1,5 +1,5 @@
-import Foundation
-import SwiftData
+@preconcurrency import Foundation
+@preconcurrency import SwiftData
 
 @MainActor
 protocol DhikrRepositoryProtocol {
@@ -25,39 +25,44 @@ final class DhikrRepository: DhikrRepositoryProtocol {
 
     func fetchAll() throws -> [DhikrItem] {
         let descriptor = FetchDescriptor<DhikrItem>()
-        let items = try modelContext.fetch(descriptor)
-        return items.sorted { $0.orderIndex < $1.orderIndex }
+        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchBySource(_ source: DhikrSource) throws -> [DhikrItem] {
         let sourceValue = source.rawValue
-        let allItems = try fetchAll()
-        return allItems.filter { $0.source == sourceValue }
+        let predicate = #Predicate<DhikrItem> { $0.source == sourceValue }
+        let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByCategory(_ category: DhikrCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let allItems = try fetchAll()
-        return allItems.filter { $0.category == categoryValue }
+        let predicate = #Predicate<DhikrItem> { $0.category == categoryValue }
+        let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByHisnCategory(_ category: HisnCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let allItems = try fetchAll()
-        return allItems.filter { $0.hisnCategory == categoryValue }
+        let predicate = #Predicate<DhikrItem> { $0.hisnCategory == categoryValue }
+        let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchById(_ id: UUID) throws -> DhikrItem? {
-        let allItems = try fetchAll()
-        return allItems.first { $0.id == id }
+        let predicate = #Predicate<DhikrItem> { $0.id == id }
+        var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
     }
 
     func search(query: String) throws -> [DhikrItem] {
-        let allItems = try fetchAll()
-        return allItems.filter { item in
-            item.title.localizedStandardContains(query) ||
-            item.text.localizedStandardContains(query)
+        let predicate = #Predicate<DhikrItem> {
+            $0.title.localizedStandardContains(query) ||
+            $0.text.localizedStandardContains(query)
         }
+        let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func insert(_ item: DhikrItem) throws {

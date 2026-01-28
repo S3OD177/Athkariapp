@@ -22,15 +22,18 @@ struct PrayerTimes: Equatable, Sendable {
     }
 
     /// Next prayer time
-    func nextPrayer(at time: Date = Date()) -> (prayer: Prayer, time: Date)? {
-        let prayers: [(Prayer, Date)] = [
+    func nextPrayer(at time: Date = Date(), includingSunrise: Bool = true) -> (prayer: Prayer, time: Date)? {
+        var prayers: [(Prayer, Date)] = [
             (.fajr, fajr),
-            (.sunrise, sunrise),
             (.dhuhr, dhuhr),
             (.asr, asr),
             (.maghrib, maghrib),
             (.isha, isha)
         ]
+        
+        if includingSunrise {
+            prayers.insert((.sunrise, sunrise), at: 1)
+        }
 
         for (prayer, prayerTime) in prayers {
             if time < prayerTime {
@@ -39,7 +42,10 @@ struct PrayerTimes: Equatable, Sendable {
         }
 
         // After isha, next is tomorrow's fajr
-        return nil
+        // Calculate tomorrow's Fajr (approximated as today's Fajr + 24 hours)
+        // ideally we would fetch tomorrow's times, but this is a safe visual fallback
+        let nextFajr = fajr.addingTimeInterval(24 * 60 * 60)
+        return (.fajr, nextFajr)
     }
 
     /// Maps current prayer to after-prayer slot with optional delay (offset in minutes)

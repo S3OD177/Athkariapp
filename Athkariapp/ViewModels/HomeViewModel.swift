@@ -30,6 +30,7 @@ final class HomeViewModel {
     var nextPrayerTime: Date?
     var todayHijriDate: String = ""
     var todayGregorianDate: String = ""
+    var nextPrayerName: String?
     var isLoading = false
     var errorMessage: String?
     var showLocationWarning: Bool = false
@@ -79,12 +80,25 @@ final class HomeViewModel {
                 
                 await MainActor.run {
                     self.currentTime = Date()
-                    self.updateAdhanStatus()
                     
-                    // Also refresh daily summary if needed (e.g. crossing midnight)
-                    if Calendar.current.component(.second, from: Date()) < 60 {
-                        // Simple check ensures UI updates
+                    // Check if prayer changed to refresh "After Prayer" card
+                    let oldPrayer = self.currentPrayer
+                    if let times = self.prayerTimes {
+                        let newPrayer = times.currentPrayer()
+                        if newPrayer != oldPrayer {
+                            self.currentPrayer = newPrayer
+                            // Reload summary to update the "After Prayer" card title/logic
+                            Task { try? await self.loadDailySummary() }
+                        }
+                        
+                        // Also update next prayer info if changed
+                        if let next = times.nextPrayer(includingSunrise: false) {
+                            self.nextPrayerTime = next.time
+                            self.nextPrayerName = "صلاة \(next.prayer.arabicName)"
+                        }
                     }
+                    
+                    self.updateAdhanStatus()
                 }
             }
         }
@@ -119,6 +133,11 @@ final class HomeViewModel {
     func loadData() async {
         isLoading = true
         errorMessage = nil
+        
+        // Set dates immediately
+        let today = Date()
+        todayHijriDate = today.formatHijri()
+        todayGregorianDate = today.formatDateArabic()
 
         do {
             // Load prayer times using location
@@ -148,8 +167,9 @@ final class HomeViewModel {
             
             if let times = prayerTimes {
                 currentPrayer = times.currentPrayer()
-                if let next = times.nextPrayer() {
+                if let next = times.nextPrayer(includingSunrise: false) {
                     nextPrayerTime = next.time
+                    nextPrayerName = "صلاة \(next.prayer.arabicName)"
                 }
                 
                 // Schedule notifications
@@ -162,11 +182,6 @@ final class HomeViewModel {
                     }
                 }
             }
-
-            // Set dates
-            let today = Date()
-            todayHijriDate = today.formatHijri()
-            todayGregorianDate = today.formatDateArabic()
 
             // Load daily summary
             try await loadDailySummary()
@@ -230,28 +245,42 @@ final class HomeViewModel {
         return "\(percentage)%"
     }
 
-    var activeSummaryItem: DailySummaryItem? {
-        // 1. Check for "After Prayer" priority if active AND timely
+    // MARK: - Event Timing Logic
+    
+    private struct EventTimeContext {
+        let item: DailySummaryItem
+        let endTime: Date?
+        let nextEventName: String?
+    }
+    
+    private var currentContext: EventTimeContext? {
+        // Re-use logic to find active item AND its end time
+        // 1. Check for "After Prayer" priority
         if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
-            // Only prioritize in Hero Card if it's actually the active time
-            // (Since we made the item persistent, we must check isPostPrayerReady or similar)
             if let times = prayerTimes, let prayer = times.currentAdhan(at: currentTime) {
                 let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
                 let isReady = times.isPostPrayerReady(for: prayer, at: currentTime, offsetMinutes: offset)
-                // Also check if we are in the countdown phase (it's "next" but not ready yet)
-                // If ready or counting down, show it.
-                // If it's totally outside window (e.g. sunrise), don't show as main item
-                if isReady || times.countdownToPostPrayer(at: currentTime, offsetMinutes: offset) != nil {
-                    return afterPrayerItem
+                
+                if isReady {
+                    // Ends when next prayer starts (approximated)
+                    let nextP = times.nextPrayer(includingSunrise: false)?.time
+                    // Use stored next prayer name or dynamic fallback
+                    let name = self.nextPrayerName ?? "الصلاة القادمة"
+                    return EventTimeContext(item: afterPrayerItem, endTime: nextP, nextEventName: name)
                 }
+                // If not ready (counting down), we do NOT return a context.
+                // This allows it to fall through to "No Active Dhikr" state,
+                // and the "nextUpcomingEvent" logic will catch it as the next event.
             }
         }
 
-        // 3. Time-based selection (with gap handling)
-        let hour = Calendar.current.component(.hour, from: currentTime)
+        // 2. Time-based selection
+        let now = currentTime
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: now)
         let settings = try? settingsRepository.getSettings()
         
-        // Defaults if settings not loaded
+        // Defaults
         let wakingStart = settings?.wakingUpStart ?? 3
         let wakingEnd = settings?.wakingUpEnd ?? 6
         let morningStart = settings?.morningStart ?? 6
@@ -261,50 +290,82 @@ final class HomeViewModel {
         let sleepStart = settings?.sleepStart ?? 20
         let sleepEnd = settings?.sleepEnd ?? 3
         
-        // Helper to check time range
-        func isInRange(hour: Int, start: Int, end: Int) -> Bool {
-            if start < end {
-                return hour >= start && hour < end
-            } else {
-                // Crosses midnight (e.g. 20 to 3)
-                return hour >= start || hour < end
+        func getEndDate(endHour: Int) -> Date? {
+            if let date = calendar.date(bySettingHour: endHour, minute: 0, second: 0, of: now) {
+                return date <= now ? calendar.date(byAdding: .day, value: 1, to: date) : date
             }
+            return nil
         }
         
-        // 1. Exact Match
-        if isInRange(hour: hour, start: wakingStart, end: wakingEnd) {
-            return dailySummary.first(where: { $0.id == "waking_up" })
-        } else if isInRange(hour: hour, start: morningStart, end: morningEnd) {
-            return dailySummary.first(where: { $0.id == "morning" })
-        } else if isInRange(hour: hour, start: eveningStart, end: eveningEnd) {
-            return dailySummary.first(where: { $0.id == "evening" })
-        } else if isInRange(hour: hour, start: sleepStart, end: sleepEnd) {
-            return dailySummary.first(where: { $0.id == "sleep" })
+        func isInRange(start: Int, end: Int) -> Bool {
+            if start < end { return hour >= start && hour < end }
+            else { return hour >= start || hour < end }
         }
         
-        // 2. Gap Handling: Find the period that started most recently
-        // We calculate "hours since start" for each period, handling wrapping
-        let periods: [(id: String, start: Int)] = [
-            ("waking_up", wakingStart),
-            ("morning", morningStart),
-            ("evening", eveningStart),
-            ("sleep", sleepStart)
-        ]
-        
-        let sortedPeriods = periods.sorted { p1, p2 in
-            // Calculate elapsed time from start to now (0..23)
-            let elapsed1 = (hour - p1.start + 24) % 24
-            let elapsed2 = (hour - p2.start + 24) % 24
-            return elapsed1 < elapsed2 // Smaller elapsed means it started more recently
+        var selectedId: String?
+        var endTime: Date?
+        var nextName: String?
+
+        if isInRange(start: wakingStart, end: wakingEnd) {
+            selectedId = "waking_up"
+            endTime = getEndDate(endHour: wakingEnd)
+            nextName = "أذكار الصباح"
+        } else if isInRange(start: morningStart, end: morningEnd) {
+            selectedId = "morning"
+            endTime = getEndDate(endHour: morningEnd)
+            nextName = "أذكار المساء"
+        } else if isInRange(start: eveningStart, end: eveningEnd) {
+            selectedId = "evening"
+            endTime = getEndDate(endHour: eveningEnd)
+            nextName = "أذكار النوم"
+        } else if isInRange(start: sleepStart, end: sleepEnd) {
+            selectedId = "sleep"
+            endTime = getEndDate(endHour: sleepEnd)
+            nextName = "أذكار الاستيقاظ"
         }
         
-        if let bestMatch = sortedPeriods.first {
-            return dailySummary.first(where: { $0.id == bestMatch.id })
+        if let id = selectedId, let item = dailySummary.first(where: { $0.id == id }) {
+            return EventTimeContext(item: item, endTime: endTime, nextEventName: nextName)
         }
         
-        // 3. Fallback (should rarely reach here)
+        // Fallback for gap handling (Logic simplified to just return logic similar to before but without context if confusing)
+        // If we are in a gap, we just fall back to standard logic WITHOUT endTime context
+        return nil
+    }
+
+    var activeSummaryItem: DailySummaryItem? {
+        if let context = currentContext {
+            return context.item
+        }
+
+        // Fallback for gaps (same as old logic essentially)
         return dailySummary.first(where: { $0.status != .completed }) ?? dailySummary.first
     }
+    
+    var hasActiveEvent: Bool {
+        currentContext != nil
+    }
+    
+    var currentEventRemainingTime: String? {
+        guard let endTime = currentContext?.endTime else { return nil }
+        let diff = endTime.timeIntervalSince(currentTime)
+        if diff <= 0 { return nil }
+        
+        let hours = Int(diff) / 3600
+        let minutes = (Int(diff) % 3600) / 60
+        
+        if hours > 0 {
+            return "\(hours)س \(minutes)د"
+        } else {
+            return "\(minutes)د"
+        }
+    }
+    
+    var nextEventName: String? {
+        currentContext?.nextEventName 
+            ?? (nextPrayerTime != nil ? (nextPrayerName ?? "الصلاة القادمة") : nil)
+    }
+
 
     var currentSlot: SlotKey? {
         activeSummaryItem?.slots.first
@@ -426,64 +487,103 @@ final class HomeViewModel {
         }
     }
     
-    var timeToNextDhikr: String? {
+    // MARK: - Gap Handling Logic
+    
+    struct UpcomingEvent {
+        let name: String
+        let date: Date
+    }
+    
+    var nextUpcomingEvent: UpcomingEvent? {
         let now = currentTime
         let calendar = Calendar.current
         var nextEventDate: Date?
         var eventName: String = ""
         
-        // 1. Check Next Prayer
-        if let nextPrayer = nextPrayerTime {
-            nextEventDate = nextPrayer
-            eventName = "الصلاة القادمة"
+        // 1. Check Pending After Prayer (Highest Priority Near Term)
+        if let times = prayerTimes, let prayer = times.currentAdhan(at: now) {
+            let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+            if let countdown = times.countdownToPostPrayer(at: now, offsetMinutes: offset) {
+                // It is pending! This is definitely the next event.
+                let targetDate = now.addingTimeInterval(countdown.remaining)
+                return UpcomingEvent(name: "أذكار بعد \(prayer.arabicName)", date: targetDate)
+            }
+        }
+
+        // 2. Check Next Prayer
+        if let next = nextPrayerTime {
+            nextEventDate = next
+            eventName = nextPrayerName ?? "الصلاة القادمة"
         }
         
         // 2. Check Static Times (Morning, Evening, etc.)
-        if let settings = try? settingsRepository.getSettings() {
-            let candidates: [(String, Int)] = [
-                ("أذكار الصباح", settings.morningStart),
-                ("أذكار المساء", settings.eveningStart),
-                ("أذكار النوم", settings.sleepStart),
-                ("أذكار الاستيقاظ", settings.wakingUpStart)
-            ]
-            
-            for (name, startHour) in candidates {
-                // Construct date for this start hour today
-                if let date = calendar.date(bySettingHour: startHour, minute: 0, second: 0, of: now) {
-                    var targetDate = date
-                    if targetDate <= now {
-                        // If passed today, verify if it's closer tomorrow than current nextEvent
-                        if let tomorrow = calendar.date(byAdding: .day, value: 1, to: targetDate) {
-                            targetDate = tomorrow
-                        } else {
-                            continue
-                        }
-                    }
-                    
-                    // If this target is sooner than current nextEvent (or if nextEvent is nil)
-                    if let currentNext = nextEventDate {
-                        if targetDate < currentNext {
-                            nextEventDate = targetDate
-                            eventName = name
-                        }
+        // Use defaults if settings fetch fails, matching currentContext logic
+        let settings = try? settingsRepository.getSettings()
+        
+        let candidates: [(String, Int)] = [
+            ("أذكار الصباح", settings?.morningStart ?? 6),
+            ("أذكار المساء", settings?.eveningStart ?? 15),
+            ("أذكار النوم", settings?.sleepStart ?? 20),
+            ("أذكار الاستيقاظ", settings?.wakingUpStart ?? 3)
+        ]
+        
+        for (name, startHour) in candidates {
+            // Construct date for this start hour today
+            if let date = calendar.date(bySettingHour: startHour, minute: 0, second: 0, of: now) {
+                var targetDate = date
+                // If this hour already passed today, check tomorrow
+                if targetDate <= now {
+                    if let tomorrow = calendar.date(byAdding: .day, value: 1, to: targetDate) {
+                        targetDate = tomorrow
                     } else {
+                        continue
+                    }
+                }
+                
+                // If this target is sooner than current nextEvent (or if nextEvent is nil)
+                if let currentNext = nextEventDate {
+                    if targetDate < currentNext {
                         nextEventDate = targetDate
                         eventName = name
                     }
+                } else {
+                    nextEventDate = targetDate
+                    eventName = name
                 }
             }
         }
         
         guard let target = nextEventDate else { return nil }
+        return UpcomingEvent(name: eventName, date: target)
+    }
+    
+    // Kept for backward compatibility if needed, but updated to use new struct
+    var timeToNextDhikr: String? {
+        guard let event = nextUpcomingEvent else { return nil }
         
-        let diff = target.timeIntervalSince(now)
+        let diff = event.date.timeIntervalSince(currentTime)
         let hours = Int(diff) / 3600
         let minutes = (Int(diff) % 3600) / 60
         
         if hours > 0 {
-            return "متبقي على \(eventName): \(hours)س \(minutes)د"
+            return "متبقي على \(event.name): \(hours)س \(minutes)د"
         } else {
-            return "متبقي على \(eventName): \(minutes)د"
+            return "متبقي على \(event.name): \(minutes)د"
+        }
+    }
+    
+    var nextEventRemainingTime: String? {
+        guard let event = nextUpcomingEvent else { return nil }
+        let diff = event.date.timeIntervalSince(currentTime)
+        if diff <= 0 { return nil }
+        
+        let hours = Int(diff) / 3600
+        let minutes = (Int(diff) % 3600) / 60
+        
+        if hours > 0 {
+            return "\(hours)س \(minutes)د"
+        } else {
+            return "\(minutes)د"
         }
     }
 

@@ -99,7 +99,7 @@ final class StatisticsViewModel {
                 let start = calendar.date(byAdding: .day, value: -6, to: end)!
                 let count = allSessions.filter { $0.date >= start && $0.date <= end }
                     .reduce(0) { $0 + $1.totalDhikrsCount }
-                return (label: "أسبوع \(4-weekOffset)", count: count)
+                return (label: "أسبوع \((4-weekOffset).formatted(.number.locale(Locale(identifier: "en"))))", count: count)
             }
             
         case .year:
@@ -251,38 +251,34 @@ struct StatisticsContent: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         // 1. Summary Grid (Top Stats)
-                        VStack(spacing: 16) {
-                            HStack(spacing: 16) {
-                                StatCard(
-                                    title: "إجمالي الأذكار",
-                                    value: viewModel.totalDhikrs.formatted(),
-                                    icon: "sparkles",
-                                    color: .white
-                                )
-                                
-                                StatCard(
-                                    title: "سلسلة الأيام",
-                                    value: "\(viewModel.currentStreak) أيام",
-                                    icon: "flame.fill",
-                                    color: AppColors.onboardingPrimary
-                                )
-                            }
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                            StatCard(
+                                title: "إجمالي الأذكار",
+                                value: viewModel.totalDhikrs.formatted(.number.locale(Locale(identifier: "en"))),
+                                icon: "sparkles",
+                                color: .white
+                            )
                             
-                            HStack(spacing: 16) {
-                                StatCard(
-                                    title: "نسبة الالتزام",
-                                    value: "\(viewModel.consistencyScore)%",
-                                    icon: "target",
-                                    color: .green
-                                )
-                                
-                                StatCard(
-                                    title: "أكثر وقت",
-                                    value: viewModel.bestTime,
-                                    icon: "clock.fill",
-                                    color: .cyan
-                                )
-                            }
+                            StatCard(
+                                title: "سلسلة الأيام",
+                                value: "\(viewModel.currentStreak.formatted(.number.locale(Locale(identifier: "en")))) أيام",
+                                icon: "flame.fill",
+                                color: AppColors.onboardingPrimary
+                            )
+                            
+                            StatCard(
+                                title: "نسبة الالتزام",
+                                value: "\(viewModel.consistencyScore.formatted(.number.locale(Locale(identifier: "en"))))%",
+                                icon: "target",
+                                color: AppColors.onboardingPrimary
+                            )
+                            
+                            StatCard(
+                                title: "أكثر وقت",
+                                value: viewModel.bestTime,
+                                icon: "clock.fill",
+                                color: AppColors.onboardingPrimary
+                            )
                         }
                         
                         // 2. Trend Analytics Chart
@@ -319,7 +315,7 @@ struct StatisticsContent: View {
                                         .foregroundStyle(AppColors.textGray)
                                     
                                     HStack(alignment: .firstTextBaseline) {
-                                        Text(viewModel.totalDhikrs.formatted())
+                                        Text(viewModel.totalDhikrs.formatted(.number.locale(Locale(identifier: "en"))))
                                             .font(.system(size: 36, weight: .bold))
                                             .foregroundStyle(.white)
                                             .contentTransition(.numericText())
@@ -327,7 +323,7 @@ struct StatisticsContent: View {
                                         HStack(spacing: 2) {
                                             Image(systemName: viewModel.growthPercentage >= 0 ? "arrow.up" : "arrow.down")
                                                 .font(.caption)
-                                            Text("\(Int(abs(viewModel.growthPercentage)))%")
+                                            Text("\(Int(abs(viewModel.growthPercentage)).formatted(.number.locale(Locale(identifier: "en"))))%")
                                                 .font(.subheadline)
                                                 .fontWeight(.bold)
                                         }
@@ -352,7 +348,7 @@ struct StatisticsContent: View {
                                             )
                                             .foregroundStyle(
                                                 LinearGradient(
-                                                    colors: [AppColors.onboardingPrimary.opacity(0.3), AppColors.onboardingPrimary.opacity(0)],
+                                                    colors: [AppColors.onboardingPrimary.opacity(0.5), AppColors.onboardingPrimary.opacity(0.05)],
                                                     startPoint: .top,
                                                     endPoint: .bottom
                                                 )
@@ -366,6 +362,13 @@ struct StatisticsContent: View {
                                             .foregroundStyle(AppColors.onboardingPrimary)
                                             .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
                                             .interpolationMethod(.catmullRom)
+                                            
+                                            PointMark(
+                                                x: .value("Day", item.label),
+                                                y: .value("Count", item.count)
+                                            )
+                                            .foregroundStyle(AppColors.onboardingPrimary)
+                                            .symbolSize(30)
                                         }
                                     }
                                 }
@@ -374,21 +377,21 @@ struct StatisticsContent: View {
                                     AxisMarks(values: .automatic) { value in
                                         AxisValueLabel()
                                             .foregroundStyle(AppColors.textGray)
-                                            .font(.caption2)
+                                            .font(.caption2.bold())
                                     }
                                 }
                                 .chartYAxis {
                                     AxisMarks(position: .leading) { value in
                                         AxisValueLabel()
                                             .foregroundStyle(AppColors.textGray)
-                                            .font(.system(size: 8))
+                                            .font(.caption2)
                                     }
                                 }
                             }
                             .padding(24)
                             .background(
                                 RoundedRectangle(cornerRadius: 32)
-                                    .fill(AppColors.onboardingSurface.opacity(0.4))
+                                    .fill(AppColors.onboardingSurface.opacity(0.6))
                                     .background(.ultraThinMaterial)
                             )
                             .cornerRadius(32)
@@ -396,7 +399,7 @@ struct StatisticsContent: View {
                                 RoundedRectangle(cornerRadius: 32)
                                     .strokeBorder(
                                         LinearGradient(
-                                            colors: [.white.opacity(0.15), .white.opacity(0.02)],
+                                            colors: [.white.opacity(0.1), .white.opacity(0.02)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         ),
@@ -434,7 +437,7 @@ struct StatisticsContent: View {
                                                 .font(.caption)
                                                 .foregroundStyle(AppColors.textGray)
                                             Spacer()
-                                            Text("\(item.count)")
+                                            Text(item.count.formatted(.number.locale(Locale(identifier: "en"))))
                                                 .font(.caption.bold())
                                                 .foregroundStyle(.white)
                                         }
@@ -445,7 +448,7 @@ struct StatisticsContent: View {
                         .padding(24)
                         .background(
                             RoundedRectangle(cornerRadius: 24)
-                                .fill(AppColors.onboardingSurface.opacity(0.4))
+                                .fill(AppColors.onboardingSurface.opacity(0.6))
                                 .background(.ultraThinMaterial)
                         )
                         .cornerRadius(24)
@@ -453,7 +456,7 @@ struct StatisticsContent: View {
                             RoundedRectangle(cornerRadius: 24)
                                 .strokeBorder(
                                     LinearGradient(
-                                        colors: [.white.opacity(0.15), .white.opacity(0.02)],
+                                        colors: [.white.opacity(0.1), .white.opacity(0.02)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     ),
@@ -474,7 +477,7 @@ struct StatisticsContent: View {
                         .padding(24)
                         .background(
                             RoundedRectangle(cornerRadius: 24)
-                                .fill(AppColors.onboardingSurface.opacity(0.4))
+                                .fill(AppColors.onboardingSurface.opacity(0.6))
                                 .background(.ultraThinMaterial)
                         )
                         .cornerRadius(24)
@@ -482,7 +485,7 @@ struct StatisticsContent: View {
                             RoundedRectangle(cornerRadius: 24)
                                 .strokeBorder(
                                     LinearGradient(
-                                        colors: [.white.opacity(0.15), .white.opacity(0.02)],
+                                        colors: [.white.opacity(0.1), .white.opacity(0.02)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     ),
@@ -552,8 +555,8 @@ struct ContributionHeatmap: View {
     
     private func heatmapColor(for count: Int) -> Color {
         if count == 0 { return Color.white.opacity(0.05) }
-        if count == 1 { return AppColors.onboardingPrimary.opacity(0.3) }
-        if count == 2 { return AppColors.onboardingPrimary.opacity(0.6) }
+        if count <= 2 { return AppColors.onboardingPrimary.opacity(0.4) }
+        if count <= 5 { return AppColors.onboardingPrimary.opacity(0.7) }
         return AppColors.onboardingPrimary
     }
 }
@@ -593,8 +596,9 @@ struct StatCard: View {
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(AppColors.textGray)
         }
-        .padding(20)
+        .padding(16)
         .frame(maxWidth: .infinity)
+        .frame(height: 140) // Fixed height for consistency
         .background(
             ZStack {
                 AppColors.onboardingSurface.opacity(0.8)

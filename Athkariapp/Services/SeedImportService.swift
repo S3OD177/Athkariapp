@@ -1,5 +1,5 @@
-import Foundation
-import SwiftData
+@preconcurrency import Foundation
+@preconcurrency import SwiftData
 
 /// Unified JSON structure for parsing all adhkar data from a single file
 struct UnifiedAdhkarJSON: Codable, Sendable {
@@ -41,7 +41,7 @@ final class SeedImportService: SeedImportServiceProtocol {
         self.modelContext = modelContext
     }
 
-    private let seedDataVersion = "4.6" // Daily adhkar titles update
+    private let seedDataVersion = "5.0" // Fixed category mismatches
 
     func importSeedDataIfNeeded() async throws {
         // Skip if already imported for this version (INSTANT on subsequent launches)
@@ -51,18 +51,38 @@ final class SeedImportService: SeedImportServiceProtocol {
         }
 
         // Delete old seed data when migrating to new version
-        // Logic: Delete everything where source != "user_added"
-        // Workaround for Swift 6 #Predicate "Sendable" error: Manual fetch & delete
+        // Batched deletion to prevent OOM if database is huge
         if lastVersion != nil {
-            let descriptor = FetchDescriptor<DhikrItem>()
-            let allItems = try modelContext.fetch(descriptor)
+            let userAdded = "user_added"
+            // Use Predicate to fetch ONLY deletable items.
+            // This avoids fetching 'user_added' items entirely, preventing the infinite loop check issues.
+            let predicate = #Predicate<DhikrItem> { item in
+                item.source != userAdded
+            }
             
-            for item in allItems {
-                if item.source != "user_added" {
+            var hasMore = true
+            while hasMore {
+                // Fetch in batches of 2000
+                var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
+                descriptor.fetchLimit = 2000
+                
+                let batch = try modelContext.fetch(descriptor)
+                
+                if batch.isEmpty {
+                    hasMore = false
+                    break
+                }
+                
+                for item in batch {
                     modelContext.delete(item)
                 }
+                
+                try modelContext.save()
+                
+                // CRITICAL: Yield to the main thread to allow UI (Splash Screen) to render.
+                // Without this, the heavy loop blocks the main thread completely, causing a black screen/freeze.
+                await Task.yield()
             }
-            try modelContext.save()
         }
 
         // Parse JSON in BACKGROUND (off main thread)
@@ -111,22 +131,38 @@ final class SeedImportService: SeedImportServiceProtocol {
 
     // MARK: - Database Operations (MAIN THREAD - required by SwiftData)
 
+    // MARK: - Database Operations (MAIN THREAD - required by SwiftData)
+
     private func importParsedData(adhkarData: UnifiedAdhkarJSON?) async throws {
         guard let athkar = adhkarData?.athkar else { return }
 
-        // Fetch existing items once
+        // Fetch existing items map optimization
+        // Instead of fetching EVERYTHING, we could fetch just IDs if SwiftData allowed projection easily to non-persistent models.
+        // For now, we will stick to fetching, but let's yield first.
+        await Task.yield()
+
         let descriptor = FetchDescriptor<DhikrItem>()
+        // We can optimize by only fetching items that HAVE a sourceId (which are seed items)
+        // predicate: #Predicate<DhikrItem> { $0.sourceId != nil }
+        // But for safety against duplicates, we'll fetch all.
         let existingItems = try modelContext.fetch(descriptor)
-        let existingMap = Dictionary(uniqueKeysWithValues: existingItems.compactMap { item -> (String, DhikrItem)? in
+        
+        // Build map for O(1) lookup
+        var existingMap = Dictionary(uniqueKeysWithValues: existingItems.compactMap { item -> (String, DhikrItem)? in
             guard let sourceId = item.sourceId else { return nil }
             return (sourceId, item)
         })
-
+        
+        // Process in batches to avoid locking UI
+        let batchSize = 100
+        var processedCount = 0
+        
         for dhikr in athkar {
             let dhikrSource = DhikrSource(rawValue: dhikr.source) ?? .daily
             let hisnCategory = dhikr.hisnCategory.flatMap { HisnCategory(rawValue: $0) }
 
             if let existing = existingMap[dhikr.id] {
+                // Update existing
                 existing.title = dhikr.title
                 existing.category = dhikr.category
                 existing.hisnCategory = hisnCategory?.rawValue
@@ -141,6 +177,7 @@ final class SeedImportService: SeedImportServiceProtocol {
                 existing.isOptional = dhikr.isOptional ?? false
                 existing.source = dhikrSource.rawValue
             } else {
+                // Insert new
                 let item = DhikrItem(
                     sourceId: dhikr.id,
                     source: dhikrSource,
@@ -158,10 +195,18 @@ final class SeedImportService: SeedImportServiceProtocol {
                     isOptional: dhikr.isOptional ?? false
                 )
                 modelContext.insert(item)
+                // Add to map to prevent dupes if JSON has dupes
+                existingMap[dhikr.id] = item
+            }
+            
+            processedCount += 1
+            if processedCount % batchSize == 0 {
+                // Yield to allow UI updates
+                await Task.yield()
             }
         }
 
-        // Single save at the end (batched)
+        // Save at the end
         try modelContext.save()
     }
 }

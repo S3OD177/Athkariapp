@@ -1,511 +1,549 @@
 import SwiftUI
 
-// MARK: - Zakat Service
-// Embedded for scope visibility
+// MARK: - API Models
 
-struct ZakatRates: Codable {
-    let goldPricePerGramUSD: Double
-    let lastUpdated: String
-    
-    // Fixed conversion rate for SAR (1 USD = 3.75 SAR)
-    // In a real app, you might fetch live currency rates too.
-    var goldPricePerGramSAR: Double {
-        goldPricePerGramUSD * 3.753 // Slightly more precise
-    }
+private struct ZakatApiResponse: Codable {
+    let status: String
+    let updated_at: String
+    let data: ZakatApiData
 }
 
-private struct DailyNisabResponse: Codable {
-    let success: Bool
-    let data: DailyNisabData
+private struct ZakatApiData: Codable {
+    let nisab_thresholds: NisabThresholds
 }
 
-private struct DailyNisabData: Codable {
-    let drtInUSD: Double
-    let drtDate: String
+private struct NisabThresholds: Codable {
+    let gold: MetalInfo
+    let silver: MetalInfo
 }
 
-enum ZakatServiceError: Error {
-    case invalidURL
-    case invalidResponse
-    case decodingError
+private struct MetalInfo: Codable {
+    let unit_price: Double
 }
+
+// MARK: - Service
 
 actor ZakatService {
     static let shared = ZakatService()
-    
-    private let endpoint = "https://dailynisab.org/index.php/api/v1/rates/latest"
-    
-    func fetchLatestRates() async throws -> ZakatRates {
+
+    private let endpoint = "https://islamicapi.com/api/v1/zakat-nisab/?standard=common&currency=sar&unit=g&api_key=aZUHsql6tGOVHu1YrjvxyU49ASjdrnoC7rr5p0NawQgjxJNP"
+
+    struct Rates {
+        let goldPrice: Double
+        let silverPrice: Double
+        let lastUpdated: String
+    }
+
+    func fetchRates() async throws -> Rates {
         guard let url = URL(string: endpoint) else {
-            throw ZakatServiceError.invalidURL
+            throw URLError(.badURL)
         }
-        
+
         let (data, response) = try await URLSession.shared.data(from: url)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw ZakatServiceError.invalidResponse
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw URLError(.badServerResponse)
         }
-        
-        do {
-            let decodedResponse = try JSONDecoder().decode(DailyNisabResponse.self, from: data)
-            guard decodedResponse.success else {
-                throw ZakatServiceError.invalidResponse
-            }
-            
-            return ZakatRates(
-                goldPricePerGramUSD: decodedResponse.data.drtInUSD,
-                lastUpdated: decodedResponse.data.drtDate
-            )
-        } catch {
-            print("ZakatService Decoding Error: \(error)")
-            throw ZakatServiceError.decodingError
-        }
+
+        let decoded = try JSONDecoder().decode(ZakatApiResponse.self, from: data)
+
+        return Rates(
+            goldPrice: decoded.data.nisab_thresholds.gold.unit_price,
+            silverPrice: decoded.data.nisab_thresholds.silver.unit_price,
+            lastUpdated: decoded.updated_at
+        )
     }
 }
 
 // MARK: - ViewModel
 
 @MainActor
-@Observable
-final class ZakatViewModel {
-    // Inputs (as Doubles)
-    var goldWeight: Double = 0
-    var silverWeight: Double = 0
-    var cashAmount: Double = 0
-    var stocksAmount: Double = 0
-    
-    // Prices
-    var goldPricePerGram: Double = 0 // Will initialize
-    var silverPricePerGram: Double = 3.5 // Manual default
-    
-    // State
-    var isLoading: Bool = false
-    var lastUpdated: String?
-    var errorMessage: String?
-    var currencySymbol: String = "ريال"
-    
-    // Logic
-    var totalAssets: Double {
-        (goldWeight * goldPricePerGram) +
-        (silverWeight * silverPricePerGram) +
-        cashAmount +
-        stocksAmount
+final class ZakatViewModel: ObservableObject {
+    // MARK: Inputs
+    @Published var goldGrams: String = ""
+    @Published var silverGrams: String = ""
+    @Published var cash: String = ""
+    @Published var investments: String = ""
+    @Published var goldPrice: String = "380"
+    @Published var silverPrice: String = "4.5"
+
+    // MARK: State
+    @Published var isLoading = false
+    @Published var lastUpdated: String?
+    @Published var showError = false
+
+    // MARK: Computed
+    var goldValue: Double { (Double(goldGrams) ?? 0) * (Double(goldPrice) ?? 0) }
+    var silverValue: Double { (Double(silverGrams) ?? 0) * (Double(silverPrice) ?? 0) }
+    var cashValue: Double { Double(cash) ?? 0 }
+    var investmentValue: Double { Double(investments) ?? 0 }
+
+    var totalWealth: Double {
+        goldValue + silverValue + cashValue + investmentValue
     }
-    
-    // Standard Nisab is 85g of 24k Gold
+
     var nisabThreshold: Double {
-        max(1, 85.0 * goldPricePerGram) // Prevent 0 division/issues
+        85.0 * (Double(goldPrice) ?? 1)
     }
-    
-    var zakatDue: Double {
-        isNisabReached ? totalAssets * 0.025 : 0
+
+    var isAboveNisab: Bool {
+        totalWealth >= nisabThreshold
     }
-    
-    var isNisabReached: Bool {
-        totalAssets >= nisabThreshold
+
+    var zakatAmount: Double {
+        isAboveNisab ? totalWealth * 0.025 : 0
     }
-    
-    func fetchRates() {
+
+    // MARK: Actions
+    func loadPrices() {
+        guard !isLoading else { return }
         isLoading = true
-        errorMessage = nil
-        
+        showError = false
+
         Task {
             do {
-                // Add minimum artificial delay for UX (so user sees "refreshing" if it's too fast)
-                try? await Task.sleep(for: .milliseconds(500))
-                
-                let rates = try await ZakatService.shared.fetchLatestRates()
-                
-                withAnimation {
-                    self.goldPricePerGram = rates.goldPricePerGramSAR
-                    self.lastUpdated = rates.lastUpdated
-                    self.errorMessage = nil
-                }
+                let rates = try await ZakatService.shared.fetchRates()
+                goldPrice = String(format: "%.1f", rates.goldPrice)
+                silverPrice = String(format: "%.1f", rates.silverPrice)
+                lastUpdated = formatDate(rates.lastUpdated)
             } catch {
-                withAnimation {
-                    self.errorMessage = "فشل التحديث. تأكد من الإنترنت."
-                }
+                showError = true
             }
-            self.isLoading = false
+            isLoading = false
         }
+    }
+
+    private func formatDate(_ iso: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+
+        if let date = formatter.date(from: iso) {
+            let display = DateFormatter()
+            display.locale = Locale(identifier: "ar")
+            display.dateStyle = .medium
+            display.timeStyle = .short
+            return display.string(from: date)
+        }
+        return iso
+    }
+
+    func reset() {
+        goldGrams = ""
+        silverGrams = ""
+        cash = ""
+        investments = ""
     }
 }
 
-// MARK: - View
+// MARK: - Main View
 
 struct ZakatCalculatorView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = ZakatViewModel()
-    @FocusState private var focusedField: Field?
-    
-    enum Field {
-        case gold, silver, cash, stocks, goldPrice, silverPrice
+    @StateObject private var vm = ZakatViewModel()
+    @FocusState private var focused: Field?
+
+    enum Field: Hashable {
+        case gold, silver, cash, investments, goldPrice, silverPrice
     }
-    
+
     var body: some View {
         ZStack {
-            AppColors.homeBackground.ignoresSafeArea()
-            
+            // Background
+            LinearGradient(
+                colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 header
-                
+
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        // Summary Card (Equatable for performance)
-                        ZakatSummaryCardView(
-                            zakatDue: viewModel.zakatDue,
-                            isNisabReached: viewModel.isNisabReached,
-                            nisabThreshold: viewModel.nisabThreshold,
-                            currency: viewModel.currencySymbol
-                        )
-                        .drawingGroup() // Metal-accelerated rendering
-                        
-                        // Inputs
-                        VStack(spacing: 16) {
-                            sectionHeader(title: "الأصول والممتلكات", icon: "briefcase.fill")
-                            
-                            DebouncedInputRow(
-                                title: "الذهب (جرام)",
-                                value: $viewModel.goldWeight,
-                                focusedField: $focusedField,
-                                field: .gold,
-                                icon: "circle.grid.2x2.fill",
-                                color: .yellow
-                            )
-                            
-                            DebouncedInputRow(
-                                title: "الفضة (جرام)",
-                                value: $viewModel.silverWeight,
-                                focusedField: $focusedField,
-                                field: .silver,
-                                icon: "circle.circle.fill",
-                                color: .gray
-                            )
-                             
-                            DebouncedInputRow(
-                                title: "السيولة النقدية",
-                                value: $viewModel.cashAmount,
-                                focusedField: $focusedField,
-                                field: .cash,
-                                icon: "banknote.fill",
-                                color: .green
-                            )
-                            
-                            DebouncedInputRow(
-                                title: "أسهم واستثمارات",
-                                value: $viewModel.stocksAmount,
-                                focusedField: $focusedField,
-                                field: .stocks,
-                                icon: "chart.line.uptrend.xyaxis",
-                                color: .blue
-                            )
-                        }
-                        .padding(.horizontal)
-                        
-                        // Prices
-                        VStack(spacing: 16) {
-                            HStack {
-                                sectionHeader(title: "أسعار السوق (تقديرية)", icon: "chart.bar.fill")
-                                Spacer()
-                                Button {
-                                    viewModel.fetchRates()
-                                } label: {
-                                    if viewModel.isLoading {
-                                        ProgressView()
-                                            .tint(AppColors.primary)
-                                    } else {
-                                        HStack(spacing: 4) {
-                                            Text("تحديث")
-                                            Image(systemName: "arrow.clockwise")
-                                        }
-                                        .font(.caption.bold())
-                                        .foregroundStyle(AppColors.primary)
-                                    }
-                                }
-                                .disabled(viewModel.isLoading)
-                            }
-                            
-                            HStack(spacing: 12) {
-                                DebouncedPriceCard(
-                                    title: "سعر الذهب (SAR)",
-                                    value: $viewModel.goldPricePerGram,
-                                    focusedField: $focusedField,
-                                    field: .goldPrice
-                                )
-                                
-                                DebouncedPriceCard(
-                                    title: "سعر الفضة (SAR)",
-                                    value: $viewModel.silverPricePerGram,
-                                    focusedField: $focusedField,
-                                    field: .silverPrice
-                                )
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        if let lastUpdate = viewModel.lastUpdated {
-                            Text("الأسعار عالمية - آخر تحديث: \(lastUpdate)")
-                                .font(.caption2)
-                                .foregroundStyle(.gray.opacity(0.8))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.top, -8)
-                        }
-                        
-                        if let error = viewModel.errorMessage {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle")
-                                Text(error)
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                            .padding()
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                        
-                        Spacer(minLength: 40)
+                    VStack(spacing: 20) {
+                        resultCard
+                        assetsSection
+                        pricesSection
+                        infoSection
                     }
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 24)
                 }
                 .scrollDismissesKeyboard(.interactively)
             }
         }
         .onAppear {
-            if viewModel.goldPricePerGram == 0 {
-                viewModel.fetchRates()
-            }
+            vm.loadPrices()
+        }
+        .alert("فشل تحميل الأسعار", isPresented: $vm.showError) {
+            Button("إعادة المحاولة") { vm.loadPrices() }
+            Button("إلغاء", role: .cancel) { }
+        } message: {
+            Text("تأكد من اتصالك بالإنترنت")
         }
     }
-    
+
+    // MARK: - Header
+
     private var header: some View {
         HStack {
-            Button {
-                dismiss()
-            } label: {
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 44, height: 44)
-                    .overlay(
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(.white)
-                    )
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .frame(width: 36, height: 36)
+                    .background(.white.opacity(0.1), in: Circle())
             }
-            
+
             Spacer()
-            
+
             Text("حاسبة الزكاة")
-                .font(.title3.bold())
+                .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(.white)
-            
+
             Spacer()
-            
-            Color.clear.frame(width: 44, height: 44)
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 16)
-        .padding(.bottom, 8)
-    }
-    
-    private func sectionHeader(title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .foregroundStyle(.gray)
-            Text(title)
-                .foregroundStyle(.gray)
-        }
-        .font(.caption.bold())
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
 
-// MARK: - Optimized Components
+            Button { vm.reset() } label: {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .frame(width: 36, height: 36)
+                    .background(.white.opacity(0.1), in: Circle())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
 
-/// Equatable View to prevent re-renders of the gradient card
-struct ZakatSummaryCardView: View, Equatable {
-    let zakatDue: Double
-    let isNisabReached: Bool
-    let nisabThreshold: Double
-    let currency: String
-    
-    var body: some View {
-        ZStack {
+    // MARK: - Result Card
+
+    private var resultCard: some View {
+        VStack(spacing: 16) {
+            // Zakat Amount
+            VStack(spacing: 4) {
+                Text("الزكاة المستحقة")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.8))
+
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(formatNumber(vm.zakatAmount))
+                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .contentTransition(.numericText())
+
+                    Text("ريال")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+            }
+
+            // Nisab Status
+            HStack(spacing: 8) {
+                Image(systemName: vm.isAboveNisab ? "checkmark.circle.fill" : "info.circle.fill")
+                    .foregroundStyle(vm.isAboveNisab ? .green : .orange)
+
+                Text(vm.isAboveNisab ? "بلغ النصاب" : "لم يبلغ النصاب")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(.white.opacity(0.15), in: Capsule())
+
+            // Totals
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text("إجمالي الأصول")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.6))
+                    Text("\(formatNumber(vm.totalWealth)) ر.س")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 1, height: 30)
+
+                VStack(spacing: 2) {
+                    Text("حد النصاب")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.6))
+                    Text("\(formatNumber(vm.nisabThreshold)) ر.س")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.top, 8)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity)
+        .background(
             LinearGradient(
-                colors: [Color(hex: "B45309"), Color(hex: "F59E0B")],
+                colors: [Color(hex: "c9880b"), Color(hex: "daa520")],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            
-            VStack(spacing: 16) {
-                Text("إجمالي الزكاة المستحقة")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.9))
-                
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(Int(zakatDue))")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                    
-                    Text(currency)
-                        .font(.headline)
-                        .foregroundStyle(.white.opacity(0.8))
-                }
-                .foregroundStyle(.white)
-                
-                HStack {
-                    Image(systemName: isNisabReached ? "checkmark.seal.fill" : "info.circle.fill")
-                    Text(isNisabReached ? "بلغ النصاب الشرعي" : "لم يبلغ النصاب (> \(Int(nisabThreshold)))")
-                }
-                .font(.caption.bold())
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.2))
-                .clipShape(Capsule())
-                .foregroundStyle(.white)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: Color(hex: "daa520").opacity(0.3), radius: 20, y: 10)
+    }
+
+    // MARK: - Assets Section
+
+    private var assetsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionTitle("الأصول", icon: "briefcase.fill")
+
+            VStack(spacing: 10) {
+                AssetRow(
+                    icon: "seal.fill",
+                    iconColor: .yellow,
+                    title: "الذهب",
+                    subtitle: "بالجرام",
+                    value: $vm.goldGrams,
+                    focused: $focused,
+                    field: .gold
+                )
+
+                AssetRow(
+                    icon: "circle.fill",
+                    iconColor: Color(hex: "C0C0C0"),
+                    title: "الفضة",
+                    subtitle: "بالجرام",
+                    value: $vm.silverGrams,
+                    focused: $focused,
+                    field: .silver
+                )
+
+                AssetRow(
+                    icon: "banknote.fill",
+                    iconColor: .green,
+                    title: "النقد",
+                    subtitle: "ريال سعودي",
+                    value: $vm.cash,
+                    focused: $focused,
+                    field: .cash
+                )
+
+                AssetRow(
+                    icon: "chart.line.uptrend.xyaxis",
+                    iconColor: .blue,
+                    title: "الاستثمارات",
+                    subtitle: "أسهم وصناديق",
+                    value: $vm.investments,
+                    focused: $focused,
+                    field: .investments
+                )
             }
-            .padding(24)
         }
-        .cornerRadius(24)
-        .padding(.horizontal)
-        .shadow(color: Color(hex: "F59E0B").opacity(0.3), radius: 15, x: 0, y: 10)
+    }
+
+    // MARK: - Prices Section
+
+    private var pricesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                sectionTitle("أسعار السوق", icon: "chart.bar.fill")
+
+                Spacer()
+
+                Button {
+                    vm.loadPrices()
+                } label: {
+                    HStack(spacing: 4) {
+                        if vm.isLoading {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 12, weight: .semibold))
+                        }
+                        Text("تحديث")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .foregroundStyle(Color(hex: "daa520"))
+                }
+                .disabled(vm.isLoading)
+            }
+
+            HStack(spacing: 12) {
+                PriceCard(
+                    title: "سعر الذهب",
+                    value: $vm.goldPrice,
+                    focused: $focused,
+                    field: .goldPrice
+                )
+
+                PriceCard(
+                    title: "سعر الفضة",
+                    value: $vm.silverPrice,
+                    focused: $focused,
+                    field: .silverPrice
+                )
+            }
+
+            if let date = vm.lastUpdated {
+                Text("آخر تحديث: \(date)")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.gray)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    // MARK: - Info Section
+
+    private var infoSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionTitle("معلومات", icon: "info.circle.fill")
+
+            VStack(alignment: .leading, spacing: 8) {
+                InfoRow(text: "نسبة الزكاة: 2.5% من إجمالي الأصول")
+                InfoRow(text: "النصاب: ما يعادل 85 جرام من الذهب")
+                InfoRow(text: "الأسعار تقريبية وقد تختلف عن السوق المحلي")
+            }
+            .padding(16)
+            .background(Color.white.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func sectionTitle(_ text: String, icon: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundStyle(.gray)
+            Text(text)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.gray)
+        }
+    }
+
+    private func formatNumber(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.locale = Locale(identifier: "en")
+        return formatter.string(from: NSNumber(value: value)) ?? "0"
     }
 }
 
-struct DebouncedInputRow: View {
-    let title: String
-    @Binding var value: Double
-    var focusedField: FocusState<ZakatCalculatorView.Field?>.Binding
-    var field: ZakatCalculatorView.Field
+// MARK: - Asset Row
+
+private struct AssetRow: View {
     let icon: String
-    let color: Color
-    
-    @State private var text: String = ""
-    @State private var updateTask: Task<Void, Never>?
-    
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    @Binding var value: String
+    var focused: FocusState<ZakatCalculatorView.Field?>.Binding
+    let field: ZakatCalculatorView.Field
+
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(color)
-                .frame(width: 32)
-            
+        HStack(spacing: 14) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(iconColor)
+            }
+
+            // Labels
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline)
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(.white)
+
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.gray)
             }
-            
+
             Spacer()
-            
-            TextField("0", text: $text)
-                .focused(focusedField, equals: field)
+
+            // Input
+            TextField("0", text: $value)
+                .focused(focused, equals: field)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
-                .font(.headline)
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
-                .padding(.vertical, 8)
+                .frame(width: 100)
                 .padding(.horizontal, 12)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(8)
-                .frame(width: 120)
-                .onChange(of: focusedField.wrappedValue) { _, newValue in
-                    if newValue == field {
-                        // Focus gained: ensure text matches value
-                        if value == 0 && text.isEmpty { return } // Keep empty if 0
-                        text = (value == 0) ? "" : String(format: "%.0f", value)
-                    } else {
-                        // Focus lost: commit immediately
-                        commitValue()
-                    }
-                }
-                .onChange(of: text) { _, newValue in
-                    // Debounce update to prevent freeze
-                    updateTask?.cancel()
-                    updateTask = Task {
-                        // Wait 300ms before updating the heavy view model
-                        try? await Task.sleep(for: .seconds(0.3))
-                        if !Task.isCancelled {
-                            if let d = Double(newValue) {
-                                value = d
-                            } else if newValue.isEmpty {
-                                value = 0
-                            }
-                        }
-                    }
-                }
-                .onAppear {
-                    if value != 0 {
-                        text = String(format: "%.0f", value)
-                    }
-                }
+                .padding(.vertical, 10)
+                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
         }
-        .padding(16)
-        .background(AppColors.onboardingSurface)
-        .cornerRadius(16)
-    }
-    
-    private func commitValue() {
-        if let d = Double(text) {
-            value = d
-        } else {
-            value = 0
-        }
+        .padding(14)
+        .background(Color.white.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 
-struct DebouncedPriceCard: View {
+// MARK: - Price Card
+
+private struct PriceCard: View {
     let title: String
-    @Binding var value: Double
-    var focusedField: FocusState<ZakatCalculatorView.Field?>.Binding
-    var field: ZakatCalculatorView.Field
-    
-    @State private var text: String = ""
-    
+    @Binding var value: String
+    var focused: FocusState<ZakatCalculatorView.Field?>.Binding
+    let field: ZakatCalculatorView.Field
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.caption)
+                .font(.system(size: 12))
                 .foregroundStyle(.gray)
-            
-            HStack {
-                TextField("Price", text: $text)
-                    .focused(focusedField, equals: field)
+
+            HStack(spacing: 6) {
+                TextField("0", text: $value)
+                    .focused(focused, equals: field)
                     .keyboardType(.decimalPad)
-                    .font(.subheadline.bold())
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
-                    .onChange(of: focusedField.wrappedValue) { _, newValue in
-                        if newValue == field {
-                            text = String(format: "%.1f", value)
-                        } else {
-                            if let d = Double(text) { value = d }
-                        }
-                    }
-                    .onChange(of: value) { _, newValue in
-                        // Update text if value changes externally (e.g. API fetch)
-                        // Make sure we don't overwrite user typing if focused
-                        if focusedField.wrappedValue != field {
-                            text = String(format: "%.1f", newValue)
-                        }
-                    }
-                    .onChange(of: text) { _, newValue in
-                        if let d = Double(newValue) {
-                            value = d
-                        }
-                    }
-                    .onAppear {
-                         text = String(format: "%.1f", value)
-                    }
-                
-                Text("ريال")
-                    .font(.caption2)
+
+                Text("ر.س/جرام")
+                    .font(.system(size: 10))
                     .foregroundStyle(.gray)
             }
             .padding(12)
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(12)
+            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
         }
-        .padding(12)
-        .background(AppColors.onboardingSurface)
-        .cornerRadius(16)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
+}
+
+// MARK: - Info Row
+
+private struct InfoRow: View {
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(Color(hex: "daa520"))
+                .frame(width: 5, height: 5)
+
+            Text(text)
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.7))
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    ZakatCalculatorView()
 }

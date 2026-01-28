@@ -44,13 +44,13 @@ struct CounterCircle: View {
 
                 // Counter text
                 VStack(spacing: size * 0.032) {
-                    Text("\(currentCount)")
+                    Text(currentCount.formatted(.number.locale(Locale(identifier: "en"))))
                         .font(.system(size: size * 0.25, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .contentTransition(.numericText())
                         .animation(.spring(duration: 0.3), value: currentCount)
 
-                    Text("من \(targetCount)")
+                    Text("من \(targetCount.formatted(.number.locale(Locale(identifier: "en"))))")
                         .font(.system(size: size * 0.072))
                         .foregroundStyle(.secondary)
                 }

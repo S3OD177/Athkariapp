@@ -174,55 +174,69 @@ final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
         longitude: Double,
         method: Int = 4 // Umm Al-Qura default
     ) async throws -> PrayerTimes {
-        let urlString = "https://api.aladhan.com/v1/timings/today?latitude=\(latitude)&longitude=\(longitude)&method=\(method)"
+        let apiKey = "aZUHsql6tGOVHu1YrjvxyU49ASjdrnoC7rr5p0NawQgjxJNP"
+        let urlString = "https://islamicapi.com/api/v1/prayer-time/?lat=\(latitude)&lon=\(longitude)&method=\(method)&school=1&api_key=\(apiKey)"
+        
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
 
         let (data, _) = try await URLSession.shared.data(from: url)
-        let response = try JSONDecoder().decode(AladhanResponse.self, from: data)
         
-        let timings = response.data.timings
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
-        func parse(_ time: String) -> Date {
-            let components = time.split(separator: " ").first.map(String.init) ?? time
-            let datePart = formatter.date(from: components) ?? Date()
-            let hour = calendar.component(.hour, from: datePart)
-            let minute = calendar.component(.minute, from: datePart)
-            return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: today) ?? today
-        }
+        do {
+            let response = try JSONDecoder().decode(PrayerApiResponse.self, from: data)
+            guard response.status == "success" else {
+                throw URLError(.badServerResponse)
+            }
+            
+            let times = response.data.times
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            
+            func parse(_ time: String) -> Date {
+                // Time format is likely "HH:mm" directly
+                let components = time.split(separator: " ").first.map(String.init) ?? time
+                let datePart = formatter.date(from: components) ?? Date()
+                let hour = calendar.component(.hour, from: datePart)
+                let minute = calendar.component(.minute, from: datePart)
+                return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: today) ?? today
+            }
 
-        let prayerTimesResult = PrayerTimes(
-            date: today,
-            fajr: parse(timings.Fajr),
-            sunrise: parse(timings.Sunrise),
-            dhuhr: parse(timings.Dhuhr),
-            asr: parse(timings.Asr),
-            maghrib: parse(timings.Maghrib),
-            isha: parse(timings.Isha)
-        )
-        
-        self.currentPrayerTimes = prayerTimesResult
-        return prayerTimesResult
+            let prayerTimesResult = PrayerTimes(
+                date: today,
+                fajr: parse(times.Fajr),
+                sunrise: parse(times.Sunrise),
+                dhuhr: parse(times.Dhuhr),
+                asr: parse(times.Asr),
+                maghrib: parse(times.Maghrib),
+                isha: parse(times.Isha)
+            )
+            
+            self.currentPrayerTimes = prayerTimesResult
+            return prayerTimesResult
+            
+        } catch {
+            print("PrayerTimeService Decoding Error: \(error)")
+            throw error
+        }
     }
 }
 
 // MARK: - API Models
 
-struct AladhanResponse: Codable {
-    let data: AladhanData
+struct PrayerApiResponse: Codable {
+    let status: String
+    let data: PrayerApiData
 }
 
-struct AladhanData: Codable {
-    let timings: AladhanTimings
+struct PrayerApiData: Codable {
+    let times: PrayerApiTimes
 }
 
-struct AladhanTimings: Codable {
+struct PrayerApiTimes: Codable {
     let Fajr: String
     let Sunrise: String
     let Dhuhr: String

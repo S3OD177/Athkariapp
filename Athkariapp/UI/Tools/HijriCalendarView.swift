@@ -27,13 +27,13 @@ struct HijriCalendarView: View {
     // Calendar setup
     private let calendar: Calendar = {
         var cal = Calendar(identifier: .islamicUmmAlQura)
-        cal.locale = Locale(identifier: "ar_SA")
+        cal.locale = Locale(identifier: "ar_SA@numbers=latn")
         return cal
     }()
     
     private let gregorian: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.locale = Locale(identifier: "ar_SA")
+        cal.locale = Locale(identifier: "ar_SA@numbers=latn")
         return cal
     }()
     
@@ -258,7 +258,7 @@ struct HijriCalendarView: View {
     private func monthYearString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.calendar = calendar
-        formatter.locale = Locale(identifier: "ar_SA")
+        formatter.locale = Locale(identifier: "ar_SA@numbers=latn")
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: date)
     }
@@ -266,7 +266,7 @@ struct HijriCalendarView: View {
     private func gregorianDateString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.calendar = gregorian
-        formatter.locale = Locale(identifier: "ar_SA")
+        formatter.locale = Locale(identifier: "ar_SA@numbers=latn")
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: date)
     }
@@ -517,7 +517,7 @@ struct HijriHeroCard: View {
         }
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .islamicUmmAlQura)
-        formatter.locale = Locale(identifier: "ar_SA")
+        formatter.locale = Locale(identifier: "ar_SA@numbers=latn")
         formatter.dateFormat = "d MMMM yyyy"
         return formatter.string(from: Date())
     }
@@ -525,7 +525,7 @@ struct HijriHeroCard: View {
     private func gregorianString() -> String {
         let formatter = DateFormatter()
         formatter.calendar = gregorian
-        formatter.locale = Locale(identifier: "ar_SA")
+        formatter.locale = Locale(identifier: "ar_SA@numbers=latn")
         formatter.dateFormat = "EEEE، d MMMM yyyy"
         return formatter.string(from: Date()) // Always today in hero card
     }
@@ -545,7 +545,7 @@ struct EnhancedDayCell: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 2) {
-                Text("\(calendar.component(.day, from: date))")
+                Text(calendar.component(.day, from: date).formatted(.number.locale(Locale(identifier: "en"))))
                     .font(.system(size: 16, weight: isSelected || isToday ? .bold : .medium))
                     .foregroundStyle(textColor)
                 
@@ -671,3 +671,5 @@ struct IslamicEventCard: View {
         )
     }
 }
+
+
