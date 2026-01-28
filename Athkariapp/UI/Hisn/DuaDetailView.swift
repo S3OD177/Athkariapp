@@ -82,7 +82,7 @@ struct DuaDetailView: View {
                                 
                                 Spacer(minLength: 0)
 
-                                if let reference = dua.reference {
+                                if let reference = dua.reference, !reference.isEmpty {
                                     Divider().background(Color.white.opacity(0.1))
                                     
                                     HStack(spacing: 8) {
@@ -146,7 +146,7 @@ struct DuaDetailView: View {
                         }
 
                         // Benefit / Notes
-                        if let benefit = dua.benefit {
+                        if let benefit = dua.benefit, !benefit.isEmpty {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack(alignment: .top, spacing: 12) {
                                     Image(systemName: "sparkles")
@@ -234,7 +234,7 @@ struct DuaDetailView: View {
 
     private var shareText: String {
         var text = dua.text
-        if let reference = dua.reference {
+        if let reference = dua.reference, !reference.isEmpty {
             text += "\n\n\(reference)"
         }
         text += "\n\nمن تطبيق اذكاري"

@@ -80,7 +80,7 @@ struct HisnLibraryContent: View {
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("حصن المسلم")
+                Text("أذكاري")
                     .font(.system(size: 34, weight: .bold))
                     .foregroundStyle(.white)
                 

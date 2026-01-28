@@ -41,7 +41,7 @@ final class SeedImportService: SeedImportServiceProtocol {
         self.modelContext = modelContext
     }
 
-    private let seedDataVersion = "4.0" // Unified adhkar.json from Hisn al-Muslim source
+    private let seedDataVersion = "4.6" // Daily adhkar titles update
 
     func importSeedDataIfNeeded() async throws {
         // Skip if already imported for this version (INSTANT on subsequent launches)
@@ -50,11 +50,18 @@ final class SeedImportService: SeedImportServiceProtocol {
             return
         }
 
-        // Delete old seed data when migrating to new version (IDs changed)
+        // Delete old seed data when migrating to new version
+        // Logic: Delete everything where source != "user_added"
+        // Workaround for Swift 6 #Predicate "Sendable" error: Manual fetch & delete
         if lastVersion != nil {
-            try modelContext.delete(model: DhikrItem.self, where: #Predicate<DhikrItem> {
-                $0.source != "user_added"
-            })
+            let descriptor = FetchDescriptor<DhikrItem>()
+            let allItems = try modelContext.fetch(descriptor)
+            
+            for item in allItems {
+                if item.source != "user_added" {
+                    modelContext.delete(item)
+                }
+            }
             try modelContext.save()
         }
 
@@ -70,9 +77,14 @@ final class SeedImportService: SeedImportServiceProtocol {
 
     func forceReimport() async throws {
         // Delete all existing seed data (preserve user-added)
-        try modelContext.delete(model: DhikrItem.self, where: #Predicate<DhikrItem> {
-            $0.source != "user_added"
-        })
+        let descriptor = FetchDescriptor<DhikrItem>()
+        let allItems = try modelContext.fetch(descriptor)
+        
+        for item in allItems {
+            if item.source != "user_added" {
+                modelContext.delete(item)
+            }
+        }
         try modelContext.save()
 
         // Parse and import

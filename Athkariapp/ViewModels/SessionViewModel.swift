@@ -76,8 +76,12 @@ final class SessionViewModel {
             session = try sessionRepository.fetchOrCreateSession(date: Date(), slotKey: slotKey)
 
             // Load dhikr items for this slot
-            let category = slotKey.dhikrCategory
-            dhikrList = try dhikrRepository.fetchByCategory(category)
+            if slotKey == .wakingUp {
+                dhikrList = try dhikrRepository.fetchByHisnCategory(.waking)
+            } else {
+                let category = slotKey.dhikrCategory
+                dhikrList = try dhikrRepository.fetchByCategory(category)
+            }
 
             // Set current dhikr
             if let session = session, let currentId = session.currentDhikrId {
@@ -197,7 +201,7 @@ final class SessionViewModel {
     func shareText() -> String {
         guard let dhikr = currentDhikr else { return "" }
         var text = dhikr.text
-        if let reference = dhikr.reference {
+        if let reference = dhikr.reference, !reference.isEmpty {
             text += "\n\n\(reference)"
         }
         text += "\n\nمن تطبيق اذكاري"
