@@ -25,7 +25,7 @@ enum SessionStatus: String, Codable, CaseIterable {
 }
 
 @Model
-final class SessionState {
+final class SessionState: @unchecked Sendable {
     @Attribute(.unique) var id: UUID
     var date: Date // Start of day
     var slotKey: String // SlotKey rawValue
@@ -107,11 +107,3 @@ final class SessionState {
         return completedAt <= deadline
     }
 }
-
-
-
-
-
-
-
-extension SessionState: @unchecked Sendable {}

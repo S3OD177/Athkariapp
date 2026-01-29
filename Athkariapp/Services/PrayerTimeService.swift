@@ -1,6 +1,17 @@
 import Foundation
 import CoreLocation
 
+// MARK: - API Configuration
+private enum APIConfig {
+    static let prayerTimesAPIKey: String = {
+        if let envKey = ProcessInfo.processInfo.environment["PRAYER_API_KEY"], !envKey.isEmpty {
+            return envKey
+        }
+        return "aZUHsql6tGOVHu1YrjvxyU49ASjdrnoC7rr5p0NawQgjxJNP"
+    }()
+    static let prayerTimesBaseURL = "https://islamicapi.com/api/v1/prayer-time/"
+}
+
 protocol PrayerTimeServiceProtocol: Sendable {
     func getPrayerTimes(
         date: Date,

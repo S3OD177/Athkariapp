@@ -73,8 +73,6 @@ final class FastingService: FastingServiceProtocol, @unchecked Sendable {
             
             func parseTime(_ timeString: String) -> Date {
                 // Handle "04:15" or "04:15 am"
-                let cleaned = timeString.components(separatedBy: CharacterSet.decimalDigits.inverted.union(CharacterSet(charactersIn: ":"))).joined()
-                
                 // Try parse with simple HH:mm
                 if let date = formatter.date(from: timeString.components(separatedBy: " ").first ?? timeString) {
                     let h = calendar.component(.hour, from: date)

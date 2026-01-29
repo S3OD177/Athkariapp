@@ -53,16 +53,14 @@ final class SeedImportService: SeedImportServiceProtocol {
         // Delete old seed data when migrating to new version
         // Batched deletion to prevent OOM if database is huge
         if lastVersion != nil {
-            let userAdded = "user_added"
-            // Use Predicate to fetch ONLY deletable items.
-            // This avoids fetching 'user_added' items entirely, preventing the infinite loop check issues.
-            let predicate = #Predicate<DhikrItem> { item in
-                item.source != "user_added"
-            }
-            
             var hasMore = true
             while hasMore {
                 // Fetch in batches of 2000
+                // Use Predicate to fetch ONLY deletable items.
+                // This avoids fetching 'user_added' items entirely, preventing the infinite loop check issues.
+                let predicate = #Predicate<DhikrItem> { item in
+                    item.source != "user_added"
+                }
                 var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
                 descriptor.fetchLimit = 2000
                 

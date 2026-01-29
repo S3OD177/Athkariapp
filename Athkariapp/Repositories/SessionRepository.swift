@@ -22,9 +22,8 @@ final class SessionRepository: SessionRepositoryProtocol {
 
     func fetchTodaySessions() throws -> [SessionState] {
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        let predicate = #Predicate<SessionState> { session in session.date == startOfDay }
         let descriptor = FetchDescriptor<SessionState>(
-            predicate: predicate
+            predicate: #Predicate<SessionState> { session in session.date == startOfDay }
         )
         return try modelContext.fetch(descriptor).sorted { $0.slotKey < $1.slotKey }
     }
@@ -32,14 +31,15 @@ final class SessionRepository: SessionRepositoryProtocol {
     func fetchSession(date: Date, slotKey: SlotKey) throws -> SessionState? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let slotValue = slotKey.rawValue
-        
+
         // Note: Predicates on multiple fields
-        let predicate = #Predicate<SessionState> { session in
-            session.date == startOfDay && session.slotKey == slotValue
-        }
-        var descriptor = FetchDescriptor<SessionState>(predicate: predicate)
+        var descriptor = FetchDescriptor<SessionState>(
+            predicate: #Predicate<SessionState> { session in
+                session.date == startOfDay && session.slotKey == slotValue
+            }
+        )
         descriptor.fetchLimit = 1
-        
+
         return try modelContext.fetch(descriptor).first
     }
 
@@ -75,14 +75,13 @@ final class SessionRepository: SessionRepositoryProtocol {
         let toStart = Calendar.current.startOfDay(for: to)
         // Predicates don't support date comparisons perfectly in all SwiftData versions without expanding,
         // but standard >= and <= usually work on Date attributes.
-        let predicate = #Predicate<SessionState> { session in
-            session.date >= fromStart && session.date <= toStart
-        }
         let descriptor = FetchDescriptor<SessionState>(
-            predicate: predicate
+            predicate: #Predicate<SessionState> { session in
+                session.date >= fromStart && session.date <= toStart
+            }
         )
         let sessions = try modelContext.fetch(descriptor)
-        return sessions.sorted { 
+        return sessions.sorted {
             if $0.date != $1.date { return $0.date < $1.date }
             return $0.slotKey < $1.slotKey
         }
