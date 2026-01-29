@@ -174,8 +174,7 @@ final class PrayerTimeService: PrayerTimeServiceProtocol, @unchecked Sendable {
         longitude: Double,
         method: Int = 4 // Umm Al-Qura default
     ) async throws -> PrayerTimes {
-        let apiKey = "aZUHsql6tGOVHu1YrjvxyU49ASjdrnoC7rr5p0NawQgjxJNP"
-        let urlString = "https://islamicapi.com/api/v1/prayer-time/?lat=\(latitude)&lon=\(longitude)&method=\(method)&school=1&api_key=\(apiKey)"
+        let urlString = "\(APIConfig.prayerTimesBaseURL)?lat=\(latitude)&lon=\(longitude)&method=\(method)&school=1&api_key=\(APIConfig.prayerTimesAPIKey)"
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)

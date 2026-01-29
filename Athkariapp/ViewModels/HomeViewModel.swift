@@ -65,7 +65,6 @@ final class HomeViewModel {
         self.locationService = locationService
         
         setupLocationBindings()
-        setupLocationBindings()
         startTimeUpdater()
     }
     
