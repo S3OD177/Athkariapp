@@ -37,6 +37,9 @@ struct SessionContent: View {
     @Bindable var viewModel: SessionViewModel
     let onDismiss: () -> Void
     
+    // Animation State
+    @State private var contentId: String = ""
+    
     // Share function using UIKit activity controller
     private func shareCurrentDhikr() {
         let text = viewModel.shareText()
@@ -56,12 +59,18 @@ struct SessionContent: View {
             
             VStack(spacing: 0) {
                 topBar
+                    .padding(.bottom, 20)
                 
                 Spacer()
                 
+                // Main Content Area
                 VStack(spacing: 32) {
                     dhikrCard
+                        .padding(.horizontal, 24)
+                        .frame(maxWidth: 600) // Max width for iPad
+                    
                     counterSection
+                        .padding(.horizontal, 32)
                 }
                 
                 Spacer()
@@ -72,6 +81,13 @@ struct SessionContent: View {
         .task {
             await viewModel.loadSession()
         }
+        .onChange(of: viewModel.currentDhikr?.id) { _, newValue in
+            if let id = newValue {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                    contentId = id.uuidString
+                }
+            }
+        }
         .sheet(isPresented: $viewModel.showDhikrSwitcher) {
             DhikrSwitcherSheet(
                 dhikrList: viewModel.dhikrList,
@@ -79,18 +95,21 @@ struct SessionContent: View {
                 onSelect: viewModel.switchDhikr
             )
             .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .alert("إعادة ضبط", isPresented: $viewModel.showResetConfirmation) {
             Button("إلغاء", role: .cancel) { }
             Button("إعادة ضبط", role: .destructive) {
-                viewModel.reset()
+                withAnimation { viewModel.reset() }
             }
         } message: {
             Text("هل تريد إعادة ضبط العداد إلى الصفر؟")
         }
         .contentShape(Rectangle()) // Ensure empty areas are tappable
         .onTapGesture {
-            viewModel.increment()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                viewModel.increment()
+            }
         }
         .overlay {
             overlays
@@ -103,19 +122,8 @@ struct SessionContent: View {
         ZStack {
             AppColors.sessionBackground.ignoresSafeArea()
             
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    AppColors.onboardingPrimary.opacity(0.15),
-                    AppColors.sessionBackground.opacity(0)
-                ]),
-                center: .center,
-                startRadius: 50,
-                endRadius: 600
-            )
-            .ignoresSafeArea()
-            
             AmbientBackground()
-                .opacity(0.6)
+                .opacity(0.8)
                 .blur(radius: 60)
         }
     }
@@ -126,11 +134,12 @@ struct SessionContent: View {
                 viewModel.isCompleted ? onDismiss() : (viewModel.showFinishConfirmation = true)
             } label: {
                 Circle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(.ultraThinMaterial)
                     .frame(width: 44, height: 44)
+                    .shadow(color: .black.opacity(0.1), radius: 5)
                     .overlay(
                         Image(systemName: "xmark")
-                            .font(.headline)
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(.white)
                     )
             }
@@ -138,23 +147,20 @@ struct SessionContent: View {
             Spacer()
             
             if !viewModel.dhikrList.isEmpty {
-                HStack(spacing: 6) {
-                    Text("الذكر \(viewModel.currentDhikrIndex + 1) من \(viewModel.dhikrList.count)")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                HStack(spacing: 8) {
+                    Text("\(viewModel.currentDhikrIndex + 1) / \(viewModel.dhikrList.count)")
+                        .font(.custom("Menlo", size: 14).bold()) // Monospaced numbers
                         .foregroundStyle(.white)
                     
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.2)).frame(width: 30, height: 4)
-                        Capsule()
-                            .fill(AppColors.onboardingPrimary)
-                            .frame(width: 30 * (Double(viewModel.currentDhikrIndex + 1) / Double(viewModel.dhikrList.count)), height: 4)
-                    }
+                    ProgressView(value: Double(viewModel.currentDhikrIndex + 1), total: Double(viewModel.dhikrList.count))
+                        .progressViewStyle(LinearProgressViewStyle(tint: AppColors.onboardingPrimary))
+                        .frame(width: 50)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Material.ultraThin)
+                .background(.ultraThinMaterial)
                 .clipShape(Capsule())
-                .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1))
+                .shadow(color: .black.opacity(0.1), radius: 5)
             }
             
             Spacer()
@@ -163,11 +169,12 @@ struct SessionContent: View {
                 viewModel.showDhikrSwitcher = true
             } label: {
                 Circle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(.ultraThinMaterial)
                     .frame(width: 44, height: 44)
+                    .shadow(color: .black.opacity(0.1), radius: 5)
                     .overlay(
                         Image(systemName: "list.bullet")
-                            .font(.headline)
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(.white)
                     )
             }
@@ -178,116 +185,126 @@ struct SessionContent: View {
     
     private var dhikrCard: some View {
         ZStack {
+            // Glassmorphism Card
             RoundedRectangle(cornerRadius: 32)
-                .fill(Color.white.opacity(0.05))
-                .clipShape(RoundedRectangle(cornerRadius: 32))
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 32)
-                        .stroke(
-                            LinearGradient(
-                                colors: [.white.opacity(0.2), .white.opacity(0.05)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
+                        .stroke(.white.opacity(0.1), lineWidth: 1)
                 )
             
             VStack(spacing: 24) {
                 if let dhikr = viewModel.currentDhikr {
                     Spacer(minLength: 0)
                     
+                    // Dhikr Text
                     Text(dhikr.text)
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 34, weight: .semibold, design: .serif)) // Premium Serif font
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                        .lineSpacing(10)
-                        .minimumScaleFactor(0.4)
-                        .padding(.horizontal, 4)
-                        .shadow(color: .black.opacity(0.3), radius: 2, y: 2)
+                        .lineSpacing(12)
+                        .minimumScaleFactor(0.5)
+                        .padding(.horizontal, 8)
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
+                        // Animation Logic
                         .id(dhikr.id)
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.9)),
+                            removal: .opacity.combined(with: .scale(scale: 1.1))
+                        ))
                     
                     Spacer(minLength: 0)
                     
-                    Divider().background(Color.white.opacity(0.1))
+                    Divider().background(.white.opacity(0.2))
                     
+                    // Metadata
                     VStack(spacing: 12) {
                         if let benefit = dhikr.benefit, !benefit.isEmpty {
                             HStack(alignment: .top, spacing: 12) {
                                 Image(systemName: "sparkles")
                                     .foregroundStyle(AppColors.onboardingPrimary)
                                     .font(.caption)
-                                    .padding(.top, 2)
+                                    .padding(.top, 4)
                                 
                                 Text(benefit)
                                     .font(.subheadline)
-                                    .foregroundStyle(Color.white.opacity(0.9))
-                                    .fixedSize(horizontal: false, vertical: true)
+                                    .foregroundStyle(.white.opacity(0.9))
                                     .multilineTextAlignment(.leading)
-                                    .minimumScaleFactor(0.8)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
                         }
                         
                         if let reference = dhikr.reference, !reference.isEmpty {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 6) {
                                 Image(systemName: "book.closed.fill")
                                     .font(.caption2)
                                 Text(reference)
-                                    .font(.caption)
-                                    .fontWeight(.medium)
+                                    .font(.caption.bold())
                             }
                             .foregroundStyle(AppColors.textGray)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
+                    .padding(.top, 8)
                 }
             }
-            .padding(24)
+            .padding(32)
         }
-        .padding(.horizontal, 24)
-        .frame(maxHeight: .infinity)
+        .frame(minHeight: 350) // Ensure substantial height
         .layoutPriority(1)
     }
     
     private var counterSection: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: 24) {
+            // Previous Button
             Button {
                 withAnimation { viewModel.moveToPrevious() }
             } label: {
                 Circle()
-                    .fill(Color.white.opacity(0.05))
+                    .fill(.ultraThinMaterial)
                     .frame(width: 50, height: 50)
                     .overlay(
                         Image(systemName: "arrow.backward")
-                            .font(.title3)
-                            .foregroundStyle(.white.opacity(0.5))
+                            .font(.headline)
+                            .foregroundStyle(.white.opacity(0.7))
                     )
             }
+            .disabled(viewModel.currentDhikrIndex == 0)
+            .opacity(viewModel.currentDhikrIndex == 0 ? 0.3 : 1.0)
             
+            // Main Counter
             CounterCircle(
                 currentCount: viewModel.currentCount,
                 targetCount: viewModel.targetCount,
-                size: 200,
+                size: 180, // Slightly improved size
                 accentColor: AppColors.onboardingPrimary
             ) {
-                viewModel.increment()
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    viewModel.increment()
+                }
             }
+            .shadow(color: AppColors.onboardingPrimary.opacity(0.3), radius: 20, x: 0, y: 0) // Glow effect
             
+            // Next Button
             Button {
                 withAnimation { viewModel.moveToNext() }
             } label: {
                 Circle()
-                    .fill(Color.white.opacity(0.05))
+                    .fill(.ultraThinMaterial)
                     .frame(width: 50, height: 50)
                     .overlay(
                         Image(systemName: "arrow.forward")
-                            .font(.title3)
-                            .foregroundStyle(.white.opacity(0.5))
+                            .font(.headline)
+                            .foregroundStyle(.white.opacity(0.7))
                     )
             }
+            .disabled(viewModel.currentDhikrIndex >= viewModel.dhikrList.count - 1)
+            .opacity(viewModel.currentDhikrIndex >= viewModel.dhikrList.count - 1 ? 0.3 : 1.0)
         }
     }
     
+    // Bottom actions remain simple
     private var bottomActions: some View {
         HStack(spacing: 40) {
             Button {
@@ -296,6 +313,7 @@ struct SessionContent: View {
                 VStack(spacing: 8) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.title3)
+                        .symbolEffect(.bounce, value: viewModel.showResetConfirmation)
                     Text("إعادة")
                         .font(.caption2)
                 }
@@ -340,8 +358,6 @@ struct SessionContent: View {
                 .zIndex(1)
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showFinishConfirmation)
-        .animation(.easeOut(duration: 0.2), value: viewModel.showCompletionCelebration)
     }
 }
 
@@ -455,14 +471,35 @@ struct ExitConfirmationView: View {
 }
 
 struct AmbientBackground: View {
+    @State private var animate = false
+    
     var body: some View {
         ZStack {
-            // Blob 1
-             Circle()
-                .fill(AppColors.sessionPrimary.opacity(0.15))
+            // Animated primary blob
+            Circle()
+                .fill(AppColors.sessionPrimary.opacity(0.2))
                 .frame(width: 300, height: 300)
                 .blur(radius: 60)
-                .offset(y: 100)
+                .offset(x: animate ? -50 : 50, y: animate ? -30 : 50)
+            
+            // Animated secondary blob
+            Circle()
+                .fill(AppColors.onboardingPrimary.opacity(0.15))
+                .frame(width: 400, height: 400)
+                .blur(radius: 80)
+                .offset(x: animate ? 100 : -100, y: animate ? 200 : -100)
+            
+            // Accent blob
+             Circle()
+                .fill(Color.blue.opacity(0.1))
+                .frame(width: 250, height: 250)
+                .blur(radius: 50)
+                .offset(x: animate ? -100 : 100, y: animate ? 100 : -150)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 7).repeatForever(autoreverses: true)) {
+                animate.toggle()
+            }
         }
     }
 }
