@@ -57,7 +57,7 @@ final class SeedImportService: SeedImportServiceProtocol {
             // Use Predicate to fetch ONLY deletable items.
             // This avoids fetching 'user_added' items entirely, preventing the infinite loop check issues.
             let predicate = #Predicate<DhikrItem> { item in
-                item.source != userAdded
+                item.source != "user_added"
             }
             
             var hasMore = true

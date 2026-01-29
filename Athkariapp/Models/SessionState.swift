@@ -109,3 +109,9 @@ final class SessionState {
 }
 
 
+
+
+
+
+
+extension SessionState: @unchecked Sendable {}

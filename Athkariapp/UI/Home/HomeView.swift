@@ -132,17 +132,7 @@ struct HomeContent: View {
             .padding(.horizontal, 16)
             .padding(.top, 10)
             
-            // Date Row
-            HStack {
-                Text(viewModel.todayHijriDate)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.gray)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 16)
+            // Date Row Removed
             
             Divider()
                 .background(Color.white.opacity(0.1))

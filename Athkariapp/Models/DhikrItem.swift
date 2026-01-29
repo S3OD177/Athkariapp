@@ -158,3 +158,9 @@ final class DhikrItem {
 }
 
 
+
+
+
+
+
+extension DhikrItem: @unchecked Sendable {}

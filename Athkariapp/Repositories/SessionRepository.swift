@@ -22,7 +22,7 @@ final class SessionRepository: SessionRepositoryProtocol {
 
     func fetchTodaySessions() throws -> [SessionState] {
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        let predicate = #Predicate<SessionState> { $0.date == startOfDay }
+        let predicate = #Predicate<SessionState> { session in session.date == startOfDay }
         let descriptor = FetchDescriptor<SessionState>(
             predicate: predicate
         )
@@ -34,8 +34,8 @@ final class SessionRepository: SessionRepositoryProtocol {
         let slotValue = slotKey.rawValue
         
         // Note: Predicates on multiple fields
-        let predicate = #Predicate<SessionState> {
-            $0.date == startOfDay && $0.slotKey == slotValue
+        let predicate = #Predicate<SessionState> { session in
+            session.date == startOfDay && session.slotKey == slotValue
         }
         var descriptor = FetchDescriptor<SessionState>(predicate: predicate)
         descriptor.fetchLimit = 1
@@ -75,8 +75,8 @@ final class SessionRepository: SessionRepositoryProtocol {
         let toStart = Calendar.current.startOfDay(for: to)
         // Predicates don't support date comparisons perfectly in all SwiftData versions without expanding,
         // but standard >= and <= usually work on Date attributes.
-        let predicate = #Predicate<SessionState> {
-            $0.date >= fromStart && $0.date <= toStart
+        let predicate = #Predicate<SessionState> { session in
+            session.date >= fromStart && session.date <= toStart
         }
         let descriptor = FetchDescriptor<SessionState>(
             predicate: predicate

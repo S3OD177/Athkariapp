@@ -30,36 +30,36 @@ final class DhikrRepository: DhikrRepositoryProtocol {
 
     func fetchBySource(_ source: DhikrSource) throws -> [DhikrItem] {
         let sourceValue = source.rawValue
-        let predicate = #Predicate<DhikrItem> { $0.source == sourceValue }
+        let predicate = #Predicate<DhikrItem> { item in item.source == sourceValue }
         let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
         return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByCategory(_ category: DhikrCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let predicate = #Predicate<DhikrItem> { $0.category == categoryValue }
+        let predicate = #Predicate<DhikrItem> { item in item.category == categoryValue }
         let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
         return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByHisnCategory(_ category: HisnCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let predicate = #Predicate<DhikrItem> { $0.hisnCategory == categoryValue }
+        let predicate = #Predicate<DhikrItem> { item in item.hisnCategory == categoryValue }
         let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
         return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchById(_ id: UUID) throws -> DhikrItem? {
-        let predicate = #Predicate<DhikrItem> { $0.id == id }
+        let predicate = #Predicate<DhikrItem> { item in item.id == id }
         var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
 
     func search(query: String) throws -> [DhikrItem] {
-        let predicate = #Predicate<DhikrItem> {
-            $0.title.localizedStandardContains(query) ||
-            $0.text.localizedStandardContains(query)
+        let predicate = #Predicate<DhikrItem> { item in
+            item.title.localizedStandardContains(query) ||
+            item.text.localizedStandardContains(query)
         }
         let descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
         return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }

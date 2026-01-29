@@ -4,6 +4,8 @@
 <dict>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>نريد إرسال تذكيرات بأوقات الأذكار والصلوات</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يستخدم التطبيق موقعك لحساب مواقيت الصلاة وتحديد اتجاه القبلة</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

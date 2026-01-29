@@ -154,6 +154,7 @@ struct ToolsView: View {
     @State private var showingQibla = false
     @State private var showingTasbih = false
     @State private var showingHijri = false
+    @State private var showingFasting = false
     @State private var showingZakat = false
     @State private var showingStats = false
     @State private var showingPrayerTimes = false
@@ -217,8 +218,8 @@ struct ToolsView: View {
                             title: "التقويم الهجري",
                             subtitle: "التاريخ الهجري",
                             icon: "calendar",
-                            iconBg: Color(hex: "F0FDF4"),
-                            iconColor: Color(hex: "22C55E")
+                            iconBg: AppColors.onboardingPrimary.opacity(0.1),
+                            iconColor: AppColors.onboardingPrimary
                         ) {
                             showingHijri = true
                         }
@@ -227,18 +228,28 @@ struct ToolsView: View {
                             title: "حاسبة الزكاة",
                             subtitle: "حساب النصاب",
                             icon: "banknote.fill", // Or generic finance icon
-                            iconBg: Color(hex: "F0FDF4"),
-                            iconColor: Color(hex: "22C55E")
+                            iconBg: AppColors.onboardingPrimary.opacity(0.1),
+                            iconColor: AppColors.onboardingPrimary
                         ) {
                             showingZakat = true
+                        }
+                        
+                        ToolCard(
+                            title: "متابع الصيام",
+                            subtitle: "تتبع صيامك",
+                            icon: "sun.haze.fill",
+                            iconBg: AppColors.onboardingPrimary.opacity(0.1),
+                            iconColor: AppColors.onboardingPrimary
+                        ) {
+                            showingFasting = true
                         }
                         
                         ToolCard(
                             title: "مواقيت الصلاة",
                             subtitle: "متابعة الأوقات",
                             icon: "clock.fill",
-                            iconBg: Color(hex: "F0FDF4"),
-                            iconColor: Color(hex: "22C55E")
+                            iconBg: AppColors.onboardingPrimary.opacity(0.1),
+                            iconColor: AppColors.onboardingPrimary
                         ) {
                             showingPrayerTimes = true
                         }
@@ -371,6 +382,9 @@ struct ToolsView: View {
         }
         .fullScreenCover(isPresented: $showingPrayerTimes) {
             PrayerTimesView()
+        }
+        .fullScreenCover(isPresented: $showingFasting) {
+            FastingTrackerView(container: container)
         }
         .onAppear {
             if statsViewModel == nil {
