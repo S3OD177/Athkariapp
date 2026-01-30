@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>نريد إرسال تذكيرات بأوقات الأذكار والصلوات</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
