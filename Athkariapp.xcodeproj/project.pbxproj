@@ -63,6 +63,7 @@
 		C31219282F2AC57500BEF731 /* FastingTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingTrackerView.swift; sourceTree = "<group>"; };
 		C312192A2F2AC6CF00BEF731 /* FastingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingViewModel.swift; sourceTree = "<group>"; };
 		C312192C2F2AC81900BEF731 /* FastingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingService.swift; sourceTree = "<group>"; };
+		C37720842F2C2F0800FC2EA2 /* Athkariapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Athkariapp.entitlements; sourceTree = "<group>"; };
 		C38D27062F26FEA1005D2A1A /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		C38D27082F27001B005D2A1A /* HijriCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HijriCalendarView.swift; sourceTree = "<group>"; };
 		C38D27092F27001B005D2A1A /* PrayerTimesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimesView.swift; sourceTree = "<group>"; };
@@ -146,6 +147,7 @@
 		GRP001 /* Athkariapp */ = {
 			isa = PBXGroup;
 			children = (
+				C37720842F2C2F0800FC2EA2 /* Athkariapp.entitlements */,
 				GRP002 /* App */,
 				GRP003 /* Models */,
 				GRP004 /* Repositories */,
@@ -563,6 +565,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Athkariapp/Athkariapp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -593,6 +596,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Athkariapp/Athkariapp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;

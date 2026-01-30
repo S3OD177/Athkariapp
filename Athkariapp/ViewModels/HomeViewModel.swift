@@ -258,18 +258,18 @@ final class HomeViewModel {
         if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
             if let times = prayerTimes, let prayer = times.currentAdhan(at: currentTime) {
                 let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
-                let isReady = times.isPostPrayerReady(for: prayer, at: currentTime, offsetMinutes: offset)
+                let isReady = times.isPostPrayerReady(for: prayer, at: currentTime, durationMinutes: offset)
                 
                 if isReady {
-                    // Ends when next prayer starts (approximated)
-                    let nextP = times.nextPrayer(includingSunrise: false)?.time
-                    // Use stored next prayer name or dynamic fallback
-                    let name = self.nextPrayerName ?? "الصلاة القادمة"
-                    return EventTimeContext(item: afterPrayerItem, endTime: nextP, nextEventName: name)
+                    // Ends when duration expires
+                    // We calculate expiration time again locally for context
+                    if let adhanTime = times.timeForPrayer(prayer) {
+                         let expiration = adhanTime.addingTimeInterval(Double(offset) * 60)
+                         // Use stored next prayer name or dynamic fallback for "Next Event"
+                         let name = self.nextPrayerName ?? "الصلاة القادمة"
+                         return EventTimeContext(item: afterPrayerItem, endTime: expiration, nextEventName: name)
+                    }
                 }
-                // If not ready (counting down), we do NOT return a context.
-                // This allows it to fall through to "No Active Dhikr" state,
-                // and the "nextUpcomingEvent" logic will catch it as the next event.
             }
         }
 
@@ -327,8 +327,6 @@ final class HomeViewModel {
             return EventTimeContext(item: item, endTime: endTime, nextEventName: nextName)
         }
         
-        // Fallback for gap handling (Logic simplified to just return logic similar to before but without context if confusing)
-        // If we are in a gap, we just fall back to standard logic WITHOUT endTime context
         return nil
     }
 
@@ -469,18 +467,11 @@ final class HomeViewModel {
         
         if let adhan = currentAdhan {
             // Check if post-prayer is ready
-            let isReady = times.isPostPrayerReady(for: adhan, at: now, offsetMinutes: offset)
+            // We use durationMinutes logic now
+            let isReady = times.isPostPrayerReady(for: adhan, at: now, durationMinutes: offset)
             
-            // Handle countdown
-            if !isReady {
-                if let countdown = times.countdownToPostPrayer(at: now, offsetMinutes: offset) {
-                    let minutes = Int(countdown.remaining / 60)
-                    let seconds = Int(countdown.remaining.truncatingRemainder(dividingBy: 60))
-                    postPrayerCountdown = String(format: "%02d:%02d", minutes, seconds)
-                }
-            } else {
-                postPrayerCountdown = nil
-            }
+            // Countdown logic is removed as it's active immediately
+            postPrayerCountdown = nil
         } else {
             postPrayerCountdown = nil
         }
@@ -499,17 +490,7 @@ final class HomeViewModel {
         var nextEventDate: Date?
         var eventName: String = ""
         
-        // 1. Check Pending After Prayer (Highest Priority Near Term)
-        if let times = prayerTimes, let prayer = times.currentAdhan(at: now) {
-            let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
-            if let countdown = times.countdownToPostPrayer(at: now, offsetMinutes: offset) {
-                // It is pending! This is definitely the next event.
-                let targetDate = now.addingTimeInterval(countdown.remaining)
-                return UpcomingEvent(name: "أذكار بعد \(prayer.arabicName)", date: targetDate)
-            }
-        }
-
-        // 2. Check Next Prayer
+        // 1. Check Next Prayer
         if let next = nextPrayerTime {
             nextEventDate = next
             eventName = nextPrayerName ?? "الصلاة القادمة"
