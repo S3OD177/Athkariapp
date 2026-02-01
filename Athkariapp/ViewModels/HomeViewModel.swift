@@ -64,8 +64,6 @@ final class HomeViewModel {
         self.settingsRepository = settingsRepository
         self.locationService = locationService
         
-        self.locationService = locationService
-        
         setupLocationObservers()
         setupLocationBindings()
         startTimeUpdater()
