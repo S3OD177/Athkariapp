@@ -63,8 +63,15 @@ final class HomeViewModel {
         self.settingsRepository = settingsRepository
         self.locationService = locationService
         
+        self.locationService = locationService
+        
+        setupLocationObservers()
         setupLocationBindings()
         startTimeUpdater()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func startTimeUpdater() {
@@ -102,21 +109,30 @@ final class HomeViewModel {
         }
     }
 
-    private func setupLocationBindings() {
-        locationService.onLocationUpdate = { [weak self] _ in
+    private func setupLocationObservers() {
+        NotificationCenter.default.addObserver(forName: .didUpdateLocation, object: nil, queue: .main) { [weak self] notification in
+            guard let self = self,
+                  let location = notification.userInfo?["location"] as? CLLocation else { return }
+            
             Task { @MainActor in
                 // Stop location updates after getting initial location (energy optimization)
-                self?.locationService.stopUpdatingLocation()
-                await self?.loadData()
+                self.locationService.stopUpdatingLocation()
+                await self.loadData()
             }
         }
         
-        locationService.onAuthorizationChange = { [weak self] status in
+        NotificationCenter.default.addObserver(forName: .didChangeLocationAuthorization, object: nil, queue: .main) { [weak self] notification in
+            guard let self = self,
+                  let rawStatus = notification.userInfo?["status"] as? Int32,
+                  let status = CLAuthorizationStatus(rawValue: rawStatus) else { return }
+            
             Task { @MainActor in
-                self?.showLocationWarning = (status == .denied || status == .restricted)
+                self.showLocationWarning = (status == .denied || status == .restricted)
             }
         }
-        
+    }
+
+    private func setupLocationBindings() {
         // Initial permission check
         let status = locationService.authorizationStatus
         showLocationWarning = (status == .denied || status == .restricted)

@@ -59,6 +59,12 @@ final class SettingsViewModel {
         self.prayerTimeService = prayerTimeService
         self.modelContext = modelContext
         self.modelContainer = modelContainer
+        
+        setupLocationObservers()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Public Methods
@@ -238,21 +244,44 @@ final class SettingsViewModel {
 
     func requestLocationPermission() {
         locationService.requestPermission()
-        if locationPermissionGranted {
-            refreshLocation()
-        }
+        // Observer "didChangeLocationAuthorization" will handle the update
     }
 
     func refreshLocation() {
         locationService.startUpdatingLocation()
-        
-        // Listen for the next update
-        locationService.onLocationUpdate = { [weak self] coordinate in
-            guard let self = self else { return }
-            self.locationService.stopUpdatingLocation()
+    }
+    
+    private func setupLocationObservers() {
+        // Handle Authorization Changes
+        NotificationCenter.default.addObserver(
+            forName: .didChangeLocationAuthorization,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateLocationPermissionState()
             
-            Task {
-                await self.updateLocationAndCity(coordinate)
+            // If authorized, verify/refresh location
+            if self?.locationPermissionGranted == true {
+                self?.refreshLocation()
+            }
+        }
+        
+        // Handle Location Updates
+        NotificationCenter.default.addObserver(
+            forName: .didUpdateLocation,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self = self else { return }
+            
+            // Extract location from keys
+            if let locations = notification.userInfo?["location"] as? CLLocation {
+                 // Stop updating to save battery (one-shot update)
+                 self.locationService.stopUpdatingLocation()
+                 
+                 Task {
+                     await self.updateLocationAndCity(locations.coordinate)
+                 }
             }
         }
     }

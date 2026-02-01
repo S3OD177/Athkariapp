@@ -32,7 +32,6 @@
 		REP002 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC012 /* SessionRepository.swift */; };
 		REP004 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* SettingsRepository.swift */; };
 		REP005 /* OnboardingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* OnboardingRepository.swift */; };
-		REP006 /* UserRoutineLinkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* UserRoutineLinkRepository.swift */; };
 		RES001 /* adhkar.json in Resources */ = {isa = PBXBuildFile; fileRef = RSC001 /* adhkar.json */; };
 		RES003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RSC004 /* Localizable.strings */; };
 		SVC001 /* PrayerTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017 /* PrayerTimeService.swift */; };
@@ -88,7 +87,6 @@
 		SRC012 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
 		SRC014 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
 		SRC015 /* OnboardingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingRepository.swift; sourceTree = "<group>"; };
-		SRC016 /* UserRoutineLinkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRoutineLinkRepository.swift; sourceTree = "<group>"; };
 		SRC017 /* PrayerTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimeService.swift; sourceTree = "<group>"; };
 		SRC018 /* SeedImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedImportService.swift; sourceTree = "<group>"; };
 		SRC019 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 				SRC012 /* SessionRepository.swift */,
 				SRC014 /* SettingsRepository.swift */,
 				SRC015 /* OnboardingRepository.swift */,
-				SRC016 /* UserRoutineLinkRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -402,7 +399,6 @@
 				C312192B2F2AC6CF00BEF731 /* FastingViewModel.swift in Sources */,
 				REP004 /* SettingsRepository.swift in Sources */,
 				REP005 /* OnboardingRepository.swift in Sources */,
-				REP006 /* UserRoutineLinkRepository.swift in Sources */,
 				SVC001 /* PrayerTimeService.swift in Sources */,
 				SVC002 /* SeedImportService.swift in Sources */,
 				SVC003 /* HapticsService.swift in Sources */,

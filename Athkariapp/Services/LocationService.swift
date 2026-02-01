@@ -1,6 +1,11 @@
 import Foundation
 import CoreLocation
 
+extension Notification.Name {
+    static let didUpdateLocation = Notification.Name("didUpdateLocation")
+    static let didChangeLocationAuthorization = Notification.Name("didChangeLocationAuthorization")
+}
+
 @MainActor
 protocol LocationServiceProtocol {
     var currentLocation: CLLocationCoordinate2D? { get }
@@ -21,6 +26,7 @@ final class LocationService: NSObject, LocationServiceProtocol {
         locationManager.authorizationStatus
     }
 
+    // Deprecated: Use NotificationCenter instead
     var onLocationUpdate: ((CLLocationCoordinate2D) -> Void)?
     var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
     var onHeadingUpdate: ((CLLocationDirection) -> Void)?
@@ -57,6 +63,15 @@ extension LocationService: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         Task { @MainActor in
             self.currentLocation = location.coordinate
+            
+            // Post Notification
+            NotificationCenter.default.post(
+                name: .didUpdateLocation,
+                object: nil,
+                userInfo: ["location": location]
+            )
+            
+            // Legacy callback support
             self.onLocationUpdate?(location.coordinate)
         }
     }
@@ -71,6 +86,12 @@ extension LocationService: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in
+            NotificationCenter.default.post(
+                name: .didChangeLocationAuthorization,
+                object: nil,
+                userInfo: ["status": status.rawValue] // RawValue for simple passing, or just check service.status
+            )
+            
             self.onAuthorizationChange?(status)
         }
     }

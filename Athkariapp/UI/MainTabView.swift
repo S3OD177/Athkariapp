@@ -180,15 +180,7 @@ struct ToolsView: View {
                             .foregroundStyle(.white)
                         Spacer()
                         
-                        Button {
-                            // Settings/Profile action
-                        } label: {
-                            Image(systemName: "gearshape.fill")
-                                .padding(10)
-                                .background(Color.white.opacity(0.1))
-                                .clipShape(Circle())
-                                .foregroundStyle(AppColors.onboardingPrimary)
-                        }
+
                     }
                     .padding(.top, 10)
                     .padding(.horizontal, 24)
