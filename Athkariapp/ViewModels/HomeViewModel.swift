@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import UserNotifications
+import CoreLocation
 
 /// Daily summary item for home screen
 struct DailySummaryItem: Identifiable {
