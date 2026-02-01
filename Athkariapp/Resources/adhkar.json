@@ -19,6 +19,24 @@
       "isOptional": false
     },
     {
+      "id": "hisn-27-1",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((أَسْتَغْفِرُ اللَّهَ (ثَلاَثَاً) اللَّهُمَّ أَنْتَ...",
+      "text": "((أَسْتَغْفِرُ اللَّهَ (ثَلاَثَاً) اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلاَمُ، تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَالْإِكْرَامِ)).",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 1,
+      "benefit": null,
+      "grading": null,
+      "isOptional": false
+    },
+    {
       "id": "daily-002",
       "category": "morning",
       "hisnCategory": null,
@@ -33,6 +51,42 @@
       },
       "orderIndex": 2,
       "benefit": "من قالها حين يصبح وحين يمسى كفته من كل شىء (الإخلاص والمعوذتين).",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "hisn-27-2",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
+      "text": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ [ثلاثاً]، اللَّهُمَّ لاَ مَانِعَ لِمَا أَعْطَيْتَ، وَلاَ مُعْطِيَ لِمَا مَنَعْتَ، وَلاَ يَنْفَعُ ذَا الْجَدِّ مِنْكَ الجَدُّ)).",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 2,
+      "benefit": null,
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "hisn-49-2",
+      "category": "general",
+      "hisnCategory": "illness",
+      "source": "hisn",
+      "title": "((أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ...",
+      "text": "((أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفيَكَ)) (سبع مرات).",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 2,
+      "benefit": null,
       "grading": null,
       "isOptional": false
     },
@@ -55,6 +109,24 @@
       "isOptional": false
     },
     {
+      "id": "hisn-27-3",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((لَا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
+      "text": "((لَا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ، وَلاَ نَعْبُدُ إِلاَّ إِيَّاهُ, لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَهَ إِلاَّ اللَّهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الكَافِرُونَ)).",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 3,
+      "benefit": null,
+      "grading": null,
+      "isOptional": false
+    },
+    {
       "id": "daily-004",
       "category": "morning",
       "hisnCategory": null,
@@ -69,6 +141,24 @@
       },
       "orderIndex": 4,
       "benefit": "من قالها حين يصبح وحين يمسى كفته من كل شىء (الإخلاص والمعوذتين).",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "hisn-27-4",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ...",
+      "text": "((سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ (ثلاثاً وثلاثين) لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ)).",
+      "reference": null,
+      "repeat": {
+        "min": 33,
+        "max": 33,
+        "note": null
+      },
+      "orderIndex": 4,
+      "benefit": null,
       "grading": null,
       "isOptional": false
     },
@@ -91,6 +181,24 @@
       "isOptional": false
     },
     {
+      "id": "hisn-27-5",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "بسم الله الرحمن الرحيم ﴿قُلْ...",
+      "text": "بسم الله الرحمن الرحيم ﴿قُلْ هُوَ اللَّهُ أَحَدٌ* اللَّهُ الصَّمَدُ* لَمْ يَلِدْ وَلَمْ يُولَدْ* وَلَمْ يَكُن لَّهُ كُفُواً أَحَدٌ﴾، بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ* مِن شَرِّ مَا خَلَقَ* وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ* وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ* وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾،بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ* مَلِكِ النَّاسِ* إِلَهِ النَّاسِ* مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ* الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ* مِنَ الْجِنَّةِ وَ النَّاسِ﴾ بَعْدَ كُلِّ صَلاَةٍ.",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 5,
+      "benefit": null,
+      "grading": null,
+      "isOptional": false
+    },
+    {
       "id": "daily-006",
       "category": "morning",
       "hisnCategory": null,
@@ -105,6 +213,24 @@
       },
       "orderIndex": 6,
       "benefit": "من قالها موقنا بها حين يمسى ومات من ليلته دخل الجنة وكذلك حين يصبح.",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "hisn-27-6",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "﴿اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ...",
+      "text": "﴿اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَّهُ مَا فِي السَّمَوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلاَّ بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَوَاتِ وَالأَرْضَ وَلاَ يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾ عَقِبَ كلِّ صَلاَةٍ.",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 6,
+      "benefit": null,
       "grading": null,
       "isOptional": false
     },
@@ -127,6 +253,24 @@
       "isOptional": false
     },
     {
+      "id": "hisn-27-7",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
+      "text": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ)) عَشْرَ مَرّاتٍ بَعْدَ صَلاةِ الْمَغْرِبِ وَالصُّبْحِ.",
+      "reference": null,
+      "repeat": {
+        "min": 10,
+        "max": 10,
+        "note": null
+      },
+      "orderIndex": 7,
+      "benefit": null,
+      "grading": null,
+      "isOptional": false
+    },
+    {
       "id": "daily-008",
       "category": "morning",
       "hisnCategory": null,
@@ -141,6 +285,24 @@
       },
       "orderIndex": 8,
       "benefit": "من قالها أعتقه الله من النار.",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "hisn-27-8",
+      "category": "general",
+      "hisnCategory": "prayer",
+      "source": "hisn",
+      "title": "((اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نافِعاً،...",
+      "text": "((اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً)) بَعْدَ السّلامِ مِنْ صَلاَةِ الفَجْرِ.",
+      "reference": null,
+      "repeat": {
+        "min": 1,
+        "max": 1,
+        "note": null
+      },
+      "orderIndex": 8,
+      "benefit": null,
       "grading": null,
       "isOptional": false
     },
@@ -266,24 +428,6 @@
         "note": null
       },
       "orderIndex": 15,
-      "benefit": "",
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "daily-016",
-      "category": "morning",
-      "hisnCategory": null,
-      "source": "daily",
-      "title": "اللّهُـمَّ إِنّـي أَعـوذُ بِكَ...",
-      "text": "اللّهُـمَّ إِنّـي أَعـوذُ بِكَ مِنَ الْكُـفر ، وَالفَـقْر ، وَأَعـوذُ بِكَ مِنْ عَذابِ القَـبْر ، لا إلهَ إلاّ أَنْـتَ.",
-      "reference": "",
-      "repeat": {
-        "min": 3,
-        "max": 3,
-        "note": null
-      },
-      "orderIndex": 16,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -842,24 +986,6 @@
         "note": null
       },
       "orderIndex": 47,
-      "benefit": "",
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "daily-048",
-      "category": "evening",
-      "hisnCategory": null,
-      "source": "daily",
-      "title": "اللّهُـمَّ إِنّـي أَعـوذُ بِكَ...",
-      "text": "اللّهُـمَّ إِنّـي أَعـوذُ بِكَ مِنَ الْكُـفر ، وَالفَـقْر ، وَأَعـوذُ بِكَ مِنْ عَذابِ القَـبْر ، لا إلهَ إلاّ أَنْـتَ.",
-      "reference": "",
-      "repeat": {
-        "min": 3,
-        "max": 3,
-        "note": null
-      },
-      "orderIndex": 48,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2377,19 +2503,55 @@
       "isOptional": false
     },
     {
-      "id": "daily-136",
+      "id": "daily-136-ikhlas",
       "category": "sleep",
       "hisnCategory": null,
       "source": "daily",
-      "title": "((يَجْمَعُ كَفَّيْهِ ثُمَّ يَنْفُثُ...",
-      "text": "((يَجْمَعُ كَفَّيْهِ ثُمَّ يَنْفُثُ فِيهِمَا فَيَقْرَأُ فِيهِمَا:بسم الله الرحمن الرحيم ﴿قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ* لَمْ يَلِدْ وَلَمْ يُولَدْ* وَلَمْ يَكُن لَّهُ كُفُواً أَحَدٌ﴾.  بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ* مِن شَرِّ مَا خَلَقَ* وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ* وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ* وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾.  بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ* مَلِكِ النَّاسِ* إِلَهِ النَّاسِ* مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ* الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ* مِنَ الْجِنَّةِ وَ النَّاسِ﴾ ثُمَّ يَمْسَحُ بِهِمَا مَا اسْتَطَاعَ مِنْ جَسَدِهِ يَبْدَأُ بِهِمَا عَلَى رَأْسِهِ وَوَجْهِهِ وَمَا أَقبَلَ مِنْ جَسَدِهِ)) (يفعلُ ذلك ثلاثَ مرَّاتٍ).",
-      "reference": "",
+      "title": "سورة الإخلاص",
+      "text": "بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم\nقُلْ هُوَ ٱللَّهُ أَحَدٌ، ٱللَّهُ ٱلصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ.",
+      "reference": "سورة الإخلاص",
       "repeat": {
-        "min": 1,
-        "max": 1,
+        "min": 3,
+        "max": 3,
         "note": null
       },
       "orderIndex": 136,
+      "benefit": "",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "daily-136-falaq",
+      "category": "sleep",
+      "hisnCategory": null,
+      "source": "daily",
+      "title": "سورة الفلق",
+      "text": "بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم\nقُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ، وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ، وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ.",
+      "reference": "سورة الفلق",
+      "repeat": {
+        "min": 3,
+        "max": 3,
+        "note": null
+      },
+      "orderIndex": 137,
+      "benefit": "",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "daily-136-nas",
+      "category": "sleep",
+      "hisnCategory": null,
+      "source": "daily",
+      "title": "سورة الناس",
+      "text": "بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم\nقُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ، مَلِكِ ٱلنَّاسِ، إِلَٰهِ ٱلنَّاسِ، مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ، ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ، مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ.",
+      "reference": "سورة الناس",
+      "repeat": {
+        "min": 3,
+        "max": 3,
+        "note": null
+      },
+      "orderIndex": 138,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2407,7 +2569,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 137,
+      "orderIndex": 139,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2425,7 +2587,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 138,
+      "orderIndex": 140,
       "benefit": "من قرأ آيتين من آخر سورة البقرة في ليلة كفتاه.",
       "grading": null,
       "isOptional": false
@@ -2443,7 +2605,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 139,
+      "orderIndex": 141,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2461,7 +2623,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 140,
+      "orderIndex": 142,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2479,7 +2641,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 141,
+      "orderIndex": 143,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2497,25 +2659,61 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 142,
+      "orderIndex": 144,
       "benefit": "",
       "grading": null,
       "isOptional": false
     },
     {
-      "id": "daily-143",
+      "id": "daily-143-subhan",
       "category": "sleep",
       "hisnCategory": null,
       "source": "daily",
-      "title": "((سُبْحَانَ اللَّهِ (ثلاثاً وثلاثين)...",
-      "text": "((سُبْحَانَ اللَّهِ (ثلاثاً وثلاثين) وَالْحَمْدُ لِلَّهِ (ثلاثاً وثلاثين) وَاللَّهُ أَكْبَرُ (أربعاً وثلاثينَ))).",
+      "title": "سُبْحَانَ اللَّهِ",
+      "text": "سُبْحَانَ اللَّهِ",
       "reference": "",
       "repeat": {
-        "min": 1,
-        "max": 1,
+        "min": 33,
+        "max": 33,
         "note": null
       },
-      "orderIndex": 143,
+      "orderIndex": 145,
+      "benefit": "",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "daily-143-hamd",
+      "category": "sleep",
+      "hisnCategory": null,
+      "source": "daily",
+      "title": "الْحَمْدُ لِلَّهِ",
+      "text": "الْحَمْدُ لِلَّهِ",
+      "reference": "",
+      "repeat": {
+        "min": 33,
+        "max": 33,
+        "note": null
+      },
+      "orderIndex": 146,
+      "benefit": "",
+      "grading": null,
+      "isOptional": false
+    },
+    {
+      "id": "daily-143-akbar",
+      "category": "sleep",
+      "hisnCategory": null,
+      "source": "daily",
+      "title": "اللَّهُ أَكْبَرُ",
+      "text": "اللَّهُ أَكْبَرُ",
+      "reference": "",
+      "repeat": {
+        "min": 34,
+        "max": 34,
+        "note": null
+      },
+      "orderIndex": 147,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2533,7 +2731,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 144,
+      "orderIndex": 148,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2551,7 +2749,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 145,
+      "orderIndex": 149,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2569,7 +2767,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 146,
+      "orderIndex": 150,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2587,7 +2785,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 147,
+      "orderIndex": 151,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2605,7 +2803,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 148,
+      "orderIndex": 152,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2623,7 +2821,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 149,
+      "orderIndex": 153,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2641,7 +2839,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 150,
+      "orderIndex": 154,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2659,7 +2857,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 151,
+      "orderIndex": 155,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2677,7 +2875,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 152,
+      "orderIndex": 156,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2695,7 +2893,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 153,
+      "orderIndex": 157,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2713,7 +2911,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 154,
+      "orderIndex": 158,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2731,7 +2929,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 155,
+      "orderIndex": 159,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2749,7 +2947,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 156,
+      "orderIndex": 160,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2767,7 +2965,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 157,
+      "orderIndex": 161,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2785,7 +2983,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 158,
+      "orderIndex": 162,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2803,7 +3001,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 159,
+      "orderIndex": 163,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2821,7 +3019,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 160,
+      "orderIndex": 164,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2839,7 +3037,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 161,
+      "orderIndex": 165,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2857,7 +3055,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 162,
+      "orderIndex": 166,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2875,7 +3073,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 163,
+      "orderIndex": 167,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2893,7 +3091,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 164,
+      "orderIndex": 168,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2911,7 +3109,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 165,
+      "orderIndex": 169,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2929,7 +3127,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 166,
+      "orderIndex": 170,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2947,7 +3145,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 167,
+      "orderIndex": 171,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2965,7 +3163,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 168,
+      "orderIndex": 172,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -2983,7 +3181,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 169,
+      "orderIndex": 173,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3001,7 +3199,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 170,
+      "orderIndex": 174,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3019,7 +3217,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 171,
+      "orderIndex": 175,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3037,7 +3235,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 172,
+      "orderIndex": 176,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3055,7 +3253,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 173,
+      "orderIndex": 177,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3073,7 +3271,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 175,
+      "orderIndex": 179,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3091,7 +3289,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 176,
+      "orderIndex": 180,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3109,7 +3307,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 177,
+      "orderIndex": 181,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3127,7 +3325,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 178,
+      "orderIndex": 182,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3145,7 +3343,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 179,
+      "orderIndex": 183,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3163,7 +3361,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 180,
+      "orderIndex": 184,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3181,7 +3379,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 181,
+      "orderIndex": 185,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3199,7 +3397,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 182,
+      "orderIndex": 186,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3217,7 +3415,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 183,
+      "orderIndex": 187,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3235,7 +3433,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 184,
+      "orderIndex": 188,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3253,7 +3451,7 @@
         "max": 7,
         "note": null
       },
-      "orderIndex": 185,
+      "orderIndex": 189,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3271,7 +3469,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 186,
+      "orderIndex": 190,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3289,7 +3487,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 187,
+      "orderIndex": 191,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3307,7 +3505,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 188,
+      "orderIndex": 192,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3325,7 +3523,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 189,
+      "orderIndex": 193,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3343,7 +3541,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 190,
+      "orderIndex": 194,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3361,7 +3559,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 191,
+      "orderIndex": 195,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3379,7 +3577,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 192,
+      "orderIndex": 196,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3397,7 +3595,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 193,
+      "orderIndex": 197,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3415,7 +3613,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 194,
+      "orderIndex": 198,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3433,7 +3631,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 195,
+      "orderIndex": 199,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3451,7 +3649,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 196,
+      "orderIndex": 200,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3469,7 +3667,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 197,
+      "orderIndex": 201,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3487,7 +3685,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 198,
+      "orderIndex": 202,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3505,7 +3703,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 199,
+      "orderIndex": 203,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3523,7 +3721,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 200,
+      "orderIndex": 204,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3541,7 +3739,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 201,
+      "orderIndex": 205,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3559,7 +3757,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 202,
+      "orderIndex": 206,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3577,7 +3775,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 203,
+      "orderIndex": 207,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3595,7 +3793,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 204,
+      "orderIndex": 208,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3613,7 +3811,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 205,
+      "orderIndex": 209,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3631,7 +3829,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 206,
+      "orderIndex": 210,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3649,7 +3847,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 207,
+      "orderIndex": 211,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3667,7 +3865,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 208,
+      "orderIndex": 212,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3685,7 +3883,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 209,
+      "orderIndex": 213,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3703,7 +3901,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 210,
+      "orderIndex": 214,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3721,7 +3919,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 211,
+      "orderIndex": 215,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3739,7 +3937,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 212,
+      "orderIndex": 216,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3757,7 +3955,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 213,
+      "orderIndex": 217,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3775,7 +3973,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 214,
+      "orderIndex": 218,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3793,7 +3991,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 215,
+      "orderIndex": 219,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3811,7 +4009,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 216,
+      "orderIndex": 220,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3829,7 +4027,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 217,
+      "orderIndex": 221,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3847,7 +4045,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 218,
+      "orderIndex": 222,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3865,7 +4063,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 219,
+      "orderIndex": 223,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3883,7 +4081,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 220,
+      "orderIndex": 224,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3901,7 +4099,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 221,
+      "orderIndex": 225,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3919,7 +4117,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 222,
+      "orderIndex": 226,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3937,7 +4135,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 223,
+      "orderIndex": 227,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3955,7 +4153,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 224,
+      "orderIndex": 228,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3973,7 +4171,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 225,
+      "orderIndex": 229,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -3991,7 +4189,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 226,
+      "orderIndex": 230,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4009,7 +4207,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 227,
+      "orderIndex": 231,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4027,7 +4225,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 228,
+      "orderIndex": 232,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4045,7 +4243,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 229,
+      "orderIndex": 233,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4063,7 +4261,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 230,
+      "orderIndex": 234,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4081,7 +4279,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 231,
+      "orderIndex": 235,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4099,7 +4297,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 232,
+      "orderIndex": 236,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4117,7 +4315,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 233,
+      "orderIndex": 237,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4135,7 +4333,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 234,
+      "orderIndex": 238,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4153,7 +4351,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 235,
+      "orderIndex": 239,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4171,7 +4369,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 236,
+      "orderIndex": 240,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4189,7 +4387,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 237,
+      "orderIndex": 241,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4207,7 +4405,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 238,
+      "orderIndex": 242,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4225,7 +4423,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 239,
+      "orderIndex": 243,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4243,7 +4441,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 240,
+      "orderIndex": 244,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4261,7 +4459,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 241,
+      "orderIndex": 245,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4279,7 +4477,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 242,
+      "orderIndex": 246,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4297,7 +4495,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 243,
+      "orderIndex": 247,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4315,7 +4513,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 244,
+      "orderIndex": 248,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4333,7 +4531,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 245,
+      "orderIndex": 249,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4351,7 +4549,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 246,
+      "orderIndex": 250,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4369,7 +4567,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 247,
+      "orderIndex": 251,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4387,7 +4585,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 248,
+      "orderIndex": 252,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4405,7 +4603,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 249,
+      "orderIndex": 253,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4423,7 +4621,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 250,
+      "orderIndex": 254,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4441,7 +4639,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 251,
+      "orderIndex": 255,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4459,7 +4657,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 252,
+      "orderIndex": 256,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4477,7 +4675,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 253,
+      "orderIndex": 257,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4495,7 +4693,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 254,
+      "orderIndex": 258,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4513,7 +4711,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 255,
+      "orderIndex": 259,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4531,7 +4729,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 256,
+      "orderIndex": 260,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4549,7 +4747,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 257,
+      "orderIndex": 261,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4567,7 +4765,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 258,
+      "orderIndex": 262,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4585,7 +4783,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 259,
+      "orderIndex": 263,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4603,7 +4801,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 260,
+      "orderIndex": 264,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4621,7 +4819,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 261,
+      "orderIndex": 265,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4639,7 +4837,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 262,
+      "orderIndex": 266,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4657,7 +4855,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 263,
+      "orderIndex": 267,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4675,7 +4873,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 264,
+      "orderIndex": 268,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4693,7 +4891,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 265,
+      "orderIndex": 269,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4711,7 +4909,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 266,
+      "orderIndex": 270,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4729,7 +4927,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 267,
+      "orderIndex": 271,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4747,7 +4945,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 268,
+      "orderIndex": 272,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4765,7 +4963,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 269,
+      "orderIndex": 273,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4783,7 +4981,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 270,
+      "orderIndex": 274,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4801,7 +4999,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 271,
+      "orderIndex": 275,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4819,7 +5017,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 272,
+      "orderIndex": 276,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4837,7 +5035,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 273,
+      "orderIndex": 277,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4855,7 +5053,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 274,
+      "orderIndex": 278,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4873,7 +5071,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 275,
+      "orderIndex": 279,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4891,7 +5089,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 276,
+      "orderIndex": 280,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4909,7 +5107,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 277,
+      "orderIndex": 281,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4927,7 +5125,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 278,
+      "orderIndex": 282,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4945,7 +5143,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 279,
+      "orderIndex": 283,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4963,7 +5161,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 280,
+      "orderIndex": 284,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4981,7 +5179,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 281,
+      "orderIndex": 285,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -4999,7 +5197,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 282,
+      "orderIndex": 286,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5017,7 +5215,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 283,
+      "orderIndex": 287,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5035,7 +5233,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 284,
+      "orderIndex": 288,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5053,7 +5251,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 285,
+      "orderIndex": 289,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5071,7 +5269,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 286,
+      "orderIndex": 290,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5089,7 +5287,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 287,
+      "orderIndex": 291,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5107,7 +5305,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 288,
+      "orderIndex": 292,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5125,7 +5323,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 289,
+      "orderIndex": 293,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5143,7 +5341,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 290,
+      "orderIndex": 294,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5161,7 +5359,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 291,
+      "orderIndex": 295,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5179,7 +5377,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 292,
+      "orderIndex": 296,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5197,7 +5395,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 293,
+      "orderIndex": 297,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5215,7 +5413,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 294,
+      "orderIndex": 298,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5233,7 +5431,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 295,
+      "orderIndex": 299,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5251,7 +5449,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 296,
+      "orderIndex": 300,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5269,7 +5467,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 297,
+      "orderIndex": 301,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5287,7 +5485,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 298,
+      "orderIndex": 302,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5305,7 +5503,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 299,
+      "orderIndex": 303,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5323,7 +5521,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 300,
+      "orderIndex": 304,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5341,7 +5539,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 301,
+      "orderIndex": 305,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5359,7 +5557,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 302,
+      "orderIndex": 306,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5377,7 +5575,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 303,
+      "orderIndex": 307,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5395,7 +5593,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 304,
+      "orderIndex": 308,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5413,7 +5611,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 305,
+      "orderIndex": 309,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5431,7 +5629,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 306,
+      "orderIndex": 310,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5449,7 +5647,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 307,
+      "orderIndex": 311,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5467,7 +5665,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 308,
+      "orderIndex": 312,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5485,7 +5683,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 309,
+      "orderIndex": 313,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5503,7 +5701,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 310,
+      "orderIndex": 314,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5521,7 +5719,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 311,
+      "orderIndex": 315,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5539,7 +5737,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 312,
+      "orderIndex": 316,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5557,7 +5755,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 313,
+      "orderIndex": 317,
       "benefit": "فإذا قالَ ذلكَ قال الشيطانُ : حُفِظَ منِّي سائرَ اليومِ",
       "grading": null,
       "isOptional": false
@@ -5575,7 +5773,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 314,
+      "orderIndex": 318,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5593,7 +5791,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 315,
+      "orderIndex": 319,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5611,7 +5809,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 316,
+      "orderIndex": 320,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5629,7 +5827,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 317,
+      "orderIndex": 321,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5647,7 +5845,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 318,
+      "orderIndex": 322,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5665,7 +5863,7 @@
         "max": 7,
         "note": null
       },
-      "orderIndex": 319,
+      "orderIndex": 323,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5683,7 +5881,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 320,
+      "orderIndex": 324,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5701,7 +5899,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 321,
+      "orderIndex": 325,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5719,7 +5917,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 322,
+      "orderIndex": 326,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5737,7 +5935,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 323,
+      "orderIndex": 327,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5755,7 +5953,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 324,
+      "orderIndex": 328,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5773,7 +5971,7 @@
         "max": 3,
         "note": null
       },
-      "orderIndex": 325,
+      "orderIndex": 329,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5791,7 +5989,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 326,
+      "orderIndex": 330,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5809,7 +6007,7 @@
         "max": 3,
         "note": null
       },
-      "orderIndex": 327,
+      "orderIndex": 331,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5827,7 +6025,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 328,
+      "orderIndex": 332,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5845,7 +6043,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 329,
+      "orderIndex": 333,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5863,7 +6061,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 330,
+      "orderIndex": 334,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5881,7 +6079,7 @@
         "max": 7,
         "note": null
       },
-      "orderIndex": 331,
+      "orderIndex": 335,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5899,7 +6097,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 332,
+      "orderIndex": 336,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5917,7 +6115,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 333,
+      "orderIndex": 337,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5935,7 +6133,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 334,
+      "orderIndex": 338,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5953,7 +6151,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 335,
+      "orderIndex": 339,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5971,7 +6169,7 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 336,
+      "orderIndex": 340,
       "benefit": "",
       "grading": null,
       "isOptional": false
@@ -5989,242 +6187,8 @@
         "max": 1,
         "note": null
       },
-      "orderIndex": 337,
+      "orderIndex": 341,
       "benefit": "",
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-3-1",
-      "category": "waking_up",
-      "hisnCategory": "waking",
-      "source": "hisn",
-      "title": "( الْحَمْدُ للَّهِ الَّذِي أَحْيَانَا...",
-      "text": "( الْحَمْدُ للَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ )",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 1,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-3-2",
-      "category": "waking_up",
-      "hisnCategory": "waking",
-      "source": "hisn",
-      "title": "( لاَ إِلَهَ إِلاَّ اللَّهُ...",
-      "text": "( لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَريكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ للَّهِ، وَلاَ إِلَهَ إِلاَّ اللَّهُ، وَاللَّهُ أَكبَرُ، وَلاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفرْ لِي ).",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 2,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-3-3",
-      "category": "waking_up",
-      "hisnCategory": "waking",
-      "source": "hisn",
-      "title": "( الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي...",
-      "text": "( الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لي بِذِكْرِهِ )",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 3,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-3-4",
-      "category": "waking_up",
-      "hisnCategory": "waking",
-      "source": "hisn",
-      "title": "﴿ إِنَّ فِي خَلْقِ السَّمَوَاتِ...",
-      "text": "﴿ إِنَّ فِي خَلْقِ السَّمَوَاتِ وَالأَرْضِ وَاخْتِلاَفِ اللَّيْلِ وَالنَّهَارِ لَآيَاتٍ لأُوْلِي الألْبَابِ * الَّذِينَ يَذْكُرُونَ اللَّهَ قِيَاماً وَقُعُوداً وَعَلَىَ جُنُوبِهِمْ وَيَتَفَكَّرُونَ فِي خَلْقِ السَّمَوَاتِ وَالأَرْضِ رَبَّنَا مَا خَلَقْتَ هَذا بَاطِلاً سُبْحَانَكَ فَقِنَا عَذَابَ النَّارِ* رَبَّنَا إِنَّكَ مَن تُدْخِلِ النَّارَ فَقَدْ أَخْزَيْتَهُ وَمَا لِلظَّالِمِينَ مِنْ أَنصَارٍ* رَّبَّنَا إِنَّنَا سَمِعْنَا مُنَادِياً يُنَادِي لِلإِيمَانِ أَنْ آمِنُواْ بِرَبِّكُمْ فَآمَنَّا رَبَّنَا فَاغْفِرْ لَنَا ذُنُوبَنَا وَكَفِّرْ عَنَّا سَيِّئَاتِنَا وَتَوَفَّنَا مَعَ الأبْرَارِ* رَبَّنَا وَآتِنَا مَا وَعَدتَّنَا عَلَى رُسُلِكَ وَلاَ تُخْزِنَا يَوْمَ الْقِيَامَةِ إِنَّكَ لاَ تُخْلِفُ الْمِيعَادَ* فَاسْتَجَابَ لَهُمْ رَبُّهُمْ أَنِّي لاَ أُضِيعُ عَمَلَ عَامِلٍ مِّنكُم مِّن ذَكَرٍ أَوْ أُنثَى بَعْضُكُم مِّن بَعْضٍ فَالَّذِينَ هَاجَرُواْ وَأُخْرِجُواْ مِن دِيَارِهِمْ وَأُوذُواْ فِي سَبِيلِي وَقَاتَلُواْ وَقُتِلُواْ لأُكَفِّرَنَّ عَنْهُمْ سَيِّئَاتِهِمْ وَلأُدْخِلَنَّهُمْ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الأَنْهَارُ ثَوَاباً مِّن عِندِ اللَّهِ وَاللَّهُ عِندَهُ حُسْنُ الثَّوَابِ * لاَ يَغُرَّنَّكَ تَقَلُّبُ الَّذِينَ كَفَرُواْ فِي الْبِلاَدِ * مَتَاعٌ قَلِيلٌ ثُمَّ مَأْوَاهُمْ جَهَنَّمُ وَبِئْسَ الْمِهَادُ * لَكِنِ الَّذِينَ اتَّقَوْاْ رَبَّهُمْ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الأَنْهَارُ خَالِدِينَ فِيهَا نُزُلاً مِّنْ عِندِ اللَّهِ وَمَا عِندَ اللَّهِ خَيْرٌ لِّلأَبْرَارِ * وَإِنَّ مِنْ أَهْلِ الْكِتَابِ لَمَن يُؤْمِنُ بِاللَّهِ وَمَا أُنزِلَ إِلَيْكُمْ وَمَآ أُنزِلَ إِلَيْهِمْ خَاشِعِينَ لِلَّهِ لاَ يَشْتَرُونَ بِآيَاتِ اللَّهِ ثَمَناً قَلِيلاً أُوْلَئِكَ لَهُمْ أَجْرُهُمْ عِندَ رَبِّهِمْ إِنَّ اللَّهَ سَرِيعُ الْحِسَابِ*يَا أَيُّهَا الَّذِينَ آمَنُواْ اصْبِرُواْ وَصَابِرُواْ وَرَابِطُواْ وَاتَّقُواْ اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ ﴾",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 4,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-1",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((أَسْتَغْفِرُ اللَّهَ (ثَلاَثَاً) اللَّهُمَّ أَنْتَ...",
-      "text": "((أَسْتَغْفِرُ اللَّهَ (ثَلاَثَاً) اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلاَمُ، تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَالْإِكْرَامِ)).",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 1,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-2",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
-      "text": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ [ثلاثاً]، اللَّهُمَّ لاَ مَانِعَ لِمَا أَعْطَيْتَ، وَلاَ مُعْطِيَ لِمَا مَنَعْتَ، وَلاَ يَنْفَعُ ذَا الْجَدِّ مِنْكَ الجَدُّ)).",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 2,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-3",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((لَا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
-      "text": "((لَا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ، وَلاَ نَعْبُدُ إِلاَّ إِيَّاهُ, لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَهَ إِلاَّ اللَّهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الكَافِرُونَ)).",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 3,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-4",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ...",
-      "text": "((سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ (ثلاثاً وثلاثين) لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ)).",
-      "reference": null,
-      "repeat": {
-        "min": 33,
-        "max": 33,
-        "note": null
-      },
-      "orderIndex": 4,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-5",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "بسم الله الرحمن الرحيم ﴿قُلْ...",
-      "text": "بسم الله الرحمن الرحيم ﴿قُلْ هُوَ اللَّهُ أَحَدٌ* اللَّهُ الصَّمَدُ* لَمْ يَلِدْ وَلَمْ يُولَدْ* وَلَمْ يَكُن لَّهُ كُفُواً أَحَدٌ﴾، بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ* مِن شَرِّ مَا خَلَقَ* وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ* وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ* وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾،بسم الله الرحمن الرحيم ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ* مَلِكِ النَّاسِ* إِلَهِ النَّاسِ* مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ* الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ* مِنَ الْجِنَّةِ وَ النَّاسِ﴾ بَعْدَ كُلِّ صَلاَةٍ.",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 5,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-6",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "﴿اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ...",
-      "text": "﴿اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَّهُ مَا فِي السَّمَوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلاَّ بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَوَاتِ وَالأَرْضَ وَلاَ يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾ عَقِبَ كلِّ صَلاَةٍ.",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 6,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-7",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ...",
-      "text": "((لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ)) عَشْرَ مَرّاتٍ بَعْدَ صَلاةِ الْمَغْرِبِ وَالصُّبْحِ.",
-      "reference": null,
-      "repeat": {
-        "min": 10,
-        "max": 10,
-        "note": null
-      },
-      "orderIndex": 7,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-27-8",
-      "category": "general",
-      "hisnCategory": "prayer",
-      "source": "hisn",
-      "title": "((اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نافِعاً،...",
-      "text": "((اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً)) بَعْدَ السّلامِ مِنْ صَلاَةِ الفَجْرِ.",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 8,
-      "benefit": null,
-      "grading": null,
-      "isOptional": false
-    },
-    {
-      "id": "hisn-49-2",
-      "category": "general",
-      "hisnCategory": "illness",
-      "source": "hisn",
-      "title": "((أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ...",
-      "text": "((أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفيَكَ)) (سبع مرات).",
-      "reference": null,
-      "repeat": {
-        "min": 1,
-        "max": 1,
-        "note": null
-      },
-      "orderIndex": 2,
-      "benefit": null,
       "grading": null,
       "isOptional": false
     }

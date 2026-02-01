@@ -16,7 +16,6 @@ final class SessionViewModel {
     var isLoading: Bool = false
     var errorMessage: String?
     var autoAdvance: Bool = false
-    var hapticIntensityStyle: UIImpactFeedbackGenerator.FeedbackStyle = .medium
 
     // MARK: - Navigation State
     var showDhikrSwitcher: Bool = false
@@ -106,8 +105,8 @@ final class SessionViewModel {
 
         if let settings = try? settingsRepository.getSettings() {
             autoAdvance = settings.autoAdvance
-            hapticIntensityStyle = HapticIntensity(rawValue: settings.hapticIntensity)?.feedbackStyle ?? .medium
-            hapticsService.setIntensity(hapticIntensityStyle)
+            let intensityStyle = HapticIntensity(rawValue: settings.hapticIntensity)?.feedbackStyle ?? .medium
+            hapticsService.setIntensity(intensityStyle)
         }
 
         isLoading = false
@@ -115,6 +114,12 @@ final class SessionViewModel {
 
     func increment() {
         guard !isCompleted else { return }
+
+        // If already completed current item, move to next
+        if currentCount >= targetCount {
+            moveToNext()
+            return
+        }
 
         currentCount += 1
 
@@ -232,20 +237,8 @@ final class SessionViewModel {
                 hapticsService.playNotification(.success)
             }
         } else if autoAdvance {
-            // Move to next dhikr automatically if preference is enabled
-            moveToNextDhikr()
-        }
-    }
-
-    private func moveToNextDhikr() {
-        guard let session = session else { return }
-
-        // Find next incomplete dhikr
-        for dhikr in dhikrList {
-            if !session.completedDhikrIds.contains(dhikr.id) {
-                switchDhikr(to: dhikr)
-                return
-            }
+            // Auto-advance disabled by user request
+            // moveToNextDhikr()
         }
     }
 

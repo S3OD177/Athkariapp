@@ -33,6 +33,9 @@ struct AdhkariApp: App {
                 // Delay slightly to allow the heavy deletion logic to clear the main thread
                 // and for the alert to dismiss cleanly before switching views.
                 Task {
+                    // Reset seed version so it re-imports
+                    UserDefaults.standard.removeObject(forKey: "seedDataVersion")
+                    
                     try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
                     await MainActor.run {
                         withAnimation {

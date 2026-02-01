@@ -18,6 +18,8 @@ struct SessionView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .tabBar)
+        .environment(\.locale, Locale(identifier: "en")) // Force Western numerals (123) for counters
     }
 
     private func setupViewModel() {
@@ -39,6 +41,9 @@ struct SessionContent: View {
     
     // Animation State
     @State private var contentId: String = ""
+    
+    // Font Size State
+    @AppStorage("sessionFontSize") private var fontSize: Double = 32.0
     
     // Share function using UIKit activity controller
     private func shareCurrentDhikr() {
@@ -64,9 +69,9 @@ struct SessionContent: View {
                 Spacer()
                 
                 // Main Content Area
-                VStack(spacing: 32) {
+                VStack(spacing: 24) {
                     dhikrCard
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, 16) // Expanded card width
                         .frame(maxWidth: 600) // Max width for iPad
                     
                     counterSection
@@ -131,7 +136,8 @@ struct SessionContent: View {
     private var topBar: some View {
         HStack {
             Button {
-                viewModel.isCompleted ? onDismiss() : (viewModel.showFinishConfirmation = true)
+                viewModel.endSession()
+                onDismiss()
             } label: {
                 Circle()
                     .fill(.ultraThinMaterial)
@@ -194,62 +200,91 @@ struct SessionContent: View {
                         .stroke(.white.opacity(0.1), lineWidth: 1)
                 )
             
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
                 if let dhikr = viewModel.currentDhikr {
-                    Spacer(minLength: 0)
+                    // Header removed as per user request (Basmala is in text if needed)
                     
-                    // Dhikr Text
-                    Text(dhikr.text)
-                        .font(.system(size: 34, weight: .semibold, design: .serif)) // Premium Serif font
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .lineSpacing(12)
-                        .minimumScaleFactor(0.5)
-                        .padding(.horizontal, 8)
-                        .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
-                        // Animation Logic
-                        .id(dhikr.id)
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .scale(scale: 0.9)),
-                            removal: .opacity.combined(with: .scale(scale: 1.1))
-                        ))
-                    
-                    Spacer(minLength: 0)
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 24) {
+                            // Dhikr Text
+                            Text(dhikr.text)
+                                .font(.system(size: fontSize, weight: .semibold, design: .serif))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.white)
+                                .lineSpacing(10)
+                                .minimumScaleFactor(0.8) // Reduced scaling to respect user font choice
+                                .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
+                                .id(dhikr.id)
+                                .transition(.opacity)
+                                .padding(.horizontal, 4)
+                            
+                            // Metadata
+                            VStack(spacing: 12) {
+                                if let benefit = dhikr.benefit, !benefit.isEmpty {
+                                    HStack(alignment: .top, spacing: 12) {
+                                        Image(systemName: "sparkles")
+                                            .foregroundStyle(AppColors.onboardingPrimary)
+                                            .font(.caption)
+                                            .padding(.top, 4)
+                                        
+                                        Text(benefit)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white.opacity(0.9))
+                                            .multilineTextAlignment(.leading)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                }
+                                
+                                if let reference = dhikr.reference, !reference.isEmpty {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "book.closed.fill")
+                                            .font(.caption2)
+                                        Text(reference)
+                                            .font(.caption.bold())
+                                    }
+                                    .foregroundStyle(AppColors.textGray)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
                     
                     Divider().background(.white.opacity(0.2))
                     
-                    // Metadata
-                    VStack(spacing: 12) {
-                        if let benefit = dhikr.benefit, !benefit.isEmpty {
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "sparkles")
-                                    .foregroundStyle(AppColors.onboardingPrimary)
-                                    .font(.caption)
-                                    .padding(.top, 4)
-                                
-                                Text(benefit)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.9))
-                                    .multilineTextAlignment(.leading)
-                                    .fixedSize(horizontal: false, vertical: true)
+                    // Font Controls
+                    HStack(spacing: 32) {
+                        Button {
+                            withAnimation {
+                                if fontSize > 20 { fontSize -= 2 }
                             }
+                        } label: {
+                            Image(systemName: "textformat.size.smaller")
+                                .font(.title3)
+                                .foregroundStyle(AppColors.textGray)
                         }
+
+                        // Font size indicator
+                        Text("\(Int(fontSize))")
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundStyle(AppColors.onboardingPrimary)
+                            .frame(width: 40)
+                            .environment(\.locale, Locale(identifier: "en")) // Force 123
                         
-                        if let reference = dhikr.reference, !reference.isEmpty {
-                            HStack(spacing: 6) {
-                                Image(systemName: "book.closed.fill")
-                                    .font(.caption2)
-                                Text(reference)
-                                    .font(.caption.bold())
+                        Button {
+                            withAnimation {
+                                if fontSize < 60 { fontSize += 2 }
                             }
-                            .foregroundStyle(AppColors.textGray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        } label: {
+                            Image(systemName: "textformat.size.larger")
+                                .font(.title3)
+                                .foregroundStyle(AppColors.textGray)
                         }
                     }
-                    .padding(.top, 8)
+                    .padding(.bottom, 8)
                 }
             }
-            .padding(32)
+            .padding(24) // Reduced padding from 32 to give more space
         }
         .frame(minHeight: 350) // Ensure substantial height
         .layoutPriority(1)
@@ -277,7 +312,7 @@ struct SessionContent: View {
             CounterCircle(
                 currentCount: viewModel.currentCount,
                 targetCount: viewModel.targetCount,
-                size: 180, // Slightly improved size
+                size: 140, // Reduced size
                 accentColor: AppColors.onboardingPrimary
             ) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
@@ -345,18 +380,6 @@ struct SessionContent: View {
                 }
                 .zIndex(2)
             }
-            
-            if viewModel.showFinishConfirmation {
-                ExitConfirmationView(
-                    onResume: { viewModel.showFinishConfirmation = false },
-                    onExit: {
-                        viewModel.showFinishConfirmation = false
-                        viewModel.endSession()
-                        onDismiss()
-                    }
-                )
-                .zIndex(1)
-            }
         }
     }
 }
@@ -403,72 +426,7 @@ struct CompletionCelebration: View {
     }
 }
 
-struct ExitConfirmationView: View {
-    let onResume: () -> Void
-    let onExit: () -> Void
-    
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.6)
-                .ignoresSafeArea()
-                .onTapGesture { onResume() }
-            
-            VStack(spacing: 24) {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(AppColors.onboardingPrimary)
-                        .padding(.top, 8)
-                    
-                    Text("هل تريد إنهاء الجلسة؟")
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
-                    
-                    Text("لم تكمل جميع الأذكار بعد.\nسيتم حفظ تقدمك الحالي.")
-                        .font(.subheadline)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .lineSpacing(4)
-                }
-                .padding(.horizontal)
-                
-                HStack(spacing: 16) {
-                    Button(action: onExit) {
-                        Text("نعم، خروج")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-                    
-                    Button(action: onResume) {
-                        Text("متابعة")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(AppColors.onboardingPrimary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-                }
-            }
-            .padding(32)
-            .background(
-                RoundedRectangle(cornerRadius: 32)
-                    .fill(AppColors.sessionSurface.opacity(0.95))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 32)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
-            )
-            .padding(24)
-        }
-        .transition(.opacity)
-    }
-}
+
 
 struct AmbientBackground: View {
     @State private var animate = false
@@ -505,11 +463,6 @@ struct AmbientBackground: View {
 }
 
 
- 
-// Dummy struct to fix compilation if Constants not defined
-enum Constants {
-    static let showLockScreenHint = true
-}
 
 // MARK: - Dhikr Switcher Sheet
 struct DhikrSwitcherSheet: View {

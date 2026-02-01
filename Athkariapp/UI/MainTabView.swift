@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreLocation
 import Charts
 
 enum AppTab: String, CaseIterable {
@@ -63,8 +62,11 @@ struct MainTabView: View {
             .animation(.easeInOut(duration: 0.2), value: selectedTab)
             
             // Custom Floating Tab Bar
-            customTabBar
-                .padding(.bottom, 10)
+            if navigationPath.isEmpty {
+                customTabBar
+                    .padding(.bottom, 10)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .ignoresSafeArea(edges: .bottom)
     }
@@ -229,7 +231,8 @@ struct ToolsView: View {
                             subtitle: "حساب النصاب",
                             icon: "banknote.fill", // Or generic finance icon
                             iconBg: AppColors.onboardingPrimary.opacity(0.1),
-                            iconColor: AppColors.onboardingPrimary
+                            iconColor: AppColors.onboardingPrimary,
+                            isComingSoon: true
                         ) {
                             showingZakat = true
                         }

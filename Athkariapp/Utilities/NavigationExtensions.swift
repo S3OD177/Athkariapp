@@ -1,4 +1,3 @@
-import SwiftUI
 import UIKit
 
 // MARK: - Global Swipe Back Gesture Fix

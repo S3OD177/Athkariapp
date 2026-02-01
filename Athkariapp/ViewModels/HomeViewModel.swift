@@ -38,7 +38,6 @@ final class HomeViewModel {
     
     // Post-Prayer Status
     var currentAdhan: Prayer?
-    var postPrayerCountdown: String?
     
     // Timer Task
     // No explicit property needed as we rely on weak self for cancellation naturally
@@ -466,14 +465,8 @@ final class HomeViewModel {
         let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
         
         if let adhan = currentAdhan {
-            // Check if post-prayer is ready
-            // We use durationMinutes logic now
-            let isReady = times.isPostPrayerReady(for: adhan, at: now, durationMinutes: offset)
-            
-            // Countdown logic is removed as it's active immediately
-            postPrayerCountdown = nil
-        } else {
-            postPrayerCountdown = nil
+            // Check if post-prayer is ready (used for UI display logic)
+            _ = times.isPostPrayerReady(for: adhan, at: now, durationMinutes: offset)
         }
     }
     
@@ -535,21 +528,6 @@ final class HomeViewModel {
         
         guard let target = nextEventDate else { return nil }
         return UpcomingEvent(name: eventName, date: target)
-    }
-    
-    // Kept for backward compatibility if needed, but updated to use new struct
-    var timeToNextDhikr: String? {
-        guard let event = nextUpcomingEvent else { return nil }
-        
-        let diff = event.date.timeIntervalSince(currentTime)
-        let hours = Int(diff) / 3600
-        let minutes = (Int(diff) % 3600) / 60
-        
-        if hours > 0 {
-            return "متبقي على \(event.name): \(hours)س \(minutes)د"
-        } else {
-            return "متبقي على \(event.name): \(minutes)د"
-        }
     }
     
     var nextEventRemainingTime: String? {

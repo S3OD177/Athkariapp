@@ -249,7 +249,12 @@ struct TasbihView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
+                .padding(.bottom, 32)
             }
+        }
+        .contentShape(Rectangle()) // Make the entire area tappable
+        .onTapGesture {
+            viewModel.increment()
         }
         .sheet(isPresented: $showSettings) {
              TasbihSettingsSheet(viewModel: viewModel)

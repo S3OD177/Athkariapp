@@ -41,13 +41,20 @@ final class SeedImportService: SeedImportServiceProtocol {
         self.modelContext = modelContext
     }
 
-    private let seedDataVersion = "5.0" // Fixed category mismatches
+    private let seedDataVersion = "5.3" // Removed Sleep instruction
 
     func importSeedDataIfNeeded() async throws {
         // Skip if already imported for this version (INSTANT on subsequent launches)
         let lastVersion = UserDefaults.standard.string(forKey: "seedDataVersion")
         if lastVersion == seedDataVersion {
-            return
+            // Check if DB is actually empty (e.g. after a crash reset)
+            let descriptor = FetchDescriptor<DhikrItem>()
+            let count = (try? modelContext.fetchCount(descriptor)) ?? 0
+            
+            if count > 0 {
+                return
+            }
+            print("SeedImportService: Version matches but DB is empty. Re-importing...")
         }
 
         // Delete old seed data when migrating to new version

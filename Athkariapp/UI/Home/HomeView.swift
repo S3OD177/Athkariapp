@@ -207,11 +207,7 @@ struct HomeContent: View {
                         }
                         
                         HStack {
-                            if let countdown = viewModel.postPrayerCountdown {
-                                Text("متاح بعد \(countdown)")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(Color.black.opacity(0.5))
-                            } else if let remaining = viewModel.currentEventRemainingTime {
+                            if let remaining = viewModel.currentEventRemainingTime {
                                 // Active Session Mode
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("ينتهي الذكر الحالي خلال \(remaining)")

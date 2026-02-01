@@ -33,7 +33,7 @@ final class AppContainer {
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .automatic
+            cloudKitDatabase: .none
         )
 
         do {
@@ -46,7 +46,13 @@ final class AppContainer {
             #if DEBUG
             print("ModelContainer failed: \(error). Resetting store...")
             let url = modelConfiguration.url
+            let walUrl = url.deletingPathExtension().appendingPathExtension("store-wal")
+            let shmUrl = url.deletingPathExtension().appendingPathExtension("store-shm")
+            
             try? FileManager.default.removeItem(at: url)
+            try? FileManager.default.removeItem(at: walUrl)
+            try? FileManager.default.removeItem(at: shmUrl)
+            
             do {
                 modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
@@ -85,10 +91,6 @@ final class AppContainer {
 
     func makeOnboardingRepository() -> OnboardingRepository {
         OnboardingRepository(modelContext: modelContainer.mainContext)
-    }
-
-    func makeUserRoutineLinkRepository() -> UserRoutineLinkRepository {
-        UserRoutineLinkRepository(modelContext: modelContainer.mainContext)
     }
 
     func makeSeedImportService() -> SeedImportService {
