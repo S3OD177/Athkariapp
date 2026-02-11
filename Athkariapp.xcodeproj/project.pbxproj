@@ -15,7 +15,7 @@
 		C31219292F2AC57500BEF731 /* FastingTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31219282F2AC57500BEF731 /* FastingTrackerView.swift */; };
 		C312192B2F2AC6CF00BEF731 /* FastingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C312192A2F2AC6CF00BEF731 /* FastingViewModel.swift */; };
 		C312192D2F2AC81900BEF731 /* FastingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C312192C2F2AC81900BEF731 /* FastingService.swift */; };
-		C38BA83C2F3D2A5900BE6843 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 89C49E78703F4ED1A0968EAB /* Sentry */; };
+		C38BA83C2F3D2A5900BE6843 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 89C49E78703F4ED1A0968EAB /* Sentry-Dynamic */; };
 		C38D27072F26FEA1005D2A1A /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27062F26FEA1005D2A1A /* NotificationService.swift */; };
 		C38D270F2F27001B005D2A1A /* PrayerTimesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D27092F27001B005D2A1A /* PrayerTimesView.swift */; };
 		C38D27102F27001B005D2A1A /* ZakatCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38D270D2F27001B005D2A1A /* ZakatCalculatorView.swift */; };
@@ -420,7 +420,7 @@
 			);
 			name = Athkariapp;
 			packageProductDependencies = (
-				89C49E78703F4ED1A0968EAB /* Sentry */,
+				89C49E78703F4ED1A0968EAB /* Sentry-Dynamic */,
 			);
 			productName = Athkariapp;
 			productReference = PROD001 /* Athkariapp.app */;
@@ -519,7 +519,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-				shellScript = "# This script uploads dSYMs to Sentry when sentry-cli is available.\nif command -v sentry-cli >/dev/null 2>&1; then\n  export SENTRY_ORG=saudlab\n  export SENTRY_PROJECT=athkariapp\n  ERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\n  if [ ! $? -eq 0 ]; then\n    echo \"warning: sentry-cli - $ERROR\"\n  fi\nelse\n  if [ \"$CONFIGURATION\" = \"Release\" ]; then\n    echo \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\n  else\n    echo \"Sentry dSYM upload skipped in $CONFIGURATION (sentry-cli missing)\"\n  fi\nfi\n\ntouch \"${DERIVED_FILE_DIR}/sentry-upload-dsym.stamp\"\n";
+					shellScript = "\"$SRCROOT/scripts/sentry_dsym_archive_fix.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -887,10 +887,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		89C49E78703F4ED1A0968EAB /* Sentry */ = {
+		89C49E78703F4ED1A0968EAB /* Sentry-Dynamic */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5889D6E9B97A48D89520556F /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
-			productName = Sentry;
+			productName = "Sentry-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
