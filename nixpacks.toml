@@ -1,0 +1,13 @@
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs", "npm"]
+
+[phases.install]
+cmds = ["cd website-next && npm ci"]
+
+[phases.build]
+cmds = ["cd website-next && npm run build"]
+
+[start]
+cmd = "cd website-next && npm run start"
