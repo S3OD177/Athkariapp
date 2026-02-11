@@ -14,12 +14,7 @@ export default function Privacy() {
                             <Link className="text-sm font-medium text-gray-300 hover:text-white transition-colors" href="/">
                                 الرئيسية
                             </Link>
-                            <a
-                                className="px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-lg transition-all duration-200"
-                                href="mailto:support@athkariapp.com"
-                            >
-                                الدعم الفني
-                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -54,10 +49,7 @@ export default function Privacy() {
                             <p>نحن لا نستخدم أي أدوات تحليل أو إعلانات خارجية تقوم بتتبعك. التطبيق خالٍ تماماً من الإعلانات.</p>
                         </div>
 
-                        <div>
-                            <h2 className="text-xl font-bold text-white mb-3">٤. اتصل بنا</h2>
-                            <p>إذا كان لديك أي استفسار حول سياسة الخصوصية، يسعدنا تواصلك معنا عبر البريد الإلكتروني: <a href="mailto:support@athkariapp.com" className="text-primary hover:text-primary-100 underline">support@athkariapp.com</a></p>
-                        </div>
+
 
                         <div className="pt-8 text-sm text-gray-500 border-t border-white/10">
                             آخر تحديث: ٣٠ يناير ٢٠٢٦

@@ -4,6 +4,29 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Athkari | أذكاري",
+            "applicationCategory": "LifestyleApplication",
+            "operatingSystem": "iOS",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "رفيقك اليومي في طاعة الله وذكره. أذكار، مواقيت الصلاة، وتتبع العبادات بتصميم عصري.",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "ratingCount": "150"
+            }
+          })
+        }}
+      />
       <nav className="fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -59,7 +82,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
               <a
-                href="#"
+                href="https://apps.apple.com/us/app/%D8%A3%D8%B0%D9%83%D8%A7%D8%B1%D9%8A-athkari/id6758462687"
                 className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur-sm px-6 py-3.5 rounded-xl transition-all duration-300 group w-full sm:w-auto"
               >
                 <span className="text-right flex flex-col items-end leading-none">
