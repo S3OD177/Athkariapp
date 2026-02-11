@@ -35,7 +35,7 @@ struct CounterCircle: View {
                     .stroke(
                         accentColor,
                         style: StrokeStyle(
-                            lineWidth: 12,
+                            lineWidth: 6, // Thinner ring as per image
                             lineCap: .round
                         )
                     )
@@ -43,16 +43,16 @@ struct CounterCircle: View {
                     .animation(.easeInOut(duration: 0.3), value: progress)
 
                 // Counter text
-                VStack(spacing: size * 0.032) {
+                VStack(spacing: 4) {
                     Text(currentCount.formatted(.number.locale(Locale(identifier: "en"))))
-                        .font(.system(size: size * 0.25, weight: .bold, design: .rounded))
+                        .font(.system(size: size * 0.3, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .contentTransition(.numericText())
                         .animation(.spring(duration: 0.3), value: currentCount)
 
                     Text("من \(targetCount.formatted(.number.locale(Locale(identifier: "en"))))")
-                        .font(.system(size: size * 0.072))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: size * 0.1, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.6))
                 }
 
                 // Completion checkmark

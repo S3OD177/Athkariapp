@@ -252,8 +252,7 @@ struct TasbihView: View {
                 .padding(.bottom, 32)
             }
         }
-        .contentShape(Rectangle()) // Make the entire area tappable
-        .onTapGesture {
+        .safeAreaTapGesture {
             viewModel.increment()
         }
         .sheet(isPresented: $showSettings) {

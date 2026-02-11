@@ -34,6 +34,10 @@ final class PrayerViewModel {
     func loadData() async {
         isLoading = true
         
+        if locationService.authorizationStatus == .notDetermined {
+            locationService.requestPermission()
+        }
+        
         // Use existing location if available, otherwise start updating
         if let location = locationService.currentLocation {
             await fetchTimes(for: location)
@@ -43,6 +47,8 @@ final class PrayerViewModel {
             locationService.onLocationUpdate = { [weak self] coord in
                 Task { @MainActor in
                     await self?.fetchTimes(for: coord)
+                    self?.locationService.stopUpdatingLocation()
+                    self?.locationService.onLocationUpdate = nil
                 }
             }
             

@@ -25,9 +25,10 @@ final class SlotKeyTests: XCTestCase {
     func testSlotKeysSortOrder() {
         let slots = SlotKey.allCases.sorted { $0.sortOrder < $1.sortOrder }
 
-        XCTAssertEqual(slots[0], .morning)
-        XCTAssertEqual(slots[1], .afterFajr)
-        XCTAssertEqual(slots[7], .sleep)
+        XCTAssertEqual(slots[0], .wakingUp)
+        XCTAssertEqual(slots[1], .morning)
+        XCTAssertEqual(slots[2], .afterFajr)
+        XCTAssertEqual(slots[8], .sleep)
     }
 
     func testSlotKeyDhikrCategoryMapping() {

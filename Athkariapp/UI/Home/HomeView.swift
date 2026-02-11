@@ -4,6 +4,7 @@ struct HomeView: View {
     @Environment(\.appContainer) private var container
     @State private var viewModel: HomeViewModel?
     @Binding var navigationPath: NavigationPath
+    @Binding var pendingSessionAction: SessionLaunchAction
 
     var body: some View {
         ZStack {
@@ -20,7 +21,10 @@ struct HomeView: View {
             }
         }
         .navigationDestination(for: SlotKey.self) { slotKey in
-            SessionView(slotKey: slotKey)
+            SessionView(
+                slotKey: slotKey,
+                pendingLaunchAction: $pendingSessionAction
+            )
         }
     }
 
@@ -30,7 +34,9 @@ struct HomeView: View {
             dhikrRepository: container.makeDhikrRepository(),
             prayerTimeService: container.prayerTimeService,
             settingsRepository: container.makeSettingsRepository(),
-            locationService: container.locationService
+            locationService: container.locationService,
+            liveActivityCoordinator: container.liveActivityCoordinator,
+            widgetSnapshotCoordinator: container.widgetSnapshotCoordinator
         )
     }
 }
@@ -52,7 +58,7 @@ struct HomeContent: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         // Spacer for Header
-                        Color.clear.frame(height: 90)
+                        Color.clear.frame(height: 35)
                         
                         // Location Warning
                         if viewModel.showLocationWarning {
@@ -137,7 +143,7 @@ struct HomeContent: View {
             Divider()
                 .background(Color.white.opacity(0.1))
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 0)
         .background(AppColors.homeBackground)
     }
 
@@ -155,22 +161,17 @@ struct HomeContent: View {
                 
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 0) {
                             Text(viewModel.hasActiveEvent ? "الذكر الحالي" : "الذكر القادم")
                                 .font(.system(size: 14, weight: .semibold))
                                 .opacity(0.7)
-                            
+
                             if viewModel.hasActiveEvent {
-                                Text(viewModel.activeSummaryItem?.title ?? "أذكار المسلم")
-                                    .font(.system(size: 24, weight: .heavy))
+                                heroTitle(viewModel.activeSummaryItem?.title ?? "أذكار المسلم")
+                            } else if let next = viewModel.nextUpcomingEvent {
+                                heroTitle(next.name)
                             } else {
-                                if let next = viewModel.nextUpcomingEvent {
-                                    Text(next.name)
-                                        .font(.system(size: 24, weight: .heavy))
-                                } else {
-                                    Text("لا يوجد ذكر حالي")
-                                        .font(.system(size: 24, weight: .heavy))
-                                }
+                                heroTitle("لا يوجد ذكر حالي")
                             }
                         }
                         
@@ -242,6 +243,13 @@ struct HomeContent: View {
             }
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(DragGesture(minimumDistance: 10))
+    }
+
+    private func heroTitle(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 24, weight: .heavy))
+            .padding(.top, -4)
     }
 
     private func statusText(for item: DailySummaryItem?) -> String {
@@ -337,7 +345,7 @@ struct HomeContent: View {
             .padding(.top, 8)
             
             VStack(spacing: 12) {
-                ForEach(viewModel.dailySummary.filter { $0.id != "prayers" }) { item in
+                ForEach(viewModel.dailySummary) { item in
                     Button {
                         if let firstSlot = item.slots.first {
                             navigationPath.append(firstSlot)
@@ -352,6 +360,7 @@ struct HomeContent: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .simultaneousGesture(DragGesture(minimumDistance: 10))
                 }
             }
         }
@@ -441,7 +450,10 @@ struct RoutineListItem: View {
 // MARK: - Previews
 #Preview {
     NavigationStack {
-        HomeView(navigationPath: .constant(NavigationPath()))
+        HomeView(
+            navigationPath: .constant(NavigationPath()),
+            pendingSessionAction: .constant(.none)
+        )
     }
     .environment(\.layoutDirection, .rightToLeft)
     .preferredColorScheme(.dark)

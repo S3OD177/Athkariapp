@@ -12,6 +12,7 @@ protocol SessionRepositoryProtocol {
     func fetchSessionsForDateRange(from: Date, to: Date) throws -> [SessionState]
 }
 
+@preconcurrency
 @MainActor
 final class SessionRepository: SessionRepositoryProtocol {
     private let modelContext: ModelContext
@@ -22,25 +23,18 @@ final class SessionRepository: SessionRepositoryProtocol {
 
     func fetchTodaySessions() throws -> [SessionState] {
         let startOfDay = Calendar.current.startOfDay(for: Date())
-        let descriptor = FetchDescriptor<SessionState>(
-            predicate: #Predicate<SessionState> { session in session.date == startOfDay }
-        )
-        return try modelContext.fetch(descriptor).sorted { $0.slotKey < $1.slotKey }
+        let descriptor = FetchDescriptor<SessionState>()
+        return try modelContext.fetch(descriptor)
+            .filter { $0.date == startOfDay }
+            .sorted { $0.slotKey < $1.slotKey }
     }
 
     func fetchSession(date: Date, slotKey: SlotKey) throws -> SessionState? {
         let startOfDay = Calendar.current.startOfDay(for: date)
         let slotValue = slotKey.rawValue
-
-        // Note: Predicates on multiple fields
-        var descriptor = FetchDescriptor<SessionState>(
-            predicate: #Predicate<SessionState> { session in
-                session.date == startOfDay && session.slotKey == slotValue
-            }
-        )
-        descriptor.fetchLimit = 1
-
-        return try modelContext.fetch(descriptor).first
+        let descriptor = FetchDescriptor<SessionState>()
+        return try modelContext.fetch(descriptor)
+            .first { $0.date == startOfDay && $0.slotKey == slotValue }
     }
 
     func fetchOrCreateSession(date: Date, slotKey: SlotKey) throws -> SessionState {
@@ -73,14 +67,9 @@ final class SessionRepository: SessionRepositoryProtocol {
     func fetchSessionsForDateRange(from: Date, to: Date) throws -> [SessionState] {
         let fromStart = Calendar.current.startOfDay(for: from)
         let toStart = Calendar.current.startOfDay(for: to)
-        // Predicates don't support date comparisons perfectly in all SwiftData versions without expanding,
-        // but standard >= and <= usually work on Date attributes.
-        let descriptor = FetchDescriptor<SessionState>(
-            predicate: #Predicate<SessionState> { session in
-                session.date >= fromStart && session.date <= toStart
-            }
-        )
+        let descriptor = FetchDescriptor<SessionState>()
         let sessions = try modelContext.fetch(descriptor)
+            .filter { $0.date >= fromStart && $0.date <= toStart }
         return sessions.sorted {
             if $0.date != $1.date { return $0.date < $1.date }
             return $0.slotKey < $1.slotKey

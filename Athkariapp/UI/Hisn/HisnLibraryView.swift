@@ -23,65 +23,84 @@ struct HisnLibraryView: View {
     }
 }
 
+// MARK: - Main Library View
 struct HisnLibraryContent: View {
     @Bindable var viewModel: HisnViewModel
-    @State private var selectedCategory: HisnCategory?
-    @State private var showAllDuas = false
+    @State private var selectedChapter: DhikrItem?
+    @State private var selectedDua: DhikrItem?
+    @State private var navigationPath = NavigationPath()
     @Environment(\.appContainer) private var container
 
-    // Grid Columns
-    let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
-
     var body: some View {
-        ZStack {
-            AppColors.homeBackground.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Premium Header
-                headerView
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                    .padding(.bottom, 24)
+        NavigationStack(path: $navigationPath) {
+            ZStack {
+                AppColors.homeBackground.ignoresSafeArea()
                 
-                // Content
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        // Search Bar
-                        searchBar
-                            .padding(.horizontal, 20)
-                        
-                        // Categories Grid
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack {
-                                Text("التصنيفات")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                                Spacer()
-                            }
-                            .padding(.horizontal, 24)
-                            
-                            LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(HisnCategory.allCases, id: \.self) { category in
-                                    CategoryDetailsCard(category: category) {
-                                        selectedCategory = category
+                VStack(spacing: 0) {
+                    // Premium Header
+                    headerView
+                        .padding(.horizontal, 24)
+                        .padding(.top, 16)
+                        .padding(.bottom, 24)
+                    
+                    // Content
+                    if viewModel.isLoading {
+                        Spacer()
+                        ProgressView()
+                            .tint(AppColors.onboardingPrimary)
+                        Spacer()
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 24) {
+                                // Search Bar
+                                searchBar
+                                    .padding(.horizontal, 20)
+                                
+                                // Clean Chapter List
+                                LazyVStack(spacing: 12) {
+                                    ForEach(viewModel.filteredChapters) { chapter in
+                                        Button {
+                                            Task {
+                                                // Check if chapter has only one dua
+                                                do {
+                                                    let items = try container.makeDhikrRepository().fetchByTitle(chapter.title)
+                                                    if items.count == 1, let first = items.first {
+                                                        selectedDua = first
+                                                    } else {
+                                                        selectedChapter = chapter
+                                                    }
+                                                } catch {
+                                                    selectedChapter = chapter
+                                                }
+                                            }
+                                        } label: {
+                                            ChapterRow(chapter: chapter)
+                                        }
+                                        .buttonStyle(ScaleButtonStyle())
                                     }
                                 }
+                                .padding(.horizontal, 20)
                             }
-                            .padding(.horizontal, 20)
+                            .padding(.bottom, 100)
                         }
                     }
-                    .padding(.bottom, 100)
                 }
             }
         }
-        .navigationDestination(item: $selectedCategory) { category in
-            CategoryDetailView(
-                category: category,
+        .navigationDestination(item: $selectedChapter) { chapter in
+            ChapterDetailView(
+                chapterTitle: chapter.title,
                 repository: container.makeDhikrRepository()
             )
+        }
+        .sheet(item: $selectedDua) { dua in
+            DuaDetailView(dua: dua)
+        }
+        .task {
+            // Load chapters on appear
+            if viewModel.chapters.isEmpty {
+                await viewModel.loadData()
+            }
         }
     }
 
@@ -89,17 +108,17 @@ struct HisnLibraryContent: View {
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("المكتبة")
+                Text("حصن المسلم")
                     .font(.system(size: 34, weight: .bold))
                     .foregroundStyle(.white)
                 
-                Text("حصن المسلم من أذكار الكتاب والسنة")
+                Text("قائمة الأذكار والأدعية")
                     .font(.system(size: 14))
                     .foregroundStyle(AppColors.textGray)
             }
             Spacer()
             
-            Image(systemName: "books.vertical.fill")
+            Image(systemName: "book.pages.fill")
                 .font(.system(size: 28))
                 .foregroundStyle(AppColors.onboardingPrimary)
                 .padding(12)
@@ -121,7 +140,7 @@ struct HisnLibraryContent: View {
                 .foregroundStyle(AppColors.textGray)
                 .font(.system(size: 18, weight: .medium))
 
-            TextField("", text: $viewModel.searchQuery, prompt: Text("بحث في الأذكار...").foregroundStyle(AppColors.textGray.opacity(0.7)))
+            TextField("", text: $viewModel.searchQuery, prompt: Text("ابحث عن ذكر...").foregroundStyle(AppColors.textGray.opacity(0.7)))
                 .foregroundStyle(.white)
                 .tint(AppColors.onboardingPrimary)
                 .font(.system(size: 16))
@@ -150,55 +169,47 @@ struct HisnLibraryContent: View {
     }
 }
 
-struct CategoryDetailsCard: View {
-    let category: HisnCategory
-    let action: () -> Void
+// MARK: - Chapter Row Component
+struct ChapterRow: View {
+    let chapter: DhikrItem
     
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.onboardingPrimary.opacity(0.1))
-                            .frame(width: 40, height: 40)
-                        
-                        Image(systemName: category.icon)
-                            .font(.system(size: 18))
-                            .foregroundStyle(AppColors.onboardingPrimary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(AppColors.textGray.opacity(0.5))
-                }
+        HStack(spacing: 16) {
+            // Checkmark / Icon
+            ZStack {
+                Circle()
+                    .fill(AppColors.onboardingPrimary.opacity(0.1))
+                    .frame(width: 40, height: 40)
                 
-                Text(category.arabicName)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                
-                Text("تصفح الأذكار")
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppColors.textGray)
+                Image(systemName: "bookmark.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(AppColors.onboardingPrimary)
             }
-            .padding(16)
-            .background(AppColors.onboardingSurface)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
-            )
+            
+            Text(chapter.title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+            
+            Spacer()
+            
+            Image(systemName: "chevron.left")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(AppColors.textGray.opacity(0.4))
         }
-        .buttonStyle(ScaleButtonStyle())
+        .padding(16)
+        .background(AppColors.onboardingSurface)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+        )
     }
 }
 
-// MARK: - CategoryDetailView
-
-struct CategoryDetailView: View {
-    let category: HisnCategory
+// MARK: - Chapter Detail View
+struct ChapterDetailView: View {
+    let chapterTitle: String
     let repository: DhikrRepositoryProtocol
     
     @State private var duas: [DhikrItem] = []
@@ -209,13 +220,11 @@ struct CategoryDetailView: View {
             AppColors.homeBackground.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header (Mostly handled by NavigationBar in this context, but we can customize)
-                
                 if duas.isEmpty {
                     VStack {
                         Spacer()
                         ProgressView()
-                            .tint(.white)
+                            .tint(AppColors.onboardingPrimary)
                         Spacer()
                     }
                 } else {
@@ -233,17 +242,15 @@ struct CategoryDetailView: View {
                 }
             }
         }
-        .navigationTitle(category.arabicName) // Use standard title for simplicity in detail view
+        .navigationTitle("الأذكار")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(AppColors.homeBackground, for: .navigationBar)
         .task {
-            // Load data - Running on MainActor (View context), calling MainActor repository.
-            // No detached task needed, solving Sendable issues.
             do {
-                duas = try repository.fetchByHisnCategory(category)
+                duas = try repository.fetchByTitle(chapterTitle)
             } catch {
-                print("Error loading category items: \(error)")
+                print("Error loading chapter items: \(error)")
             }
         }
         .sheet(item: $selectedDua) { dua in
@@ -252,7 +259,7 @@ struct CategoryDetailView: View {
     }
 }
 
-// MARK: - Dua List Row (Card)
+// MARK: - Dua List Row (Reused)
 struct DuaListRow: View {
     let dua: DhikrItem
     let onTap: () -> Void
@@ -269,16 +276,17 @@ struct DuaListRow: View {
 
                 // Content
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(dua.title)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.leading)
-
+                    // Only show title if it's different context, otherwise just show text preview
+                    // For Hisn, title is often the Chapter Name, which we already know.
+                    // But duplicates have same title.
+                    // Let's show filtered text.
+                    
                     Text(dua.text)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(AppColors.textGray)
-                        .lineLimit(2)
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundStyle(.white)
+                        .lineLimit(3)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(4)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
@@ -301,17 +309,3 @@ struct DuaListRow: View {
         .buttonStyle(ScaleButtonStyle())
     }
 }
-
-// MARK: - Scale Button Style
-struct ScaleButtonStyle: ButtonStyle {
-    var scaleAmount: CGFloat = 0.97
-    var duration: Double = 0.1
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? scaleAmount : 1.0)
-            .animation(.easeInOut(duration: duration), value: configuration.isPressed)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-    }
-}
-

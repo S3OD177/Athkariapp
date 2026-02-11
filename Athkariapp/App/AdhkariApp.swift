@@ -1,11 +1,36 @@
 import SwiftUI
 import SwiftData
+#if canImport(Sentry)
+import Sentry
+#endif
 
 @main
 struct AdhkariApp: App {
     @State private var appContainer = AppContainer.shared
     @State private var isOnboardingCompleted = false
     @State private var isLoading = true
+    @State private var pendingRoute: AppRoute?
+
+    init() {
+        #if canImport(Sentry)
+        let rawDSN = Bundle.main.object(forInfoDictionaryKey: "SentryDSN") as? String
+        let dsn = rawDSN?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        if !dsn.isEmpty {
+            SentrySDK.start { options in
+                options.dsn = dsn
+                options.tracesSampleRate = 1.0
+                #if DEBUG
+                options.debug = true
+                #endif
+            }
+        } else {
+            #if DEBUG
+            print("Sentry disabled: SentryDSN is empty.")
+            #endif
+        }
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -13,7 +38,7 @@ struct AdhkariApp: App {
                 if isLoading {
                     SplashView()
                 } else if isOnboardingCompleted {
-                    MainTabView()
+                    MainTabView(pendingRoute: $pendingRoute)
                 } else {
                     OnboardingView(onFinished: {
                         withAnimation {
@@ -43,6 +68,10 @@ struct AdhkariApp: App {
                         }
                     }
                 }
+            }
+            .onOpenURL { url in
+                guard let route = AppRoute.from(url: url) else { return }
+                pendingRoute = route
             }
         }
     }
@@ -117,7 +146,7 @@ struct SplashView: View {
 }
 
 #Preview("Main") {
-    MainTabView()
+    MainTabView(pendingRoute: .constant(nil))
         .environment(\.layoutDirection, .rightToLeft)
         .preferredColorScheme(.dark)
 }

@@ -79,6 +79,7 @@ final class AppSettings {
     var lastLocationLongitude: Double?
     var lastLocationCity: String?
     var afterPrayerOffset: Int? // In minutes
+    var liveActivityDismissMinutes: Int? // Supported values: 15, 30, 60
     
     // Time Configuration (Hour 0-23)
     var wakingUpStart: Int
@@ -98,7 +99,7 @@ final class AppSettings {
         notificationsEnabled: Bool = false,
         calculationMethod: CalculationMethod = .ummAlQura,
         locationPermissionState: LocationPermissionState = .notDetermined,
-        iCloudSyncEnabled: Bool = false,
+        iCloudSyncEnabled: Bool = true,
         hapticIntensity: HapticIntensity = .medium,
         autoAdvance: Bool = false,
         afterPrayerOffset: Int = 15,
@@ -122,6 +123,7 @@ final class AppSettings {
         self.hapticIntensity = hapticIntensity.rawValue
         self.autoAdvance = autoAdvance
         self.afterPrayerOffset = afterPrayerOffset
+        self.liveActivityDismissMinutes = 30
         self.wakingUpStart = wakingUpStart
         self.wakingUpEnd = wakingUpEnd
         self.morningStart = morningStart

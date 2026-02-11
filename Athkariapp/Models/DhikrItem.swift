@@ -87,7 +87,7 @@ enum HisnCategory: String, Codable, CaseIterable {
 }
 
 @Model
-final class DhikrItem: @unchecked Sendable {
+final class DhikrItem {
     @Attribute(.unique) var id: UUID
     var sourceId: String? // Original ID from JSON (e.g., "morning-001") for duplicate detection
     var source: String // DhikrSource rawValue

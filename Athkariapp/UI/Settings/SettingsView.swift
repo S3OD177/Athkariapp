@@ -21,6 +21,7 @@ struct SettingsView: View {
             locationService: container.locationService,
             hapticsService: container.hapticsService,
             prayerTimeService: container.prayerTimeService,
+            liveActivityCoordinator: container.liveActivityCoordinator,
             modelContext: container.modelContainer.mainContext,
             modelContainer: container.modelContainer
         )
@@ -30,6 +31,12 @@ struct SettingsView: View {
 struct SettingsContent: View {
     @Bindable var viewModel: SettingsViewModel
     @State private var showClearDataAlert = false
+
+    private var appVersionText: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-"
+        return "الإصدار \(version) (\(build))"
+    }
     
     var body: some View {
         ZStack {
@@ -153,6 +160,28 @@ struct SettingsContent: View {
                     .labelsHidden()
                     .tint(.blue)
                 }
+
+                Divider().background(Color.white.opacity(0.1))
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("مدة بقاء الجزيرة الديناميكية")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.8))
+
+                    Picker(
+                        "مدة البقاء",
+                        selection: Binding(
+                            get: { viewModel.liveActivityDismissMinutes },
+                            set: { viewModel.updateLiveActivityDismissMinutes($0) }
+                        )
+                    ) {
+                        Text("15د").tag(15)
+                        Text("30د").tag(30)
+                        Text("60د").tag(60)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(16)
                 
                 if viewModel.hapticsEnabled {
                     Divider().background(Color.white.opacity(0.1))
@@ -301,7 +330,7 @@ struct SettingsContent: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(Color.gray)
                 
-                Text("الإصدار ١.٠.٠")
+                Text(appVersionText)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.gray.opacity(0.6))
             }
@@ -673,6 +702,7 @@ struct TimeConfigSettingsView: View {
         locationService: container.locationService,
         hapticsService: container.hapticsService,
         prayerTimeService: container.prayerTimeService,
+        liveActivityCoordinator: container.liveActivityCoordinator,
         modelContext: container.modelContainer.mainContext,
         modelContainer: container.modelContainer
     )

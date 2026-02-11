@@ -17,6 +17,7 @@ final class SettingsViewModel {
     var autoAdvance: Bool = false
     var afterPrayerOffset: Int = 15
     var iCloudSyncEnabled: Bool = false
+    var liveActivityDismissMinutes: Int = 30
     
     // Time Configuration State
     var wakingUpStart: Int = 3
@@ -40,6 +41,7 @@ final class SettingsViewModel {
     private let locationService: LocationService
     private let hapticsService: HapticsService
     private let prayerTimeService: PrayerTimeService
+    private let liveActivityCoordinator: LiveActivityCoordinator
     private let modelContext: ModelContext
     private let modelContainer: ModelContainer
     private let geocoder = CLGeocoder()
@@ -50,6 +52,7 @@ final class SettingsViewModel {
         locationService: LocationService,
         hapticsService: HapticsService,
         prayerTimeService: PrayerTimeService,
+        liveActivityCoordinator: LiveActivityCoordinator,
         modelContext: ModelContext,
         modelContainer: ModelContainer
     ) {
@@ -57,6 +60,7 @@ final class SettingsViewModel {
         self.locationService = locationService
         self.hapticsService = hapticsService
         self.prayerTimeService = prayerTimeService
+        self.liveActivityCoordinator = liveActivityCoordinator
         self.modelContext = modelContext
         self.modelContainer = modelContainer
         
@@ -85,6 +89,9 @@ final class SettingsViewModel {
                 autoAdvance = s.autoAdvance
                 locationCity = s.lastLocationCity
                 afterPrayerOffset = s.afterPrayerOffset ?? 15
+                liveActivityDismissMinutes = LiveActivityCoordinator.sanitizeDismissPreset(
+                    s.liveActivityDismissMinutes
+                )
                 
                 // Load Time Configuration
                 wakingUpStart = s.wakingUpStart
@@ -96,6 +103,8 @@ final class SettingsViewModel {
                 sleepStart = s.sleepStart
                 sleepEnd = s.sleepEnd
             }
+
+            liveActivityCoordinator.updateDismissPreset(minutes: liveActivityDismissMinutes)
 
             // Update location permission state
             updateLocationPermissionState()
@@ -121,16 +130,21 @@ final class SettingsViewModel {
     }
 
     func updateNotificationsEnabled(_ enabled: Bool) {
-        notificationsEnabled = enabled
-        settings?.notificationsEnabled = enabled
-        saveSettings()
-        
         if enabled {
-            Task {
-                _ = try? await NotificationService.shared.requestAuthorization()
-                await rescheduleNotifications()
+            Task { @MainActor in
+                let granted = (try? await NotificationService.shared.requestAuthorization()) ?? false
+                notificationsEnabled = granted
+                settings?.notificationsEnabled = granted
+                saveSettings()
+                
+                if granted {
+                    await rescheduleNotifications()
+                }
             }
         } else {
+            notificationsEnabled = false
+            settings?.notificationsEnabled = false
+            saveSettings()
             UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         }
     }
@@ -146,8 +160,8 @@ final class SettingsViewModel {
     func updateICloudSyncEnabled(_ enabled: Bool) {
         iCloudSyncEnabled = enabled
         settings?.iCloudSyncEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: "iCloudSyncEnabled")
         saveSettings()
-        // TODO: Implement iCloud sync
     }
 
 
@@ -180,6 +194,14 @@ final class SettingsViewModel {
                 await rescheduleNotifications()
             }
         }
+    }
+
+    func updateLiveActivityDismissMinutes(_ minutes: Int) {
+        let sanitizedMinutes = LiveActivityCoordinator.sanitizeDismissPreset(minutes)
+        liveActivityDismissMinutes = sanitizedMinutes
+        settings?.liveActivityDismissMinutes = sanitizedMinutes
+        liveActivityCoordinator.updateDismissPreset(minutes: sanitizedMinutes)
+        saveSettings()
     }
     
     // Time Configuration Updates
@@ -258,11 +280,14 @@ final class SettingsViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.updateLocationPermissionState()
-            
-            // If authorized, verify/refresh location
-            if self?.locationPermissionGranted == true {
-                self?.refreshLocation()
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.updateLocationPermissionState()
+                
+                // If authorized, verify/refresh location
+                if self.locationPermissionGranted {
+                    self.refreshLocation()
+                }
             }
         }
         
@@ -273,15 +298,13 @@ final class SettingsViewModel {
             queue: .main
         ) { [weak self] notification in
             guard let self = self else { return }
+            guard let location = notification.userInfo?["location"] as? CLLocation else { return }
+            let coordinate = location.coordinate
             
-            // Extract location from keys
-            if let locations = notification.userInfo?["location"] as? CLLocation {
-                 // Stop updating to save battery (one-shot update)
-                 self.locationService.stopUpdatingLocation()
-                 
-                 Task {
-                     await self.updateLocationAndCity(locations.coordinate)
-                 }
+            Task { @MainActor in
+                // Stop updating to save battery (one-shot update)
+                self.locationService.stopUpdatingLocation()
+                await self.updateLocationAndCity(coordinate)
             }
         }
     }

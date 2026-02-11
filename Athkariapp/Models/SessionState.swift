@@ -25,7 +25,7 @@ enum SessionStatus: String, Codable, CaseIterable {
 }
 
 @Model
-final class SessionState: @unchecked Sendable {
+final class SessionState {
     @Attribute(.unique) var id: UUID
     var date: Date // Start of day
     var slotKey: String // SlotKey rawValue
@@ -35,7 +35,7 @@ final class SessionState: @unchecked Sendable {
     var targetCount: Int
     var status: String // SessionStatus rawValue
     var lastUpdated: Date
-    var completedDhikrIds: [UUID]
+    var completedDhikrIdsData: Data
     
     // Tracking for post-prayer adhkar
     var completedAt: Date?
@@ -69,7 +69,7 @@ final class SessionState: @unchecked Sendable {
         self.targetCount = targetCount
         self.status = status.rawValue
         self.lastUpdated = Date()
-        self.completedDhikrIds = completedDhikrIds
+        self.completedDhikrIdsData = SessionState.encodeCompletedDhikrIds(completedDhikrIds)
         self.completedAt = completedAt
         self.shownMode = shownMode
         self.offsetUsedMinutes = offsetUsedMinutes
@@ -80,6 +80,11 @@ final class SessionState: @unchecked Sendable {
     var sessionStatus: SessionStatus {
         get { SessionStatus(rawValue: status) ?? .notStarted }
         set { status = newValue.rawValue }
+    }
+
+    var completedDhikrIds: [UUID] {
+        get { SessionState.decodeCompletedDhikrIds(completedDhikrIdsData) }
+        set { completedDhikrIdsData = SessionState.encodeCompletedDhikrIds(newValue) }
     }
 
     var slot: SlotKey? {
@@ -105,5 +110,13 @@ final class SessionState: @unchecked Sendable {
         let deadline = readyTime.addingTimeInterval(2 * 60 * 60) // 2 hours window
         
         return completedAt <= deadline
+    }
+
+    private static func encodeCompletedDhikrIds(_ ids: [UUID]) -> Data {
+        (try? JSONEncoder().encode(ids)) ?? Data()
+    }
+
+    private static func decodeCompletedDhikrIds(_ data: Data) -> [UUID] {
+        (try? JSONDecoder().decode([UUID].self, from: data)) ?? []
     }
 }

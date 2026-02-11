@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DuaDetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.layoutDirection) private var layoutDirection
 
     let dua: DhikrItem
 
@@ -10,34 +9,37 @@ struct DuaDetailView: View {
     @State private var showShareSheet = false
     @State private var currentCount = 0
     @AppStorage("isDuaCounterVisible") private var isCounterVisible = false
+    @AppStorage("duaFontSize") private var fontSize: Double = 20.0
 
     var body: some View {
-        NavigationStack {
+        ZStack {
+            // Background (SessionView Style)
+            AppColors.sessionBackground.ignoresSafeArea()
+            
+            // Immersive Gradient
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    AppColors.onboardingPrimary.opacity(0.15),
+                    AppColors.sessionBackground.opacity(0)
+                ]),
+                center: .center,
+                startRadius: 50,
+                endRadius: 600
+            )
+            .ignoresSafeArea()
+            
+            // Ambient Background Effect
             ZStack {
-                // Background (SessionView Style)
-                AppColors.sessionBackground.ignoresSafeArea()
-                
-                // Immersive Gradient
-                RadialGradient(
-                    gradient: Gradient(colors: [
-                        AppColors.onboardingPrimary.opacity(0.15),
-                        AppColors.sessionBackground.opacity(0)
-                    ]),
-                    center: .center,
-                    startRadius: 50,
-                    endRadius: 600
-                )
-                .ignoresSafeArea()
-                
-                // Ambient Background Effect
-                ZStack {
-                     Circle()
-                        .fill(AppColors.sessionPrimary.opacity(0.15))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 60)
-                        .offset(y: -200) // Adjusted offset for detail view
-                }
-                .opacity(0.6)
+                 Circle()
+                    .fill(AppColors.sessionPrimary.opacity(0.15))
+                    .frame(width: 300, height: 300)
+                    .blur(radius: 60)
+                    .offset(y: -200) // Adjusted offset for detail view
+            }
+            .opacity(0.6)
+            
+            VStack(spacing: 0) {
+                topBar
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
@@ -73,7 +75,7 @@ struct DuaDetailView: View {
                                 Spacer(minLength: 0)
                                 
                                 Text(dua.text)
-                                    .font(.system(size: 28, weight: .bold))
+                                    .font(.system(size: fontSize, weight: .bold))
                                     .multilineTextAlignment(.center)
                                     .foregroundStyle(.white)
                                     .lineSpacing(10)
@@ -95,45 +97,78 @@ struct DuaDetailView: View {
                                     .foregroundStyle(AppColors.textGray)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 }
+                                
+                                Divider().background(Color.white.opacity(0.1))
+                                
+                                // Font Controls (Match daily dhikr card)
+                                HStack(spacing: 32) {
+                                    Button {
+                                        withAnimation {
+                                            if fontSize > 20 { fontSize -= 2 }
+                                        }
+                                    } label: {
+                                        Image(systemName: "textformat.size.smaller")
+                                            .font(.title3)
+                                            .foregroundStyle(AppColors.textGray)
+                                    }
+
+                                    Text("\(Int(fontSize))")
+                                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                        .foregroundStyle(AppColors.onboardingPrimary)
+                                        .frame(width: 40)
+                                        .environment(\.locale, Locale(identifier: "en"))
+                                    
+                                    Button {
+                                        withAnimation {
+                                            if fontSize < 60 { fontSize += 2 }
+                                        }
+                                    } label: {
+                                        Image(systemName: "textformat.size.larger")
+                                            .font(.title3)
+                                            .foregroundStyle(AppColors.textGray)
+                                    }
+                                }
                             }
                             .padding(24)
                         }
                         .frame(minHeight: 380) // Reduced height from 420
                         .padding(.horizontal, 24)
 
-                        // Mode Toggle Button
-                        Button {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                isCounterVisible.toggle()
+                        // Mode Toggle Button (Only for daily adhkar)
+                        if dua.dhikrSource != .hisn {
+                            Button {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    isCounterVisible.toggle()
+                                }
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: isCounterVisible ? "book.closed.fill" : "123.rectangle")
+                                        .symbolReplaceable()
+                                        .font(.system(size: 16))
+                                    
+                                    Text(isCounterVisible ? "العودة للقراءة" : "تفعيل العداد")
+                                        .font(.system(size: 15, weight: .medium))
+                                }
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.white.opacity(0.08))
+                                )
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                )
                             }
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: isCounterVisible ? "book.closed.fill" : "123.rectangle")
-                                    .symbolReplaceable()
-                                    .font(.system(size: 16))
-                                
-                                Text(isCounterVisible ? "العودة للقراءة" : "تفعيل العداد")
-                                    .font(.system(size: 15, weight: .medium))
-                            }
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                Capsule()
-                                    .fill(Color.white.opacity(0.08))
-                            )
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                            )
+                            .padding(.top, -8)
                         }
-                        .padding(.top, -8) // Pull it up slightly closer to card
 
-                        if isCounterVisible {
+                        if isCounterVisible && dua.dhikrSource != .hisn {
                             CounterCircle(
                                 currentCount: currentCount,
                                 targetCount: dua.repeatCount,
-                                size: 220, // Reduced from 280
+                                size: 220,
                                 accentColor: AppColors.onboardingPrimary
                             ) {
                                 if currentCount < dua.repeatCount {
@@ -180,23 +215,6 @@ struct DuaDetailView: View {
                         
                         // Bottom Actions (Session Style)
                         HStack(spacing: 40) {
-                            // Reset Button
-                            Button {
-                                withAnimation {
-                                    currentCount = 0
-                                }
-                            } label: {
-                                VStack(spacing: 8) {
-                                    Image(systemName: "arrow.counterclockwise")
-                                        .font(.title3)
-                                    Text("إعادة")
-                                        .font(.caption2)
-                                }
-                                .foregroundStyle(currentCount > 0 ? Color.white : AppColors.textGray.opacity(0.5))
-                            }
-                            .disabled(currentCount == 0)
-                            
-                            // Share Button
                             Button {
                                 showShareSheet = true
                             } label: {
@@ -213,23 +231,43 @@ struct DuaDetailView: View {
                     }
                 }
             }
-            .navigationTitle(dua.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(.white)
-                    }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: [shareText])
+        }
+    }
+
+    private var topBar: some View {
+        ZStack {
+            Text(dua.title)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Circle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(.white)
+                        )
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
                 }
-            }
-            .sheet(isPresented: $showShareSheet) {
-                ShareSheet(items: [shareText])
+                Spacer()
             }
         }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 12)
     }
 
     private var shareText: String {

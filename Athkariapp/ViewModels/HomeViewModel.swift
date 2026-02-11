@@ -49,6 +49,8 @@ final class HomeViewModel {
     private let prayerTimeService: PrayerTimeService
     private let settingsRepository: SettingsRepository
     private let locationService: LocationService
+    private let liveActivityCoordinator: LiveActivityCoordinator
+    private let widgetSnapshotCoordinator: WidgetSnapshotCoordinator
 
     // MARK: - Initialization
     init(
@@ -56,13 +58,17 @@ final class HomeViewModel {
         dhikrRepository: DhikrRepository,
         prayerTimeService: PrayerTimeService,
         settingsRepository: SettingsRepository,
-        locationService: LocationService
+        locationService: LocationService,
+        liveActivityCoordinator: LiveActivityCoordinator,
+        widgetSnapshotCoordinator: WidgetSnapshotCoordinator
     ) {
         self.sessionRepository = sessionRepository
         self.dhikrRepository = dhikrRepository
         self.prayerTimeService = prayerTimeService
         self.settingsRepository = settingsRepository
         self.locationService = locationService
+        self.liveActivityCoordinator = liveActivityCoordinator
+        self.widgetSnapshotCoordinator = widgetSnapshotCoordinator
         
         setupLocationObservers()
         setupLocationBindings()
@@ -103,6 +109,7 @@ final class HomeViewModel {
                     }
                     
                     self.updateAdhanStatus()
+                    self.syncPrayerWindowLiveActivity()
                 }
             }
         }
@@ -111,7 +118,7 @@ final class HomeViewModel {
     private func setupLocationObservers() {
         NotificationCenter.default.addObserver(forName: .didUpdateLocation, object: nil, queue: .main) { [weak self] notification in
             guard let self = self,
-                  let location = notification.userInfo?["location"] as? CLLocation else { return }
+                  let _ = notification.userInfo?["location"] as? CLLocation else { return }
             
             Task { @MainActor in
                 // Stop location updates after getting initial location (energy optimization)
@@ -198,9 +205,14 @@ final class HomeViewModel {
 
             // Load daily summary
             try await loadDailySummary()
+            syncPrayerWindowLiveActivity()
         } catch {
             errorMessage = NSLocalizedString("error_loading_data", comment: "")
             print("Error loading home data: \(error)")
+            liveActivityCoordinator.syncPrayerWindowState(nil)
+            widgetSnapshotCoordinator.syncHeroCard(nil)
+            widgetSnapshotCoordinator.syncPrayerWindow(nil)
+            widgetSnapshotCoordinator.syncNextPrayer(name: nil, date: nil)
         }
 
         isLoading = false
@@ -266,23 +278,36 @@ final class HomeViewModel {
         let nextEventName: String?
     }
     
+    /// Builds an after-prayer summary item on-the-fly for the hero card only.
+    private var afterPrayerHeroItem: DailySummaryItem? {
+        guard let times = prayerTimes,
+              let prayer = times.currentAdhan(at: currentTime),
+              let slot = prayer.afterPrayerSlot else { return nil }
+
+        let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+        guard times.isPostPrayerReady(for: prayer, at: currentTime, durationMinutes: offset) else { return nil }
+
+        // Build a lightweight item (counts are not shown in the hero card)
+        return DailySummaryItem(
+            id: "prayers",
+            title: "أذكار بعد \(slot.shortName)",
+            icon: "hands.and.sparkles.fill",
+            slots: [slot],
+            status: .notStarted,
+            completedCount: 0,
+            totalCount: 0
+        )
+    }
+
     private var currentContext: EventTimeContext? {
-        // Re-use logic to find active item AND its end time
-        // 1. Check for "After Prayer" priority
-        if let afterPrayerItem = dailySummary.first(where: { $0.id == "prayers" && $0.status != .completed }) {
+        // 1. Check for "After Prayer" priority (hero card only)
+        if let afterPrayerItem = afterPrayerHeroItem {
             if let times = prayerTimes, let prayer = times.currentAdhan(at: currentTime) {
                 let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
-                let isReady = times.isPostPrayerReady(for: prayer, at: currentTime, durationMinutes: offset)
-                
-                if isReady {
-                    // Ends when duration expires
-                    // We calculate expiration time again locally for context
-                    if let adhanTime = times.timeForPrayer(prayer) {
-                         let expiration = adhanTime.addingTimeInterval(Double(offset) * 60)
-                         // Use stored next prayer name or dynamic fallback for "Next Event"
-                         let name = self.nextPrayerName ?? "الصلاة القادمة"
-                         return EventTimeContext(item: afterPrayerItem, endTime: expiration, nextEventName: name)
-                    }
+                if let adhanTime = times.timeForPrayer(prayer) {
+                    let expiration = adhanTime.addingTimeInterval(Double(offset) * 60)
+                    let name = self.nextPrayerName ?? "الصلاة القادمة"
+                    return EventTimeContext(item: afterPrayerItem, endTime: expiration, nextEventName: name)
                 }
             }
         }
@@ -382,11 +407,6 @@ final class HomeViewModel {
         activeSummaryItem?.slots.first
     }
 
-    // New persistent accessor for After Prayer button
-    var afterPrayerSummaryItem: DailySummaryItem? {
-        dailySummary.first(where: { $0.id == "prayers" })
-    }
-
     // MARK: - Private Methods
     private func loadDailySummary() async throws {
         let sessions = try sessionRepository.fetchTodaySessions()
@@ -396,7 +416,7 @@ final class HomeViewModel {
         var summaryItems: [DailySummaryItem] = []
 
         // Waking Up
-        let wakingUpStatus = getStatusForSlots([.wakingUp], sessionsBySlot: sessionsBySlot)
+        let wakingUpStatus = try await getStatusForSlots([.wakingUp], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "waking_up",
             title: "أذكار الاستيقاظ",
@@ -408,7 +428,7 @@ final class HomeViewModel {
         ))
 
         // Morning
-        let morningStatus = getStatusForSlots([.morning], sessionsBySlot: sessionsBySlot)
+        let morningStatus = try await getStatusForSlots([.morning], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "morning",
             title: "أذكار الصباح",
@@ -419,33 +439,9 @@ final class HomeViewModel {
             totalCount: morningStatus.total
         ))
 
-        // After prayers (Always show)
-        let persistentSlot: SlotKey
-        if let current = prayerTimes?.currentPrayer() {
-            if let slot = current.afterPrayerSlot {
-                persistentSlot = slot
-            } else if current == .sunrise {
-                persistentSlot = .afterDhuhr
-            } else {
-                persistentSlot = .afterFajr // Fallback
-            }
-        } else {
-            persistentSlot = .afterFajr // Default fallback
-        }
-
-        let afterPrayerStatus = getStatusForSlots([persistentSlot], sessionsBySlot: sessionsBySlot)
-        summaryItems.append(DailySummaryItem(
-            id: "prayers",
-            title: "أذكار بعد \(persistentSlot.shortName)",
-            icon: "hands.and.sparkles.fill",
-            slots: [persistentSlot],
-            status: afterPrayerStatus.status,
-            completedCount: afterPrayerStatus.completed,
-            totalCount: afterPrayerStatus.total
-        ))
 
         // Evening
-        let eveningStatus = getStatusForSlots([.evening], sessionsBySlot: sessionsBySlot)
+        let eveningStatus = try await getStatusForSlots([.evening], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "evening",
             title: "أذكار المساء",
@@ -457,7 +453,7 @@ final class HomeViewModel {
         ))
 
         // Sleep
-        let sleepStatus = getStatusForSlots([.sleep], sessionsBySlot: sessionsBySlot)
+        let sleepStatus = try await getStatusForSlots([.sleep], sessionsBySlot: sessionsBySlot)
         summaryItems.append(DailySummaryItem(
             id: "sleep",
             title: "أذكار النوم",
@@ -483,6 +479,113 @@ final class HomeViewModel {
             // Check if post-prayer is ready (used for UI display logic)
             _ = times.isPostPrayerReady(for: adhan, at: now, durationMinutes: offset)
         }
+    }
+
+    private func syncPrayerWindowLiveActivity() {
+        let prayerWindowSnapshot = makePrayerWindowSnapshot()
+        let heroSnapshot = makeHeroCardSnapshot()
+        liveActivityCoordinator.syncPrayerWindowState(prayerWindowSnapshot)
+        widgetSnapshotCoordinator.syncHeroCard(heroSnapshot)
+        widgetSnapshotCoordinator.syncPrayerWindow(prayerWindowSnapshot)
+        widgetSnapshotCoordinator.syncNextPrayer(
+            name: nextPrayerName,
+            date: nextPrayerTime
+        )
+    }
+
+    private func makeHeroCardSnapshot() -> WidgetSnapshotCoordinator.HeroCardSnapshot? {
+        let headerLabel = hasActiveEvent ? "الذكر الحالي" : "الذكر القادم"
+        let title: String
+        if hasActiveEvent {
+            title = activeSummaryItem?.title ?? "أذكار المسلم"
+        } else if let upcoming = nextUpcomingEvent {
+            title = upcoming.name
+        } else {
+            title = "لا يوجد ذكر حالي"
+        }
+
+        let heroPrimaryLine: String
+        let heroSecondaryLine: String?
+        if let remaining = currentEventRemainingTime {
+            heroPrimaryLine = "ينتهي الذكر الحالي خلال \(remaining)"
+            if let next = nextEventName {
+                heroSecondaryLine = "التالي: \(next)"
+            } else {
+                heroSecondaryLine = nil
+            }
+        } else if let nextTime = nextEventRemainingTime {
+            heroPrimaryLine = "يبدأ بعد \(nextTime)"
+            heroSecondaryLine = nil
+        } else {
+            heroPrimaryLine = "افتح التطبيق لمتابعة أذكارك"
+            heroSecondaryLine = nil
+        }
+
+        let currentCount = hasActiveEvent ? (activeSummaryItem?.completedCount ?? 0) : 0
+        let targetCount = hasActiveEvent ? (activeSummaryItem?.totalCount ?? 0) : 0
+        let progress = hasActiveEvent ? (activeSummaryItem?.progress ?? 0) : 0
+        let completionText = hasActiveEvent ? heroCompletionText(for: activeSummaryItem) : nil
+        let slot = currentSlot
+        let routeURL = slot.map { AthkariWidgetRoutes.session(slotKey: $0.rawValue) } ?? AthkariWidgetRoutes.home
+        let nextTitle = nextEventName
+        let iconSystemName = hasActiveEvent ? (activeSummaryItem?.icon ?? "hand.raised.fill") : "clock.fill"
+        let windowEndDate = currentContext?.endTime ?? nextUpcomingEvent?.date
+
+        return WidgetSnapshotCoordinator.HeroCardSnapshot(
+            slotKey: slot?.rawValue,
+            headerLabel: headerLabel,
+            title: title,
+            subtitle: heroPrimaryLine,
+            heroPrimaryLine: heroPrimaryLine,
+            heroSecondaryLine: heroSecondaryLine,
+            completionText: completionText,
+            currentCount: currentCount,
+            targetCount: targetCount,
+            progress: progress,
+            windowEndDate: windowEndDate,
+            nextTitle: nextTitle,
+            iconSystemName: iconSystemName,
+            routeURL: routeURL
+        )
+    }
+
+    private func heroCompletionText(for item: DailySummaryItem?) -> String {
+        guard let item else {
+            return "0/0 مكتمل"
+        }
+        if item.status == .completed {
+            return "مكتمل"
+        }
+        return "\(item.completedCount)/\(item.totalCount) مكتمل"
+    }
+
+    private func makePrayerWindowSnapshot() -> LiveActivityCoordinator.PrayerWindowSnapshot? {
+        guard
+            let times = prayerTimes,
+            let prayer = times.currentAdhan(at: currentTime),
+            let slot = prayer.afterPrayerSlot
+        else {
+            return nil
+        }
+
+        let offset = (try? settingsRepository.getSettings())?.afterPrayerOffset ?? 15
+        guard
+            times.isPostPrayerReady(for: prayer, at: currentTime, durationMinutes: offset),
+            let adhanTime = times.timeForPrayer(prayer)
+        else {
+            return nil
+        }
+
+        let windowEndDate = adhanTime.addingTimeInterval(Double(offset) * 60)
+
+        return LiveActivityCoordinator.PrayerWindowSnapshot(
+            slotKey: slot.rawValue,
+            title: "أذكار بعد \(slot.shortName)",
+            subtitle: "نافذة ما بعد الأذان",
+            prayerName: prayer.arabicName,
+            windowStartDate: adhanTime,
+            windowEndDate: windowEndDate
+        )
     }
     
     // MARK: - Gap Handling Logic
@@ -563,32 +666,44 @@ final class HomeViewModel {
     private func getStatusForSlots(
         _ slots: [SlotKey],
         sessionsBySlot: [String: [SessionState]]
-    ) -> (status: SessionStatus, completed: Int, total: Int) {
-        var completedCount = 0
-        var partialCount = 0
-        let totalCount = slots.count
+    ) async throws -> (status: SessionStatus, completed: Int, total: Int) {
+        var completedDhikrs = 0
+        var totalDhikrs = 0
+        var hasPartial = false
 
         for slot in slots {
-            if let sessions = sessionsBySlot[slot.rawValue] {
-                for session in sessions {
-                    if session.sessionStatus == .completed {
-                        completedCount += 1
-                    } else if session.sessionStatus == .partial {
-                        partialCount += 1
-                    }
+            let category = slot.dhikrCategory
+            let items: [DhikrItem]
+            
+            // Special handling for After Prayer to match SessionViewModel logic
+            if slot.isAfterPrayer {
+                items = try dhikrRepository.fetchByCategory(.afterPrayer)
+            } else if slot == .wakingUp {
+                items = try dhikrRepository.fetchByHisnCategory(.waking)
+            } else {
+                items = try dhikrRepository.fetchByCategory(category)
+            }
+            
+            totalDhikrs += items.count
+            
+            if let session = sessionsBySlot[slot.rawValue]?.first {
+                let sessionCompletedCount = session.completedDhikrIds.count
+                completedDhikrs += sessionCompletedCount
+                if session.sessionStatus == .partial || (sessionCompletedCount > 0 && sessionCompletedCount < items.count) {
+                    hasPartial = true
                 }
             }
         }
 
         let status: SessionStatus
-        if completedCount == totalCount {
+        if totalDhikrs > 0 && completedDhikrs >= totalDhikrs {
             status = .completed
-        } else if completedCount > 0 || partialCount > 0 {
+        } else if hasPartial || (completedDhikrs > 0) {
             status = .partial
         } else {
             status = .notStarted
         }
 
-        return (status, completedCount, totalCount)
+        return (status, completedDhikrs, totalDhikrs)
     }
 }

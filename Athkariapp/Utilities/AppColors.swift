@@ -110,3 +110,58 @@ extension Color {
         )
     }
 }
+
+// MARK: - Global UI Components
+
+struct AmbientBackground: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Top Left Glow
+                Circle()
+                    .fill(Color.onboardingPrimary.opacity(0.15))
+                    .frame(width: geometry.size.width * 0.8)
+                    .blur(radius: 80)
+                    .offset(x: -geometry.size.width * 0.2, y: -geometry.size.height * 0.1)
+                
+                // Bottom Right Glow
+                Circle()
+                    .fill(Color(hex: "4F46E5").opacity(0.1))
+                    .frame(width: geometry.size.width * 0.7)
+                    .blur(radius: 100)
+                    .offset(x: geometry.size.width * 0.3, y: geometry.size.height * 0.3)
+                
+                // Center Accent
+                Circle()
+                    .fill(Color(hex: "dcb76e").opacity(0.05))
+                    .frame(width: geometry.size.width * 0.5)
+                    .blur(radius: 60)
+                    .offset(x: 0, y: geometry.size.height * 0.1)
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct ScaleButtonStyle: ButtonStyle {
+    var scaleAmount: CGFloat = 0.96
+    var duration: Double = 0.1
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? scaleAmount : 1.0)
+            .animation(.easeInOut(duration: duration), value: configuration.isPressed)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+    }
+}
+
+extension ButtonStyle where Self == ScaleButtonStyle {
+    static var scale: ScaleButtonStyle {
+        ScaleButtonStyle()
+    }
+    
+    static func scale(amount: CGFloat = 0.96) -> ScaleButtonStyle {
+        ScaleButtonStyle(scaleAmount: amount)
+    }
+}
+

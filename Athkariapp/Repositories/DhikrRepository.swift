@@ -7,6 +7,8 @@ protocol DhikrRepositoryProtocol {
     func fetchBySource(_ source: DhikrSource) throws -> [DhikrItem]
     func fetchByCategory(_ category: DhikrCategory) throws -> [DhikrItem]
     func fetchByHisnCategory(_ category: HisnCategory) throws -> [DhikrItem]
+    func fetchHisnChapters() throws -> [DhikrItem]
+    func fetchByTitle(_ title: String) throws -> [DhikrItem]
     func fetchById(_ id: UUID) throws -> DhikrItem?
     func search(query: String) throws -> [DhikrItem]
     func insert(_ item: DhikrItem) throws
@@ -15,6 +17,7 @@ protocol DhikrRepositoryProtocol {
     func count() throws -> Int
 }
 
+@preconcurrency
 @MainActor
 final class DhikrRepository: DhikrRepositoryProtocol {
     private let modelContext: ModelContext
@@ -30,44 +33,60 @@ final class DhikrRepository: DhikrRepositoryProtocol {
 
     func fetchBySource(_ source: DhikrSource) throws -> [DhikrItem] {
         let sourceValue = source.rawValue
-        let descriptor = FetchDescriptor<DhikrItem>(
-            predicate: #Predicate<DhikrItem> { item in item.source == sourceValue }
-        )
-        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
+        return try fetchAll()
+            .filter { $0.source == sourceValue }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByCategory(_ category: DhikrCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let descriptor = FetchDescriptor<DhikrItem>(
-            predicate: #Predicate<DhikrItem> { item in item.category == categoryValue }
-        )
-        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
+        return try fetchAll()
+            .filter { $0.category == categoryValue }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchByHisnCategory(_ category: HisnCategory) throws -> [DhikrItem] {
         let categoryValue = category.rawValue
-        let descriptor = FetchDescriptor<DhikrItem>(
-            predicate: #Predicate<DhikrItem> { item in item.hisnCategory == categoryValue }
-        )
-        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
+        return try fetchAll()
+            .filter { $0.hisnCategory == categoryValue }
+            .sorted { $0.orderIndex < $1.orderIndex }
+    }
+
+    func fetchHisnChapters() throws -> [DhikrItem] {
+        let items = try fetchBySource(.hisn)
+        
+        // Group by title and keep the first item of each group (as the chapter representative)
+        // Maintain order based on the first occurrence
+        var uniqueChapters: [DhikrItem] = []
+        var seenTitles: Set<String> = []
+        
+        for item in items {
+            if !seenTitles.contains(item.title) {
+                seenTitles.insert(item.title)
+                uniqueChapters.append(item)
+            }
+        }
+        
+        return uniqueChapters
+    }
+    
+    func fetchByTitle(_ title: String) throws -> [DhikrItem] {
+        return try fetchAll()
+            .filter { $0.title == title }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func fetchById(_ id: UUID) throws -> DhikrItem? {
-        var descriptor = FetchDescriptor<DhikrItem>(
-            predicate: #Predicate<DhikrItem> { item in item.id == id }
-        )
-        descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first
+        return try fetchAll().first { $0.id == id }
     }
 
     func search(query: String) throws -> [DhikrItem] {
-        let descriptor = FetchDescriptor<DhikrItem>(
-            predicate: #Predicate<DhikrItem> { item in
+        return try fetchAll()
+            .filter { item in
                 item.title.localizedStandardContains(query) ||
                 item.text.localizedStandardContains(query)
             }
-        )
-        return try modelContext.fetch(descriptor).sorted { $0.orderIndex < $1.orderIndex }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
     func insert(_ item: DhikrItem) throws {

@@ -6,12 +6,10 @@ import SwiftData
 @Observable
 final class HisnViewModel {
     // MARK: - Published State
-    var categories: [HisnCategory] = HisnCategory.allCases
-    var selectedCategory: HisnCategory?
-    var duaList: [DhikrItem] = []
-    var filteredDuaList: [DhikrItem] = []
+    var chapters: [DhikrItem] = []
+    var filteredChapters: [DhikrItem] = []
     var searchQuery: String = "" {
-        didSet { filterDuas() }
+        didSet { filterChapters() }
     }
     var isLoading: Bool = false
     var errorMessage: String?
@@ -30,47 +28,30 @@ final class HisnViewModel {
     }
 
     // MARK: - Public Methods
-    func loadDuas() async {
+    func loadData() async {
         isLoading = true
         errorMessage = nil
 
         do {
-            duaList = try dhikrRepository.fetchBySource(.hisn)
-            filterDuas()
+            // Load unique chapters
+            chapters = try dhikrRepository.fetchHisnChapters()
+            filterChapters()
         } catch {
-            errorMessage = "حدث خطأ في تحميل الأدعية"
-            print("Error loading duas: \(error)")
+            errorMessage = "حدث خطأ في تحميل الكتب"
+            print("Error loading chapters: \(error)")
         }
 
         isLoading = false
     }
 
-    func selectCategory(_ category: HisnCategory?) {
-        if selectedCategory == category {
-            selectedCategory = nil
-        } else {
-            selectedCategory = category
-        }
-        filterDuas()
-    }
-
     // MARK: - Private Methods
-    private func filterDuas() {
-        var result = duaList
-
-        // Filter by category
-        if let category = selectedCategory {
-            result = result.filter { $0.hisnCategory == category.rawValue }
-        }
-
-        // Filter by search query
-        if !searchQuery.isEmpty {
-            result = result.filter { dua in
-                dua.title.localizedCaseInsensitiveContains(searchQuery) ||
-                dua.text.localizedCaseInsensitiveContains(searchQuery)
+    private func filterChapters() {
+        if searchQuery.isEmpty {
+            filteredChapters = chapters
+        } else {
+            filteredChapters = chapters.filter { chapter in
+                chapter.title.localizedCaseInsensitiveContains(searchQuery)
             }
         }
-
-        filteredDuaList = result
     }
 }

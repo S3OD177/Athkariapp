@@ -27,24 +27,31 @@ enum AppTab: String, CaseIterable {
 }
 
 struct MainTabView: View {
+    @Binding var pendingRoute: AppRoute?
     @State private var selectedTab: AppTab = .home
     @State private var navigationPath = NavigationPath()
+    @State private var pendingSessionAction: SessionLaunchAction = .none
 
     var body: some View {
         ZStack(alignment: .bottom) {
             // Keep all views alive, show/hide with opacity
             ZStack {
                 NavigationStack(path: $navigationPath) {
-                    HomeView(navigationPath: $navigationPath)
+                    HomeView(
+                        navigationPath: $navigationPath,
+                        pendingSessionAction: $pendingSessionAction
+                    )
                 }
                 .opacity(selectedTab == .home ? 1 : 0)
                 .zIndex(selectedTab == .home ? 1 : 0)
                 
+                /*
                 NavigationStack {
                     HisnLibraryView()
                 }
                 .opacity(selectedTab == .athkar ? 1 : 0)
                 .zIndex(selectedTab == .athkar ? 1 : 0)
+                */
                 
                 NavigationStack {
                     ToolsView()
@@ -64,11 +71,16 @@ struct MainTabView: View {
             // Custom Floating Tab Bar
             if navigationPath.isEmpty {
                 customTabBar
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 0)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .ignoresSafeArea(edges: .bottom)
+        .onAppear {
+            handlePendingRoute()
+        }
+        .onChange(of: pendingRoute) { _, _ in
+            handlePendingRoute()
+        }
     }
 
     private var customTabBar: some View {
@@ -83,8 +95,10 @@ struct MainTabView: View {
                     }
                 }
             
+            /*
             TabBarItem(icon: "book", title: "الأذكار", isSelected: selectedTab == .athkar)
                 .onTapGesture { selectedTab = .athkar }
+            */
             
             TabBarItem(icon: "wrench.and.screwdriver", title: "الأدوات", isSelected: selectedTab == .tools)
                 .onTapGesture { selectedTab = .tools }
@@ -103,6 +117,24 @@ struct MainTabView: View {
         )
         .shadow(color: Color.black.opacity(0.1), radius: 20, y: 10)
         .padding(.horizontal, 16)
+    }
+
+    private func handlePendingRoute() {
+        guard let pendingRoute else { return }
+
+        switch pendingRoute {
+        case .home:
+            selectedTab = .home
+            navigationPath = NavigationPath()
+            pendingSessionAction = .none
+        case .session(let slotKey, let action):
+            selectedTab = .home
+            navigationPath = NavigationPath()
+            pendingSessionAction = action
+            navigationPath.append(slotKey)
+        }
+
+        self.pendingRoute = nil
     }
 }
 
@@ -144,7 +176,7 @@ struct TabBarItem: View {
 }
 
 #Preview {
-    MainTabView()
+    MainTabView(pendingRoute: .constant(nil))
         .environment(\.layoutDirection, .rightToLeft)
         .preferredColorScheme(.dark)
 }
@@ -463,10 +495,6 @@ struct ToolCard: View {
         .buttonStyle(.plain)
     }
 }
-
-
-
-
 
 
 

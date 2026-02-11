@@ -33,6 +33,7 @@ protocol SeedImportServiceProtocol {
     func forceReimport() async throws
 }
 
+@preconcurrency
 @MainActor
 final class SeedImportService: SeedImportServiceProtocol {
     private let modelContext: ModelContext
@@ -41,7 +42,7 @@ final class SeedImportService: SeedImportServiceProtocol {
         self.modelContext = modelContext
     }
 
-    private let seedDataVersion = "5.3" // Removed Sleep instruction
+    private let seedDataVersion = "5.6" // Cleaned library JSON (HTML tags, typos)
 
     func importSeedDataIfNeeded() async throws {
         // Skip if already imported for this version (INSTANT on subsequent launches)
@@ -60,41 +61,30 @@ final class SeedImportService: SeedImportServiceProtocol {
         // Delete old seed data when migrating to new version
         // Batched deletion to prevent OOM if database is huge
         if lastVersion != nil {
-            var hasMore = true
-            while hasMore {
-                // Fetch in batches of 2000
-                // Use Predicate to fetch ONLY deletable items.
-                // This avoids fetching 'user_added' items entirely, preventing the infinite loop check issues.
-                let predicate = #Predicate<DhikrItem> { item in
-                    item.source != "user_added"
-                }
-                var descriptor = FetchDescriptor<DhikrItem>(predicate: predicate)
-                descriptor.fetchLimit = 2000
-                
-                let batch = try modelContext.fetch(descriptor)
-                
-                if batch.isEmpty {
-                    hasMore = false
-                    break
-                }
-                
-                for item in batch {
-                    modelContext.delete(item)
-                }
-                
-                try modelContext.save()
-                
-                // CRITICAL: Yield to the main thread to allow UI (Splash Screen) to render.
-                // Without this, the heavy loop blocks the main thread completely, causing a black screen/freeze.
-                await Task.yield()
+            let descriptor = FetchDescriptor<DhikrItem>()
+            let allItems = try modelContext.fetch(descriptor)
+            
+            for item in allItems where item.source != "user_added" {
+                modelContext.delete(item)
             }
+            
+            try modelContext.save()
+            
+            // Yield to allow UI to render after deletion.
+            await Task.yield()
         }
 
-        // Parse JSON in BACKGROUND (off main thread)
-        let adhkarData = try await parseJSONInBackground()
+        // Parse JSON files in BACKGROUND (off main thread)
+        let dailyData = try await parseJSONInBackground(resource: "daily_adhkar")
+        let libraryData = try await parseJSONInBackground(resource: "library_adhkar")
+
+        // Merge results
+        var allAthkar: [DhikrJSON] = []
+        if let daily = dailyData?.athkar { allAthkar.append(contentsOf: daily) }
+        if let library = libraryData?.athkar { allAthkar.append(contentsOf: library) }
 
         // Then do DB operations on main thread (required by SwiftData)
-        try await importParsedData(adhkarData: adhkarData)
+        try await importParsedData(athkar: allAthkar)
 
         // Mark as imported
         UserDefaults.standard.set(seedDataVersion, forKey: "seedDataVersion")
@@ -113,19 +103,25 @@ final class SeedImportService: SeedImportServiceProtocol {
         try modelContext.save()
 
         // Parse and import
-        let adhkarData = try await parseJSONInBackground()
-        try await importParsedData(adhkarData: adhkarData)
+        let dailyData = try await parseJSONInBackground(resource: "daily_adhkar")
+        let libraryData = try await parseJSONInBackground(resource: "library_adhkar")
+
+        var allAthkar: [DhikrJSON] = []
+        if let daily = dailyData?.athkar { allAthkar.append(contentsOf: daily) }
+        if let library = libraryData?.athkar { allAthkar.append(contentsOf: library) }
+
+        try await importParsedData(athkar: allAthkar)
         UserDefaults.standard.set(seedDataVersion, forKey: "seedDataVersion")
     }
 
     // MARK: - Background JSON Parsing (OFF MAIN THREAD)
 
-    nonisolated private func parseJSONInBackground() async throws -> UnifiedAdhkarJSON? {
+    nonisolated private func parseJSONInBackground(resource: String) async throws -> UnifiedAdhkarJSON? {
         // This runs on a background thread - no main thread blocking!
         return try await Task.detached(priority: .userInitiated) {
             let decoder = JSONDecoder()
 
-            guard let url = Bundle.main.url(forResource: "adhkar", withExtension: "json") else {
+            guard let url = Bundle.main.url(forResource: resource, withExtension: "json") else {
                 return nil
             }
 
@@ -136,10 +132,7 @@ final class SeedImportService: SeedImportServiceProtocol {
 
     // MARK: - Database Operations (MAIN THREAD - required by SwiftData)
 
-    // MARK: - Database Operations (MAIN THREAD - required by SwiftData)
-
-    private func importParsedData(adhkarData: UnifiedAdhkarJSON?) async throws {
-        guard let athkar = adhkarData?.athkar else { return }
+    private func importParsedData(athkar: [DhikrJSON]) async throws {
 
         // Fetch existing items map optimization
         // Instead of fetching EVERYTHING, we could fetch just IDs if SwiftData allowed projection easily to non-persistent models.

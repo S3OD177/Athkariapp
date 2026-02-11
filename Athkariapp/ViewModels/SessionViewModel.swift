@@ -28,6 +28,8 @@ final class SessionViewModel {
     private let dhikrRepository: DhikrRepository
     private let settingsRepository: SettingsRepositoryProtocol
     private let hapticsService: HapticsService
+    private let liveActivityCoordinator: LiveActivityCoordinator
+    private let widgetSnapshotCoordinator: WidgetSnapshotCoordinator
     private var hapticsEnabled: Bool = true
 
     // MARK: - Properties
@@ -55,6 +57,8 @@ final class SessionViewModel {
         dhikrRepository: DhikrRepository,
         settingsRepository: SettingsRepositoryProtocol,
         hapticsService: HapticsService,
+        liveActivityCoordinator: LiveActivityCoordinator,
+        widgetSnapshotCoordinator: WidgetSnapshotCoordinator,
         hapticsEnabled: Bool = true
     ) {
         self.slotKey = slotKey
@@ -62,6 +66,8 @@ final class SessionViewModel {
         self.dhikrRepository = dhikrRepository
         self.settingsRepository = settingsRepository
         self.hapticsService = hapticsService
+        self.liveActivityCoordinator = liveActivityCoordinator
+        self.widgetSnapshotCoordinator = widgetSnapshotCoordinator
         self.hapticsEnabled = hapticsEnabled
     }
 
@@ -110,6 +116,7 @@ final class SessionViewModel {
         }
 
         isLoading = false
+        syncLiveActivity()
     }
 
     func increment() {
@@ -138,6 +145,7 @@ final class SessionViewModel {
         }
 
         saveSession()
+        syncLiveActivity()
     }
 
     func reset() {
@@ -146,6 +154,7 @@ final class SessionViewModel {
         session?.sessionStatus = .partial
         isCompleted = false
         saveSession()
+        syncLiveActivity()
     }
 
     func switchDhikr(to dhikr: DhikrItem) {
@@ -155,14 +164,19 @@ final class SessionViewModel {
         session?.currentDhikrId = dhikr.id
         session?.currentCount = 0
         saveSession()
+        syncLiveActivity()
         showDhikrSwitcher = false
     }
 
     func finishSession() {
         guard let session = session else { return }
 
-        // Mark as completed if reached target, otherwise confirm
-        if currentCount >= targetCount || !dhikrList.isEmpty {
+        let completedIds = session.completedDhikrIds
+        let allCompleted = !dhikrList.isEmpty && dhikrList.allSatisfy { dhikr in
+            completedIds.contains(dhikr.id)
+        }
+
+        if allCompleted {
             session.sessionStatus = .completed
             session.completedAt = Date()
             isCompleted = true
@@ -171,9 +185,12 @@ final class SessionViewModel {
             if hapticsEnabled {
                 hapticsService.playNotification(.success)
             }
+        } else if session.sessionStatus != .completed && (currentCount > 0 || !session.completedDhikrIds.isEmpty) {
+            session.sessionStatus = .partial
         }
 
         saveSession()
+        syncLiveActivity()
     }
 
     func endSession() {
@@ -183,6 +200,8 @@ final class SessionViewModel {
             session.sessionStatus = .partial
         }
         saveSession()
+        liveActivityCoordinator.syncSessionState(nil)
+        widgetSnapshotCoordinator.syncSession(nil)
     }
 
     func moveToNext() {
@@ -218,13 +237,15 @@ final class SessionViewModel {
         guard let session = session, let current = currentDhikr else { return }
 
         // Add to completed list
-        if !session.completedDhikrIds.contains(current.id) {
-            session.completedDhikrIds.append(current.id)
+        var completedIds = session.completedDhikrIds
+        if !completedIds.contains(current.id) {
+            completedIds.append(current.id)
+            session.completedDhikrIds = completedIds
         }
 
         // Check if all dhikr completed
         let allCompleted = dhikrList.allSatisfy { dhikr in
-            session.completedDhikrIds.contains(dhikr.id)
+            completedIds.contains(dhikr.id)
         }
 
         if allCompleted {
@@ -237,8 +258,7 @@ final class SessionViewModel {
                 hapticsService.playNotification(.success)
             }
         } else if autoAdvance {
-            // Auto-advance disabled by user request
-            // moveToNextDhikr()
+            moveToNext()
         }
     }
 
@@ -255,5 +275,76 @@ final class SessionViewModel {
         } catch {
             print("Error saving session: \(error)")
         }
+    }
+
+    private func syncLiveActivity() {
+        let sessionSnapshot = makeSessionSnapshot()
+        liveActivityCoordinator.syncSessionState(sessionSnapshot)
+        widgetSnapshotCoordinator.syncSession(sessionSnapshot)
+    }
+
+    private func makeSessionSnapshot() -> LiveActivityCoordinator.SessionSnapshot? {
+        guard
+            let session,
+            session.sessionStatus != .completed,
+            let currentDhikr
+        else {
+            return nil
+        }
+
+        let safeTarget = max(targetCount, 1)
+        let safeCurrent = min(max(currentCount, 0), safeTarget)
+
+        return LiveActivityCoordinator.SessionSnapshot(
+            slotKey: slotKey.rawValue,
+            title: sanitizeForLiveActivity(currentDhikr.title, maxLength: 80),
+            subtitle: sanitizeForLiveActivity(currentDhikr.text, maxLength: 320),
+            currentCount: safeCurrent,
+            targetCount: safeTarget,
+            progress: Double(safeCurrent) / Double(safeTarget)
+        )
+    }
+
+    private func sanitizeForLiveActivity(_ text: String, maxLength: Int) -> String {
+        let compact = text
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\t", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard compact.count > maxLength else {
+            return compact
+        }
+
+        let endIndex = compact.index(compact.startIndex, offsetBy: maxLength)
+        return String(compact[..<endIndex]).trimmingCharacters(in: .whitespaces) + "…"
+    }
+
+    // MARK: - UI Helpers
+    var sessionTitle: String {
+        slotKey.arabicName
+    }
+    
+    var currentIndex: Int {
+        currentDhikrIndex
+    }
+    
+    var totalItems: Int {
+        dhikrList.count
+    }
+    
+    var sessionCompleted: Bool {
+        isCompleted
+    }
+    
+    func previousDhikr() {
+        moveToPrevious()
+    }
+    
+    func skipDhikr() {
+        moveToNext()
+    }
+    
+    func resetSession() {
+        reset()
     }
 }
