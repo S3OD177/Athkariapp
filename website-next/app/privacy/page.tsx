@@ -29,7 +29,7 @@ export default function Privacy() {
                     <div className="space-y-8 text-gray-300 leading-relaxed">
                         <div>
                             <h2 className="text-xl font-bold text-white mb-3">١. نظرة عامة</h2>
-                            <p>خصوصيتك أهم أولوياتنا. تطبيق "أذكاري" مصمم ليحترم خصوصية بياناتك بالكامل. نحن لا نجمع، ولا نخزن، ولا نشارك أي معلومات شخصية عنك.</p>
+                            <p>خصوصيتك أهم أولوياتنا. تطبيق «أذكاري» مصمم ليحترم خصوصية بياناتك بالكامل. نحن لا نجمع، ولا نخزن، ولا نشارك أي معلومات شخصية عنك.</p>
                         </div>
 
                         <div>
@@ -60,7 +60,7 @@ export default function Privacy() {
 
             <footer className="bg-background-dark py-8 border-t border-white/5 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <p className="text-gray-500 text-sm font-body">© 2026 تطبيق أذكاري. جميع الحقوق محفوظة.</p>
+                    <p className="text-gray-400 text-sm font-body">© 2026 تطبيق أذكاري. جميع الحقوق محفوظة.</p>
                 </div>
             </footer>
         </>

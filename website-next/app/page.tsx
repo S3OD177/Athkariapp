@@ -118,7 +118,13 @@ export default function Home() {
             <div className="absolute top-0 left-4 sm:left-6 lg:left-0 w-[280px] sm:w-[300px] h-[580px] sm:h-[620px] bg-[#111] rounded-[40px] border-[6px] border-[#2d2d2d] shadow-2xl transform scale-95 -rotate-3 translate-y-4 opacity-100 z-10 transition-transform duration-500 hover:scale-100 hover:z-30 hover:rotate-0">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[25px] w-[100px] bg-black rounded-b-2xl z-20"></div>
               <div className="w-full h-full bg-[#1e2a3b] rounded-[32px] overflow-hidden relative">
-                <img src="/assets/images/screen_library.png" alt="Library Interface" className="w-full h-full object-fill" />
+                <Image
+                  src="/assets/images/screen_library.png"
+                  alt="Library Interface"
+                  fill
+                  sizes="(max-width: 1024px) 280px, 300px"
+                  className="object-contain"
+                />
               </div>
             </div>
 
@@ -126,7 +132,13 @@ export default function Home() {
             <div className="absolute top-4 right-4 sm:right-6 lg:right-6 w-[280px] sm:w-[300px] h-[580px] sm:h-[620px] bg-[#111] rounded-[40px] border-[6px] border-[#2d2d2d] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] z-20">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[25px] w-[100px] bg-black rounded-b-2xl z-30"></div>
               <div className="w-full h-full bg-[#1a2538] rounded-[32px] overflow-hidden relative">
-                <img src="/assets/images/screenshot_home.png" alt="Home Interface" className="w-full h-full object-fill" />
+                <Image
+                  src="/assets/images/screenshot_home.png"
+                  alt="Home Interface"
+                  fill
+                  sizes="(max-width: 1024px) 280px, 300px"
+                  className="object-contain"
+                />
               </div>
             </div>
           </div>
@@ -186,13 +198,31 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="rounded-3xl overflow-hidden border-4 border-[#2d2d2d] shadow-2xl bg-[#111]">
-              <img src="/assets/images/screen_library.png" alt="Library" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
+              <Image
+                src="/assets/images/screen_library.png"
+                alt="Library"
+                width={471}
+                height={1024}
+                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+              />
             </div>
             <div className="rounded-3xl overflow-hidden border-4 border-[#2d2d2d] shadow-2xl bg-[#111]">
-              <img src="/assets/images/screen_tools.png" alt="Tools" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
+              <Image
+                src="/assets/images/screen_tools.png"
+                alt="Tools"
+                width={471}
+                height={1024}
+                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+              />
             </div>
             <div className="rounded-3xl overflow-hidden border-4 border-[#2d2d2d] shadow-2xl bg-[#111]">
-              <img src="/assets/images/screen_settings.png" alt="Settings" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
+              <Image
+                src="/assets/images/screen_settings.png"
+                alt="Settings"
+                width={471}
+                height={1024}
+                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+              />
             </div>
           </div>
         </div>
@@ -200,7 +230,7 @@ export default function Home() {
 
       <footer className="bg-background-dark py-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-gray-500 text-sm font-body">© 2026 تطبيق أذكاري. جميع الحقوق محفوظة.</p>
+          <p className="text-gray-400 text-sm font-body">© 2026 تطبيق أذكاري. جميع الحقوق محفوظة.</p>
         </div>
       </footer>
     </>
