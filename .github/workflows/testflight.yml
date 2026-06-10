@@ -1,4 +1,5 @@
 name: TestFlight Upload
+run-name: TestFlight Upload (${{ github.event.inputs.upload == 'YES' && 'upload' || 'preflight' }})
 
 on:
   workflow_dispatch:
@@ -12,11 +13,31 @@ concurrency:
   group: testflight-upload
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show release instructions
+        run: |
+          set -euo pipefail
+          echo "Upload requested: ${{ github.event.inputs.upload }}"
+          echo ""
+          echo "Required GitHub Actions secrets:"
+          echo "- APP_STORE_CONNECT_API_KEY_ID"
+          echo "- APP_STORE_CONNECT_API_ISSUER_ID"
+          echo "- APP_STORE_CONNECT_API_KEY_BASE64"
+          echo ""
+          echo "Set upload=YES only after these secrets are configured."
+
   upload:
     name: Archive and Upload
     runs-on: macos-latest
     timeout-minutes: 60
+    needs: preflight
     if: ${{ github.event.inputs.upload == 'YES' }}
 
     env:
@@ -70,4 +91,3 @@ jobs:
             -authenticationKeyPath "$PWD/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "${ASC_KEY_ID}" \
             -authenticationKeyIssuerID "${ASC_ISSUER_ID}"
-
