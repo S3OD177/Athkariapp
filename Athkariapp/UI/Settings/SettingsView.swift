@@ -107,7 +107,25 @@ struct SettingsContent: View {
                         set: { viewModel.updateICloudSyncEnabled($0) }
                     ))
                     .labelsHidden()
+                    .accessibilityLabel("مزامنة iCloud")
                     .tint(.blue)
+                }
+
+                if viewModel.iCloudSyncRequiresRestart {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "arrow.clockwise.circle.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.blue)
+
+                        Text("سيتم تطبيق تغيير المزامنة بعد إعادة فتح التطبيق.")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppColors.textGray)
+                            .lineSpacing(3)
+
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
                 }
                 
                 Divider().background(Color.white.opacity(0.1))
@@ -124,6 +142,7 @@ struct SettingsContent: View {
                         set: { viewModel.updateAutoAdvance($0) }
                     ))
                     .labelsHidden()
+                    .accessibilityLabel("الانتقال التلقائي")
                     .tint(.blue)
                 }
                 
@@ -141,6 +160,7 @@ struct SettingsContent: View {
                         set: { viewModel.updateHapticsEnabled($0) }
                     ))
                     .labelsHidden()
+                    .accessibilityLabel("اللمس الاهتزازي")
                     .tint(.blue)
                 }
                 
@@ -158,6 +178,7 @@ struct SettingsContent: View {
                         set: { viewModel.updateNotificationsEnabled($0) }
                     ))
                     .labelsHidden()
+                    .accessibilityLabel("إشعارات الأذكار")
                     .tint(.blue)
                 }
 

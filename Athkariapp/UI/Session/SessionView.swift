@@ -85,15 +85,7 @@ struct SessionContent: View {
                 
                 Spacer()
                 
-                // Main Content Area
-                VStack(spacing: 24) {
-                    dhikrCard
-                        .padding(.horizontal, 16) // Expanded card width
-                        .frame(maxWidth: 600) // Max width for iPad
-                    
-                    counterSection
-                        .padding(.horizontal, 32)
-                }
+                sessionMainContent
                 
                 Spacer()
                 
@@ -142,14 +134,54 @@ struct SessionContent: View {
     }
     
     // MARK: - Sub-views
+
+    @ViewBuilder
+    private var sessionMainContent: some View {
+        if viewModel.isLoading {
+            sessionMessageCard(
+                icon: "hourglass",
+                title: "جاري تحميل الأذكار",
+                message: "لحظات قليلة ونجهز لك الجلسة."
+            )
+            .padding(.horizontal, 16)
+            .frame(maxWidth: 600)
+        } else if let errorMessage = viewModel.errorMessage, !errorMessage.isEmpty {
+            sessionMessageCard(
+                icon: "exclamationmark.triangle.fill",
+                title: "تعذر تحميل الجلسة",
+                message: errorMessage,
+                actionTitle: "إعادة المحاولة"
+            ) {
+                Task { await viewModel.loadSession() }
+            }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: 600)
+        } else if viewModel.currentDhikr == nil {
+            sessionMessageCard(
+                icon: "book.closed.fill",
+                title: "لا توجد أذكار هنا",
+                message: "لم يتم العثور على أذكار لهذا الوقت حالياً."
+            )
+            .padding(.horizontal, 16)
+            .frame(maxWidth: 600)
+        } else {
+            VStack(spacing: 24) {
+                dhikrCard
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: 600)
+
+                counterSection
+                    .padding(.horizontal, 32)
+            }
+        }
+    }
     
     private var backgroundView: some View {
         ZStack {
             AppColors.sessionBackground.ignoresSafeArea()
             
             AmbientBackground()
-                .opacity(0.8)
-                .blur(radius: 60)
+                .opacity(0.45)
         }
     }
     
@@ -160,9 +192,12 @@ struct SessionContent: View {
                 onDismiss()
             } label: {
                 Circle()
-                    .fill(.ultraThinMaterial)
+                    .fill(AppColors.sessionSurface.opacity(0.9))
                     .frame(width: 44, height: 44)
-                    .shadow(color: .black.opacity(0.1), radius: 5)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                     .overlay(
                         Image(systemName: "chevron.backward")
                             .font(.system(size: 16, weight: .bold))
@@ -184,9 +219,12 @@ struct SessionContent: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(.ultraThinMaterial)
+                .background(AppColors.sessionSurface.opacity(0.9))
                 .clipShape(Capsule())
-                .shadow(color: .black.opacity(0.1), radius: 5)
+                .overlay(
+                    Capsule()
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
             }
             
             Spacer()
@@ -195,9 +233,12 @@ struct SessionContent: View {
                 viewModel.showDhikrSwitcher = true
             } label: {
                 Circle()
-                    .fill(.ultraThinMaterial)
+                    .fill(AppColors.sessionSurface.opacity(0.9))
                     .frame(width: 44, height: 44)
-                    .shadow(color: .black.opacity(0.1), radius: 5)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                     .overlay(
                         Image(systemName: "list.bullet")
                             .font(.system(size: 16, weight: .bold))
@@ -213,11 +254,11 @@ struct SessionContent: View {
         ZStack {
             // Glassmorphism Card
             RoundedRectangle(cornerRadius: 32)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                .fill(AppColors.sessionSurface.opacity(0.72))
+                .shadow(color: .black.opacity(0.12), radius: 16, x: 0, y: 8)
                 .overlay(
                     RoundedRectangle(cornerRadius: 32)
-                        .stroke(.white.opacity(0.1), lineWidth: 1)
+                        .stroke(.white.opacity(0.08), lineWidth: 1)
                 )
             
             VStack(spacing: 16) {
@@ -317,8 +358,12 @@ struct SessionContent: View {
                 withAnimation { viewModel.moveToPrevious() }
             } label: {
                 Circle()
-                    .fill(.ultraThinMaterial)
+                    .fill(AppColors.sessionSurface.opacity(0.9))
                     .frame(width: 50, height: 50)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                     .overlay(
                         Image(systemName: "arrow.backward")
                             .font(.headline)
@@ -346,8 +391,12 @@ struct SessionContent: View {
                 withAnimation { viewModel.moveToNext() }
             } label: {
                 Circle()
-                    .fill(.ultraThinMaterial)
+                    .fill(AppColors.sessionSurface.opacity(0.9))
                     .frame(width: 50, height: 50)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                     .overlay(
                         Image(systemName: "arrow.forward")
                             .font(.headline)
@@ -357,6 +406,53 @@ struct SessionContent: View {
             .disabled(viewModel.currentDhikrIndex >= viewModel.dhikrList.count - 1)
             .opacity(viewModel.currentDhikrIndex >= viewModel.dhikrList.count - 1 ? 0.3 : 1.0)
         }
+    }
+
+    private func sessionMessageCard(
+        icon: String,
+        title: String,
+        message: String,
+        actionTitle: String? = nil,
+        action: (() -> Void)? = nil
+    ) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(AppColors.onboardingPrimary)
+
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+
+                Text(message)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppColors.textGray)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+            }
+
+            if let actionTitle, let action {
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 260)
+        .padding(24)
+        .background(AppColors.sessionSurface.opacity(0.72))
+        .clipShape(RoundedRectangle(cornerRadius: 32))
+        .overlay(
+            RoundedRectangle(cornerRadius: 32)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
     
     // Bottom actions remain simple

@@ -1,6 +1,7 @@
 import XCTest
 @testable import Athkariapp
 
+@MainActor
 final class WidgetSnapshotCoordinatorTests: XCTestCase {
 
     func testSessionTakesPrecedenceOverPrayer() {

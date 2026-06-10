@@ -78,23 +78,23 @@ final class PrayerTimeServiceTests: XCTestCase {
 
         // After fajr
         let testTimeFajr = times.fajr.addingTimeInterval(60)
-        XCTAssertEqual(times.afterPrayerSlot(at: testTimeFajr), .afterFajr)
+        XCTAssertEqual(times.afterPrayerSlot(at: testTimeFajr, durationMinutes: 15), .afterFajr)
 
         // After dhuhr
         let testTimeDhuhr = times.dhuhr.addingTimeInterval(60)
-        XCTAssertEqual(times.afterPrayerSlot(at: testTimeDhuhr), .afterDhuhr)
+        XCTAssertEqual(times.afterPrayerSlot(at: testTimeDhuhr, durationMinutes: 15), .afterDhuhr)
 
         // After asr
         let testTimeAsr = times.asr.addingTimeInterval(60)
-        XCTAssertEqual(times.afterPrayerSlot(at: testTimeAsr), .afterAsr)
+        XCTAssertEqual(times.afterPrayerSlot(at: testTimeAsr, durationMinutes: 15), .afterAsr)
 
         // After maghrib
         let testTimeMaghrib = times.maghrib.addingTimeInterval(60)
-        XCTAssertEqual(times.afterPrayerSlot(at: testTimeMaghrib), .afterMaghrib)
+        XCTAssertEqual(times.afterPrayerSlot(at: testTimeMaghrib, durationMinutes: 15), .afterMaghrib)
 
         // After isha
         let testTimeIsha = times.isha.addingTimeInterval(60)
-        XCTAssertEqual(times.afterPrayerSlot(at: testTimeIsha), .afterIsha)
+        XCTAssertEqual(times.afterPrayerSlot(at: testTimeIsha, durationMinutes: 15), .afterIsha)
     }
 
     func testDifferentCalculationMethods() {

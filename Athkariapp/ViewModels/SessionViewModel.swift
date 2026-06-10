@@ -120,7 +120,7 @@ final class SessionViewModel {
     }
 
     func increment() {
-        guard !isCompleted else { return }
+        guard currentDhikr != nil, !isCompleted else { return }
 
         // If already completed current item, move to next
         if currentCount >= targetCount {

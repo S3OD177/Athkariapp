@@ -46,11 +46,17 @@ final class HisnViewModel {
 
     // MARK: - Private Methods
     private func filterChapters() {
-        if searchQuery.isEmpty {
+        let trimmedQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedQuery.isEmpty {
             filteredChapters = chapters
         } else {
-            filteredChapters = chapters.filter { chapter in
-                chapter.title.localizedCaseInsensitiveContains(searchQuery)
+            do {
+                filteredChapters = try dhikrRepository.searchHisnChapters(query: trimmedQuery)
+            } catch {
+                errorMessage = "حدث خطأ أثناء البحث"
+                filteredChapters = chapters.filter { chapter in
+                    chapter.title.localizedCaseInsensitiveContains(trimmedQuery)
+                }
             }
         }
     }

@@ -34,37 +34,7 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Keep all views alive, show/hide with opacity
-            ZStack {
-                NavigationStack(path: $navigationPath) {
-                    HomeView(
-                        navigationPath: $navigationPath,
-                        pendingSessionAction: $pendingSessionAction
-                    )
-                }
-                .opacity(selectedTab == .home ? 1 : 0)
-                .zIndex(selectedTab == .home ? 1 : 0)
-                
-                /*
-                NavigationStack {
-                    HisnLibraryView()
-                }
-                .opacity(selectedTab == .athkar ? 1 : 0)
-                .zIndex(selectedTab == .athkar ? 1 : 0)
-                */
-                
-                NavigationStack {
-                    ToolsView()
-                }
-                .opacity(selectedTab == .tools ? 1 : 0)
-                .zIndex(selectedTab == .tools ? 1 : 0)
-                
-                NavigationStack {
-                    SettingsView()
-                }
-                .opacity(selectedTab == .settings ? 1 : 0)
-                .zIndex(selectedTab == .settings ? 1 : 0)
-            }
+            currentTabView
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .animation(.easeInOut(duration: 0.2), value: selectedTab)
             
@@ -83,31 +53,50 @@ struct MainTabView: View {
         }
     }
 
+    @ViewBuilder
+    private var currentTabView: some View {
+        switch selectedTab {
+        case .home:
+            NavigationStack(path: $navigationPath) {
+                HomeView(
+                    navigationPath: $navigationPath,
+                    pendingSessionAction: $pendingSessionAction
+                )
+            }
+        case .athkar:
+            HisnLibraryView()
+        case .tools:
+            NavigationStack {
+                ToolsView()
+            }
+        case .settings:
+            NavigationStack {
+                SettingsView()
+            }
+        }
+    }
+
     private var customTabBar: some View {
         HStack(spacing: 0) {
-            TabBarItem(icon: "house", title: "الرئيسية", isSelected: selectedTab == .home)
+            ForEach(AppTab.allCases, id: \.self) { tab in
+                TabBarItem(
+                    icon: tab.icon,
+                    title: tab.title,
+                    isSelected: selectedTab == tab
+                )
                 .onTapGesture {
-                    if selectedTab == .home {
-                        // Already on home, pop to root
-                        navigationPath = NavigationPath()
+                    if selectedTab == tab {
+                        if tab == .home {
+                            navigationPath = NavigationPath()
+                        }
                     } else {
-                        selectedTab = .home
+                        selectedTab = tab
                     }
                 }
-            
-            /*
-            TabBarItem(icon: "book", title: "الأذكار", isSelected: selectedTab == .athkar)
-                .onTapGesture { selectedTab = .athkar }
-            */
-            
-            TabBarItem(icon: "wrench.and.screwdriver", title: "الأدوات", isSelected: selectedTab == .tools)
-                .onTapGesture { selectedTab = .tools }
-            
-            TabBarItem(icon: "gearshape", title: "الإعدادات", isSelected: selectedTab == .settings)
-                .onTapGesture { selectedTab = .settings }
+            }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
         .background(AppColors.onboardingSurface.opacity(0.9))
         .background(.ultraThinMaterial)
         .cornerRadius(30)
@@ -116,7 +105,7 @@ struct MainTabView: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.1), radius: 20, y: 10)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
     }
 
     private func handlePendingRoute() {
@@ -148,12 +137,12 @@ struct TabBarItem: View {
             if isSelected {
                 HStack(spacing: 8) {
                     Image(systemName: "\(icon).fill")
-                        .font(.system(size: 18))
+                        .font(.system(size: 17, weight: .semibold))
                     Text(title)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .fixedSize(horizontal: true, vertical: false)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 12)
                 .frame(height: 44) // Fixed height
                 .background(AppColors.onboardingPrimary)
                 .foregroundStyle(.white)
@@ -161,9 +150,11 @@ struct TabBarItem: View {
             } else {
                 VStack(spacing: 4) {
                     Image(systemName: icon)
-                        .font(.system(size: 20))
+                        .font(.system(size: 19, weight: .medium))
                     Text(title)
                         .font(.system(size: 10, weight: .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
                 .foregroundStyle(.white.opacity(0.4))
                 .frame(height: 44) // Fixed height to match selected state
@@ -445,9 +436,7 @@ struct ToolCard: View {
     
     var body: some View {
         Button {
-            if !isComingSoon {
-                action()
-            }
+            action()
         } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
@@ -493,11 +482,11 @@ struct ToolCard: View {
             )
         }
         .buttonStyle(.plain)
+        .disabled(isComingSoon)
+        .accessibilityLabel(isComingSoon ? "\(title)، قريباً" : title)
+        .accessibilityHint(isComingSoon ? "هذه الأداة غير متاحة حالياً" : subtitle)
     }
 }
-
-
-
 
 
 

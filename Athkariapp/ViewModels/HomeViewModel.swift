@@ -40,8 +40,8 @@ final class HomeViewModel {
     // Post-Prayer Status
     var currentAdhan: Prayer?
     
-    // Timer Task
-    // No explicit property needed as we rely on weak self for cancellation naturally
+    @ObservationIgnored
+    nonisolated(unsafe) private var timeUpdaterTask: Task<Void, Never>?
 
     // MARK: - Dependencies
     private let sessionRepository: SessionRepository
@@ -76,15 +76,18 @@ final class HomeViewModel {
     }
     
     deinit {
+        timeUpdaterTask?.cancel()
         NotificationCenter.default.removeObserver(self)
     }
     
     private func startTimeUpdater() {
+        timeUpdaterTask?.cancel()
         // Update every minute to refresh time-based UI
-        Task { [weak self] in
-            while true {
+        timeUpdaterTask = Task { [weak self] in
+            while !Task.isCancelled {
                 // Sleep for 60 seconds
                 try? await Task.sleep(nanoseconds: 60 * 1_000_000_000)
+                guard !Task.isCancelled else { return }
                 
                 guard let self = self else { return }
                 

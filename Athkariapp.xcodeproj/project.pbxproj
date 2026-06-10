@@ -51,6 +51,13 @@
 		SVC004 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC020 /* LocationService.swift */; };
 		SVC005 /* LiveActivityCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC042 /* LiveActivityCoordinator.swift */; };
 		SVC006 /* WidgetSnapshotCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC044 /* WidgetSnapshotCoordinator.swift */; };
+		TST001 /* DhikrRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR001 /* DhikrRepositoryTests.swift */; };
+		TST002 /* PrayerTimeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR002 /* PrayerTimeServiceTests.swift */; };
+		TST003 /* WidgetSnapshotCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR003 /* WidgetSnapshotCoordinatorTests.swift */; };
+		TST004 /* SessionStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR004 /* SessionStateTests.swift */; };
+		TST005 /* AthkariWidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR005 /* AthkariWidgetSnapshotTests.swift */; };
+		TST006 /* OnboardingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR006 /* OnboardingViewModelTests.swift */; };
+		TST007 /* SlotKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TSTFR007 /* SlotKeyTests.swift */; };
 		UIV001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC027 /* MainTabView.swift */; };
 		UIV002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC028 /* OnboardingView.swift */; };
 		UIV003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC029 /* HomeView.swift */; };
@@ -77,6 +84,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = TGT002;
 			remoteInfo = AthkariLiveActivityExtension;
+		};
+		PRX002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PRJ001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TGT001;
+			remoteInfo = Athkariapp;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -115,6 +129,7 @@
 		EXT005 /* AthkariLiveActivityExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AthkariLiveActivityExtension.entitlements; sourceTree = "<group>"; };
 		PROD001 /* Athkariapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Athkariapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		PROD002 /* AthkariLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AthkariLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		PROD003 /* AthkariappTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AthkariappTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		RSC001 /* daily_adhkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = daily_adhkar.json; sourceTree = "<group>"; };
 		RSC002 /* library_adhkar.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = library_adhkar.json; sourceTree = "<group>"; };
 		RSC003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -158,6 +173,13 @@
 		SRC042 /* LiveActivityCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityCoordinator.swift; sourceTree = "<group>"; };
 		SRC043 /* AthkariWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AthkariWidgetSnapshot.swift; sourceTree = "<group>"; };
 		SRC044 /* WidgetSnapshotCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotCoordinator.swift; sourceTree = "<group>"; };
+		TSTFR001 /* DhikrRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DhikrRepositoryTests.swift; sourceTree = "<group>"; };
+		TSTFR002 /* PrayerTimeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimeServiceTests.swift; sourceTree = "<group>"; };
+		TSTFR003 /* WidgetSnapshotCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotCoordinatorTests.swift; sourceTree = "<group>"; };
+		TSTFR004 /* SessionStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStateTests.swift; sourceTree = "<group>"; };
+		TSTFR005 /* AthkariWidgetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AthkariWidgetSnapshotTests.swift; sourceTree = "<group>"; };
+		TSTFR006 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModelTests.swift; sourceTree = "<group>"; };
+		TSTFR007 /* SlotKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlotKeyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +192,13 @@
 				runOnlyForDeploymentPostprocessing = 0;
 			};
 			FRM002 /* Frameworks */ = {
+				isa = PBXFrameworksBuildPhase;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+			FRM003 /* Frameworks */ = {
 				isa = PBXFrameworksBuildPhase;
 				buildActionMask = 2147483647;
 				files = (
@@ -197,6 +226,7 @@
 			isa = PBXGroup;
 			children = (
 				GRP001 /* Athkariapp */,
+				GRP300 /* AthkariappTests */,
 				GRP200 /* AthkariLiveActivityExtension */,
 				GRP100 /* Products */,
 			);
@@ -384,6 +414,7 @@
 			children = (
 				PROD001 /* Athkariapp.app */,
 				PROD002 /* AthkariLiveActivityExtension.appex */,
+				PROD003 /* AthkariappTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -400,6 +431,20 @@
 				path = AthkariLiveActivityExtension;
 				sourceTree = "<group>";
 			};
+		GRP300 /* AthkariappTests */ = {
+			isa = PBXGroup;
+			children = (
+				TSTFR001 /* DhikrRepositoryTests.swift */,
+				TSTFR002 /* PrayerTimeServiceTests.swift */,
+				TSTFR003 /* WidgetSnapshotCoordinatorTests.swift */,
+				TSTFR004 /* SessionStateTests.swift */,
+				TSTFR005 /* AthkariWidgetSnapshotTests.swift */,
+				TSTFR006 /* OnboardingViewModelTests.swift */,
+				TSTFR007 /* SlotKeyTests.swift */,
+			);
+			path = AthkariappTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -443,6 +488,24 @@
 			productReference = PROD002 /* AthkariLiveActivityExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		TGT003 /* AthkariappTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFG004 /* Build configuration list for PBXNativeTarget "AthkariappTests" */;
+			buildPhases = (
+				SRC300 /* Sources */,
+				FRM003 /* Frameworks */,
+				RES300 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEP002 /* PBXTargetDependency */,
+			);
+			name = AthkariappTests;
+			productName = AthkariappTests;
+			productReference = PROD003 /* AthkariappTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -458,6 +521,10 @@
 					};
 					TGT002 = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					TGT003 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = TGT001;
 					};
 				};
 			};
@@ -479,6 +546,7 @@
 			targets = (
 				TGT001 /* Athkariapp */,
 				TGT002 /* AthkariLiveActivityExtension */,
+				TGT003 /* AthkariappTests */,
 			);
 		};
 /* End PBXProject section */
@@ -496,6 +564,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		RES200 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		RES300 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -593,6 +668,20 @@
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 			};
+		SRC300 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				TST001 /* DhikrRepositoryTests.swift in Sources */,
+				TST002 /* PrayerTimeServiceTests.swift in Sources */,
+				TST003 /* WidgetSnapshotCoordinatorTests.swift in Sources */,
+				TST004 /* SessionStateTests.swift in Sources */,
+				TST005 /* AthkariWidgetSnapshotTests.swift in Sources */,
+				TST006 /* OnboardingViewModelTests.swift in Sources */,
+				TST007 /* SlotKeyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -600,6 +689,11 @@
 			isa = PBXTargetDependency;
 			target = TGT002 /* AthkariLiveActivityExtension */;
 			targetProxy = PRX001 /* PBXContainerItemProxy */;
+		};
+		DEP002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TGT001 /* Athkariapp */;
+			targetProxy = PRX002 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -843,6 +937,52 @@
 			};
 			name = Release;
 		};
+		CFG401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = AAR68TQVR5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AthkariappTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Athkariapp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Athkariapp";
+			};
+			name = Debug;
+		};
+		CFG402 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = AAR68TQVR5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AthkariappTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Athkariapp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Athkariapp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -869,6 +1009,15 @@
 			buildConfigurations = (
 				CFG301 /* Debug */,
 				CFG302 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFG004 /* Build configuration list for PBXNativeTarget "AthkariappTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFG401 /* Debug */,
+				CFG402 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

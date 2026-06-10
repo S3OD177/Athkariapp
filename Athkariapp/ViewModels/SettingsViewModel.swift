@@ -17,6 +17,7 @@ final class SettingsViewModel {
     var autoAdvance: Bool = false
     var afterPrayerOffset: Int = 15
     var iCloudSyncEnabled: Bool = false
+    var iCloudSyncRequiresRestart: Bool = false
     var liveActivityDismissMinutes: Int = 30
     
     // Time Configuration State
@@ -85,6 +86,7 @@ final class SettingsViewModel {
                 notificationsEnabled = s.notificationsEnabled
                 calculationMethod = s.calculation
                 iCloudSyncEnabled = s.iCloudSyncEnabled
+                iCloudSyncRequiresRestart = false
                 hapticIntensity = HapticIntensity(rawValue: s.hapticIntensity) ?? .medium
                 autoAdvance = s.autoAdvance
                 locationCity = s.lastLocationCity
@@ -158,9 +160,13 @@ final class SettingsViewModel {
     }
 
     func updateICloudSyncEnabled(_ enabled: Bool) {
+        let changed = iCloudSyncEnabled != enabled
         iCloudSyncEnabled = enabled
         settings?.iCloudSyncEnabled = enabled
         UserDefaults.standard.set(enabled, forKey: "iCloudSyncEnabled")
+        if changed {
+            iCloudSyncRequiresRestart = true
+        }
         saveSettings()
     }
 

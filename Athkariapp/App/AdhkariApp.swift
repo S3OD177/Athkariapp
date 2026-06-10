@@ -19,9 +19,11 @@ struct AdhkariApp: App {
         if !dsn.isEmpty {
             SentrySDK.start { options in
                 options.dsn = dsn
-                options.tracesSampleRate = 1.0
                 #if DEBUG
+                options.tracesSampleRate = 1.0
                 options.debug = true
+                #else
+                options.tracesSampleRate = 0.05
                 #endif
             }
         } else {

@@ -47,6 +47,8 @@ struct HomeContent: View {
     
     // Sticky Header Properties
     @State private var scrollOffset: CGFloat = 0
+    @State private var hasLoadedInitialData = false
+    private let stickyHeaderHeight: CGFloat = 118
 
     var body: some View {
         ZStack {
@@ -58,7 +60,7 @@ struct HomeContent: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         // Spacer for Header
-                        Color.clear.frame(height: 35)
+                        Color.clear.frame(height: stickyHeaderHeight)
                         
                         // Location Warning
                         if viewModel.showLocationWarning {
@@ -103,12 +105,9 @@ struct HomeContent: View {
         }
         .navigationBarHidden(true)
         .task {
+            guard !hasLoadedInitialData else { return }
+            hasLoadedInitialData = true
             await viewModel.loadData()
-        }
-        .onAppear {
-            Task {
-                await viewModel.refreshData()
-            }
         }
         .refreshable {
             await viewModel.refreshData()
@@ -124,19 +123,38 @@ struct HomeContent: View {
     private var stickyHeader: some View {
         VStack(spacing: 0) {
             // Title Row with Notification Button
-            HStack {
-                Text(viewModel.userName.isEmpty ? "أذكاري" : "مرحباً، \(viewModel.userName)")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundStyle(Color.white)
-                
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.userName.isEmpty ? "أذكاري" : "مرحباً، \(viewModel.userName)")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundStyle(Color.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+
+                    Text(viewModel.todayHijriDate.isEmpty ? "وردك اليومي" : viewModel.todayHijriDate)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppColors.textGray)
+                }
+
                 Spacer()
-                
-                Spacer()
-                
-                // Notifications Button Removed
+
+                if let progress = viewModel.dailySummary.isEmpty ? nil : Optional(viewModel.formattedProgress) {
+                    Text(progress)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(AppColors.onboardingPrimary.opacity(0.18))
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(AppColors.onboardingPrimary.opacity(0.35), lineWidth: 1)
+                        )
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 10)
+            .padding(.bottom, 14)
             
             // Date Row Removed
             
@@ -236,6 +254,18 @@ struct HomeContent: View {
                                     .opacity(0.6)
                             }
                         }
+                    }
+
+                    HStack {
+                        Spacer()
+
+                        Text(viewModel.hasActiveEvent ? "ابدأ الآن" : "استعد للذكر")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color(hex: "2C261F"))
+                            .clipShape(Capsule())
                     }
                 }
                 .padding(24)
@@ -341,29 +371,101 @@ struct HomeContent: View {
                     .foregroundStyle(.white)
                 
                 Spacer()
+
+                Text(viewModel.formattedProgress)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(AppColors.onboardingPrimary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(AppColors.onboardingPrimary.opacity(0.12))
+                    .clipShape(Capsule())
             }
             .padding(.top, 8)
             
-            VStack(spacing: 12) {
-                ForEach(viewModel.dailySummary) { item in
-                    Button {
-                        if let firstSlot = item.slots.first {
-                            navigationPath.append(firstSlot)
+            if let errorMessage = viewModel.errorMessage, !errorMessage.isEmpty {
+                routineMessageCard(
+                    icon: "exclamationmark.triangle.fill",
+                    title: "تعذر تحميل الأذكار",
+                    message: errorMessage,
+                    actionTitle: "إعادة المحاولة"
+                ) {
+                    Task { await viewModel.refreshData() }
+                }
+            } else if viewModel.dailySummary.isEmpty {
+                routineMessageCard(
+                    icon: "book.closed.fill",
+                    title: "لا توجد أذكار يومية",
+                    message: "اسحب للأسفل لتحديث البيانات أو افتح حصن المسلم للتصفح."
+                )
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(viewModel.dailySummary) { item in
+                        Button {
+                            if let firstSlot = item.slots.first {
+                                navigationPath.append(firstSlot)
+                            }
+                        } label: {
+                            RoutineListItem(
+                                title: item.title,
+                                subtitle: item.status == .completed ? "مكتمل" : (item.status == .partial ? "قيد القراءة" : "تحتاج للقراءة"),
+                                status: mapStatus(item),
+                                icon: item.icon,
+                                color: item.status == .completed ? AppColors.onboardingPrimary : (item.status == .partial || viewModel.activeSummaryItem?.id == item.id ? AppColors.onboardingPrimary : .gray)
+                            )
                         }
-                    } label: {
-                        RoutineListItem(
-                            title: item.title,
-                            subtitle: item.status == .completed ? "مكتمل" : (item.status == .partial ? "قيد القراءة" : "تحتاج للقراءة"),
-                            status: mapStatus(item),
-                            icon: item.icon,
-                            color: item.status == .completed ? AppColors.onboardingPrimary : (item.status == .partial || viewModel.activeSummaryItem?.id == item.id ? AppColors.onboardingPrimary : .gray)
-                        )
+                        .buttonStyle(.plain)
+                        .simultaneousGesture(DragGesture(minimumDistance: 10))
                     }
-                    .buttonStyle(.plain)
-                    .simultaneousGesture(DragGesture(minimumDistance: 10))
                 }
             }
         }
+    }
+
+    private func routineMessageCard(
+        icon: String,
+        title: String,
+        message: String,
+        actionTitle: String? = nil,
+        action: (() -> Void)? = nil
+    ) -> some View {
+        VStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundStyle(AppColors.onboardingPrimary)
+
+            VStack(spacing: 6) {
+                Text(title)
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(.white)
+
+                Text(message)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(AppColors.textGray)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+            }
+
+            if let actionTitle, let action {
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(AppColors.onboardingSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+        )
     }
     
 

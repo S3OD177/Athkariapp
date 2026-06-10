@@ -29,6 +29,7 @@ struct HisnLibraryContent: View {
     @State private var selectedChapter: DhikrItem?
     @State private var selectedDua: DhikrItem?
     @State private var navigationPath = NavigationPath()
+    @State private var chapterItemsCache: [String: [DhikrItem]] = [:]
     @Environment(\.appContainer) private var container
 
     var body: some View {
@@ -43,7 +44,6 @@ struct HisnLibraryContent: View {
                         .padding(.top, 16)
                         .padding(.bottom, 24)
                     
-                    // Content
                     if viewModel.isLoading {
                         Spacer()
                         ProgressView()
@@ -52,34 +52,25 @@ struct HisnLibraryContent: View {
                     } else {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 24) {
-                                // Search Bar
                                 searchBar
                                     .padding(.horizontal, 20)
-                                
-                                // Clean Chapter List
-                                LazyVStack(spacing: 12) {
-                                    ForEach(viewModel.filteredChapters) { chapter in
-                                        Button {
-                                            Task {
-                                                // Check if chapter has only one dua
-                                                do {
-                                                    let items = try container.makeDhikrRepository().fetchByTitle(chapter.title)
-                                                    if items.count == 1, let first = items.first {
-                                                        selectedDua = first
-                                                    } else {
-                                                        selectedChapter = chapter
-                                                    }
-                                                } catch {
-                                                    selectedChapter = chapter
-                                                }
+
+                                if viewModel.filteredChapters.isEmpty {
+                                    emptyState
+                                        .padding(.top, 40)
+                                } else {
+                                    LazyVStack(spacing: 12) {
+                                        ForEach(viewModel.filteredChapters) { chapter in
+                                            Button {
+                                                openChapter(chapter)
+                                            } label: {
+                                                ChapterRow(chapter: chapter)
                                             }
-                                        } label: {
-                                            ChapterRow(chapter: chapter)
+                                            .buttonStyle(ScaleButtonStyle())
                                         }
-                                        .buttonStyle(ScaleButtonStyle())
                                     }
+                                    .padding(.horizontal, 20)
                                 }
-                                .padding(.horizontal, 20)
                             }
                             .padding(.bottom, 100)
                         }
@@ -100,6 +91,28 @@ struct HisnLibraryContent: View {
             // Load chapters on appear
             if viewModel.chapters.isEmpty {
                 await viewModel.loadData()
+            }
+        }
+    }
+
+    private func openChapter(_ chapter: DhikrItem) {
+        Task {
+            do {
+                let items: [DhikrItem]
+                if let cachedItems = chapterItemsCache[chapter.title] {
+                    items = cachedItems
+                } else {
+                    items = try container.makeDhikrRepository().fetchByTitle(chapter.title)
+                    chapterItemsCache[chapter.title] = items
+                }
+
+                if items.count == 1, let first = items.first {
+                    selectedDua = first
+                } else {
+                    selectedChapter = chapter
+                }
+            } catch {
+                selectedChapter = chapter
             }
         }
     }
@@ -167,6 +180,46 @@ struct HisnLibraryContent: View {
                 .stroke(AppColors.onboardingBorder, lineWidth: 1)
         )
     }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: viewModel.searchQuery.isEmpty ? "book.closed" : "magnifyingglass")
+                .font(.system(size: 36, weight: .semibold))
+                .foregroundStyle(AppColors.onboardingPrimary)
+                .frame(width: 72, height: 72)
+                .background(AppColors.onboardingSurface)
+                .clipShape(Circle())
+
+            Text(viewModel.searchQuery.isEmpty ? "لا توجد أذكار حالياً" : "لا توجد نتائج")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+
+            Text(viewModel.searchQuery.isEmpty ? "ستظهر قائمة الأذكار بعد تحميل البيانات." : "جرّب كلمة أخرى أو امسح البحث.")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(AppColors.textGray)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+
+            if !viewModel.searchQuery.isEmpty {
+                Button {
+                    withAnimation {
+                        viewModel.searchQuery = ""
+                    }
+                } label: {
+                    Text("مسح البحث")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(AppColors.onboardingPrimary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 40)
+    }
 }
 
 // MARK: - Chapter Row Component
@@ -214,19 +267,27 @@ struct ChapterDetailView: View {
     
     @State private var duas: [DhikrItem] = []
     @State private var selectedDua: DhikrItem?
+    @State private var isLoading = true
     
     var body: some View {
         ZStack {
             AppColors.homeBackground.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                if duas.isEmpty {
+                if isLoading {
                     VStack {
                         Spacer()
                         ProgressView()
                             .tint(AppColors.onboardingPrimary)
                         Spacer()
                     }
+                } else if duas.isEmpty {
+                    ContentUnavailableView {
+                        Label("لا توجد أذكار", systemImage: "book.closed")
+                    } description: {
+                        Text("لم يتم العثور على عناصر في هذا الباب.")
+                    }
+                    .foregroundStyle(.white)
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 16) {
@@ -252,6 +313,7 @@ struct ChapterDetailView: View {
             } catch {
                 print("Error loading chapter items: \(error)")
             }
+            isLoading = false
         }
         .sheet(item: $selectedDua) { dua in
             DuaDetailView(dua: dua)
